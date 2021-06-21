@@ -1,5 +1,6 @@
 [requires]
 catch2/2.13.1
+durak/0.0.3@werto87/stable
 [generators]
 cmake
 [options]
