@@ -4,6 +4,11 @@
 #include <string>
 
 using namespace durak;
+auto const B = 11;
+auto const D = 12;
+auto const K = 13;
+auto const A = 14;
+
 inline std::vector<Card>
 testCardDeck ()
 {
@@ -25,7 +30,7 @@ testCardDeck16 ()
 inline std::vector<Card>
 testCardDeck12 ()
 {
-  return std::vector<Card>{ { 3, Type::clubs }, { 2, Type::diamonds }, { 3, Type::diamonds }, { 2, Type::clubs }, { 8, Type::hearts }, { 9, Type::hearts }, { 4, Type::hearts }, { 4, Type::diamonds }, { 4, Type::spades }, { 4, Type::clubs }, { 5, Type::clubs }, { 6, Type::hearts } };
+  return std::vector<Card>{ { 8, Type::clubs }, { D, Type::diamonds }, { 8, Type::diamonds }, { D, Type::clubs }, { K, Type::hearts }, { A, Type::hearts }, { 9, Type::hearts }, { 9, Type::diamonds }, { 9, Type::spades }, { 9, Type::clubs }, { 10, Type::clubs }, { B, Type::hearts } };
 }
 
 inline std::vector<Card>

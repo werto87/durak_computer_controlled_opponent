@@ -1,6 +1,7 @@
 #include "test/constant.hxx"
 #include <catch2/catch.hpp>
 #include <durak/game.hxx>
+#include <durak/print.hxx>
 #include <iostream>
 #include <range/v3/range.hpp>
 #include <vector>
@@ -96,7 +97,7 @@ playCardAttack (Game &game)
   auto defendingPlayer = game.getDefendingPlayer ().value ();
   auto attackingPlayerAllowedMoves = game.getAllowedMoves (PlayerRole::attack);
   auto defendingPlayerAllowedMoves = game.getAllowedMoves (PlayerRole::defend);
-  if (ranges::find (attackingPlayerAllowedMoves, AllowedMove::startAttack) != attackingPlayerAllowedMoves.end ())
+  if (ranges::find (attackingPlayerAllowedMoves, Move::startAttack) != attackingPlayerAllowedMoves.end ())
     {
       std::vector<Card> winningCards{};
       std::vector<Card> losingCards{};
@@ -147,7 +148,7 @@ playCardAttack (Game &game)
         }
       return playCardDefend (game);
     }
-  else if (ranges::find (attackingPlayerAllowedMoves, AllowedMove::addCard) != attackingPlayerAllowedMoves.end ())
+  else if (ranges::find (attackingPlayerAllowedMoves, Move::addCard) != attackingPlayerAllowedMoves.end ())
     {
       std::vector<Card> winningCards{};
       std::vector<Card> losingCards{};
@@ -198,7 +199,7 @@ playCardAttack (Game &game)
         }
       return playCardDefend (game);
     }
-  else if (ranges::find (attackingPlayerAllowedMoves, AllowedMove::pass) != attackingPlayerAllowedMoves.end ())
+  else if (ranges::find (attackingPlayerAllowedMoves, Move::pass) != attackingPlayerAllowedMoves.end ())
     {
       game.nextRound (false);
       return playCardAttack (game);
@@ -216,7 +217,7 @@ playCardDefend (Game &game)
     }
   auto defendingPlayer = game.getDefendingPlayer ().value ();
   auto defendingPlayerAllowedMoves = game.getAllowedMoves (PlayerRole::defend);
-  if (ranges::find (defendingPlayerAllowedMoves, AllowedMove::defend) != defendingPlayerAllowedMoves.end ())
+  if (ranges::find (defendingPlayerAllowedMoves, Move::defend) != defendingPlayerAllowedMoves.end ())
     {
       std::vector<Card> winningCards{};
       std::vector<Card> losingCards{};
@@ -267,7 +268,7 @@ playCardDefend (Game &game)
         }
       return playCardAttack (game);
     }
-  else if (ranges::find (defendingPlayerAllowedMoves, AllowedMove::takeCards) != defendingPlayerAllowedMoves.end ())
+  else if (ranges::find (defendingPlayerAllowedMoves, Move::takeCards) != defendingPlayerAllowedMoves.end ())
     {
       game.nextRound (true);
       return playCardAttack (game);
@@ -375,11 +376,15 @@ cards12 ()
 
 TEST_CASE ("12 cards game", "[game]")
 {
-  // find a way to add a history of played moves
+  // TODO improve performance
   auto game = Game{ cards12 () };
   auto result = playCardAttack (game);
   REQUIRE (result.checkIfGameIsOver ());
-  REQUIRE (result.durak ().has_value ());
-  REQUIRE (result.durak ().value ().id == "Player1");
-  REQUIRE (result.getRound () == 4);
+  REQUIRE_FALSE (result.durak ().has_value ());
+  REQUIRE (result.getRound () == 3);
+  auto history = result.getHistory ();
+  for (auto historyElement : history)
+    {
+      std::cout << historyElement << std::endl;
+    }
 }
