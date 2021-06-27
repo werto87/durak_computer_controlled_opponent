@@ -6,6 +6,7 @@
 #include <catch2/catch.hpp>
 #include <durak/game.hxx>
 #include <durak/print.hxx>
+#include <execution>
 #include <iomanip>
 #include <iostream>
 #include <range/v3/range.hpp>
@@ -507,18 +508,6 @@ for_each_permuted_combination (Bidi begin, Bidi middle, Bidi end, Functor func)
   while (std::next_permutation (begin, end));
 }
 
-template <typename Bidi, typename Functor, typename Comp>
-constexpr void
-for_each_permuted_combination (Bidi begin, Bidi middle, Bidi end, Functor func, Comp comp)
-{
-  do
-    {
-      func (begin, middle);
-      std::reverse (middle, end);
-    }
-  while (std::next_permutation (begin, end, comp));
-}
-
 constexpr boost::multiprecision::uint128_t
 factorial (size_t n)
 {
@@ -564,35 +553,36 @@ subset (std::array<uint8_t, setOfNumbersSize> setOfNumbers)
 }
 
 template <size_t setOfNumbersSize, size_t subsetSize>
-std::array<std::array<uint8_t, subsetSize>, combintions2 (setOfNumbersSize, subsetSize)>
-// constexpr
+constexpr std::array<std::array<uint8_t, subsetSize>, combintions2 (setOfNumbersSize, subsetSize)>
 permutations (std::array<std::array<uint8_t, subsetSize / 2>, combintions (setOfNumbersSize, subsetSize)> subsets)
 {
-  auto results = std::array<std::array<uint8_t, subsetSize>, combintions2 (setOfNumbersSize, subsetSize)>{};
-  for_each_permuted_combination (subsets.begin (), subsets.begin () + 2, subsets.end (), [&results, elementCount = 0U] (auto begin, auto end) mutable {
-    std::array<std::array<uint8_t, subsetSize / 2>, 2> permutation;
-    for (auto i = 0U; begin != end; i++, begin++)
-      {
-        permutation.at (i) = *begin;
-      }
-    std::array<uint8_t, subsetSize> possibleResult;
-    for (size_t i = 0; int number : permutation.front ())
-      {
-        possibleResult.at (i) = number;
-        ++i;
-      }
-    for (size_t i = subsetSize / 2; int number : permutation.back ())
-      {
-        possibleResult.at (i) = number;
-        ++i;
-      }
-    auto copyOfPossibleResult = possibleResult;
-    std::sort (copyOfPossibleResult.begin (), copyOfPossibleResult.end ());
-    if (std::adjacent_find (copyOfPossibleResult.begin (), copyOfPossibleResult.end ()) == copyOfPossibleResult.end ())
-      {
-        results.at (elementCount) = possibleResult;
-        elementCount++;
-      }
+  std::array<std::array<uint8_t, subsetSize>, combintions2 (setOfNumbersSize, subsetSize)> results;
+  auto resultCount = 0UL;
+  auto itr = 0UL;
+  for (auto subset : subsets)
+    {
+      auto const numbersNotInArray = [&subset] (auto const &array) {
+        for (auto number : subset)
+          if (std::binary_search (array.begin (), array.end (), number)) return false;
+        return true;
+      };
+      auto resultItr = std::find_if (subsets.begin (), subsets.end (), numbersNotInArray);
+      auto i = 0UL;
+      while (resultItr != subsets.end ())
+        {
+          ranges::copy (subset, results.at (resultCount).begin ());
+          ranges::copy (*resultItr, results.at (resultCount).begin () + subsetSize / 2);
+          resultCount++;
+          resultItr = std::find_if (resultItr + 1, subsets.end (), numbersNotInArray);
+          i++;
+          if (i >= (combintions2 (setOfNumbersSize, subsetSize) / subsets.size ())) break;
+        }
+      itr++;
+      if (itr >= (subsets.size () / 2)) break;
+    }
+  std::transform (results.begin (), results.begin () + results.size () / 2, results.begin () + results.size () / 2, [] (auto element) {
+    std::rotate (element.begin (), element.begin () + element.size () / 2, element.end ());
+    return element;
   });
   return results;
 }
@@ -602,36 +592,44 @@ permutations (std::array<std::array<uint8_t, subsetSize / 2>, combintions (setOf
 //   // std::cout << "subset.size(): " << subset<10, 8> ({ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }).size ();
 // }
 
-TEST_CASE ("subset permutations", "[abc]")
+TEST_CASE ("subset permutationCombinations BENCHMARK", "[abc]")
 {
-  // auto constexpr size =
-  auto results = permutations<8, 6> (subset<8, 6> ({ 0, 1, 2, 3, 4, 5, 6, 7 }));
-
-  for (auto element : results)
-    {
-      for (auto subElement : element)
-        {
-          std::cout << int{ subElement } << " ";
-        }
-      std::cout << std::endl;
-    }
+  // TODO try out std::execution::par_unseq again
+  auto constexpr setOfNumbersSize = 20;
+  auto constexpr subsetSize = 12;
+  auto result = subset<setOfNumbersSize, subsetSize> ({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 });
+  permutations<setOfNumbersSize, subsetSize> (result);
+  // BENCHMARK ("permutations") { return permutations<setOfNumbersSize, subsetSize> (result); };
 }
 
-TEST_CASE ("permutation n steps", "[abc]")
-{
-  // std::array<uint8_t, 6> setOfNumbers{ 1, 2, 3, 4, 5, 6 };
-  // next_permutation_n (setOfNumbers.begin (), setOfNumbers.end (), 2);
-  // std::cout << setOfNumbers.at (0) << " " << setOfNumbers.at (1) << " " << setOfNumbers.at (2) << " " << setOfNumbers.at (3) << " " << setOfNumbers.at (4) << " " << setOfNumbers.at (5) << std::endl;
+// TEST_CASE ("permutationCombinations", "[abc]") { permutationCombinations<8, 6> (subset<8, 6> ({ 0, 1, 2, 3, 4, 5, 6, 7 })); }
 
-  //
-  // std::array<uint8_t, 4> setOfNumbers{ 1, 2, 3, 4 };
-  // auto const result = [] (auto begin, auto end) {
-  //   //
-  //   // std::cout << int{ *begin } << "," << int{ *(begin + 1) } << std::endl;
-  // };
-  // };
-  // for_each_permuted_combination (setOfNumbers.begin (), setOfNumbers.begin () + 2, setOfNumbers.end (), result);
-}
+// TEST_CASE ("permutations", "[abc]") { permutations<8, 6> (subset<8, 6> ({ 0, 1, 2, 3, 4, 5, 6, 7 })); }
+
+// TEST_CASE ("permutationCombinationsBreakWhenAll", "[abc]")
+// {
+//   //
+//   constexpr auto result = permutationCombinationsBreakWhenAllCombintationsFoundAndSearchHalfAndMirror<8, 6> (subset<8, 6> ({ 0, 1, 2, 3, 4, 5, 6, 7 }));
+//   std::array<uint8_t, result.size ()> someTest;
+//   std::cout << someTest.size () << std::endl;
+//   // auto test = 42;
+// }
+
+// TEST_CASE ("permutation n steps", "[abc]")
+// {
+//   // std::array<uint8_t, 6> setOfNumbers{ 1, 2, 3, 4, 5, 6 };
+//   // next_permutation_n (setOfNumbers.begin (), setOfNumbers.end (), 2);
+//   // std::cout << setOfNumbers.at (0) << " " << setOfNumbers.at (1) << " " << setOfNumbers.at (2) << " " << setOfNumbers.at (3) << " " << setOfNumbers.at (4) << " " << setOfNumbers.at (5) << std::endl;
+
+//   //
+//   // std::array<uint8_t, 4> setOfNumbers{ 1, 2, 3, 4 };
+//   // auto const result = [] (auto begin, auto end) {
+//   //   //
+//   //   // std::cout << int{ *begin } << "," << int{ *(begin + 1) } << std::endl;
+//   // };
+//   // };
+//   // for_each_permuted_combination (setOfNumbers.begin (), setOfNumbers.begin () + 2, setOfNumbers.end (), result);
+// }
 
 // TEST_CASE ("subset benchmark", "[abc]")
 // {
