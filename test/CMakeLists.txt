@@ -1,5 +1,7 @@
-set(TEST_TARGET_NAME _test)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}  -fconstexpr-depth=1048576 -fconstexpr-ops-limit=50000000")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fconstexpr-depth=1048576 ")
 
+set(TEST_TARGET_NAME _test)
 get_target_property(TARGET_SOURCES ${TARGET_NAME} SOURCES)
 get_target_property(TARGET_LIBS ${TARGET_NAME} LINK_LIBRARIES)
 

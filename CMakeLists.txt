@@ -1,4 +1,4 @@
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcoroutines")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcoroutines -fconstexpr-depth=1024")
 #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=lld -fcoroutines")
 #set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fcoroutines -v")
 cmake_minimum_required(VERSION 3.17)
@@ -23,15 +23,14 @@ set_project_warnings(${PROJECT_WARNINGS})
 # compiler options
 set(PROJECT_OPTIONS project_options)
 
-
 add_library(${PROJECT_OPTIONS} INTERFACE)
 target_compile_features(${PROJECT_OPTIONS} INTERFACE cxx_std_20)
 # target_precompile_headers(${PROJECT_OPTIONS} INTERFACE 
 # )
 
 
-# include(cmake/Sanitizers.cmake)
-# enable_sanitizers(${PROJECT_OPTIONS})
+ #include(cmake/Sanitizers.cmake)
+ #enable_sanitizers(${PROJECT_OPTIONS})
 
 # allow for static analysis options
 #include(cmake/StaticAnalyzers.cmake) 
@@ -78,6 +77,7 @@ if (CMAKE_BINARY_DIR)
 target_compile_definitions(${TARGET_NAME} PRIVATE PATH_TO_BINARY="${CMAKE_BINARY_DIR}")
 endif()
 
+target_compile_definitions(${TARGET_NAME} PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
 ####### include what you use
 #find_program(iwyu_path NAMES include-what-you-use iwyu)
 #set_property(TARGET ${TARGET_NAME} PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})
