@@ -8,10 +8,10 @@ cmake_policy(SET CMP0015 NEW)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -v  -fconstexpr-depth=1048576 -fconstexpr-ops-limit=5000000000")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -v -fconstexpr-depth=1048576 ")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -v  -fconstexpr-depth=1048576 -fconstexpr-ops-limit=5000000000")
+#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -v -fconstexpr-depth=1048576 ")
 
-if(${CMAKE_BUILD_TYPE} STREQUAL  "Debug")
+if(CMAKE_BUILD_TYPE STREQUAL  "Debug")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ")
 else()
@@ -68,6 +68,8 @@ target_link_libraries(${TARGET_NAME} PRIVATE
 ${PROJECT_WARNINGS}
 ${PROJECT_OPTIONS}
 CONAN_PKG::durak
+CONAN_PKG::boost
+pthread
 )
 
 ####### create executable

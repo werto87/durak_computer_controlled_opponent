@@ -1,6 +1,8 @@
 #define CATCH_CONFIG_ENABLE_BENCHMARKING
 #include "test/constant.hxx"
 #include <array>
+#include <boost/asio/post.hpp>
+#include <boost/asio/thread_pool.hpp>
 #include <boost/math/special_functions/factorials.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
 #include <catch2/catch.hpp>
@@ -554,43 +556,57 @@ subset (std::array<uint8_t, setOfNumbersSize> setOfNumbers)
 
 template <size_t setOfNumbersSize, size_t subsetSize>
 void
-calculatePermutation (std::array<std::array<uint8_t, subsetSize>, combintions2 (setOfNumbersSize, subsetSize)> &results, std::array<std::array<uint8_t, subsetSize / 2>, combintions (setOfNumbersSize, subsetSize)> const &subsets)
+calculatePermutation (auto &result, std::array<uint8_t, subsetSize / 2> const &subset, std::array<std::array<uint8_t, subsetSize / 2>, combintions (setOfNumbersSize, subsetSize)> const &subsets)
 {
-  auto resultCount = 0UL;
-  auto itr = 0UL;
-  for (auto subset : subsets)
+  auto const numbersNotInArray = [&subset] (auto const &array) {
+    for (auto number : subset)
+      if (std::binary_search (array.begin (), array.end (), number)) return false;
+    return true;
+  };
+  auto resultItr = std::find_if (subsets.begin (), subsets.end (), numbersNotInArray);
+  auto i = 0UL;
+  while (resultItr != subsets.end ())
     {
-      auto const numbersNotInArray = [&subset] (auto const &array) {
-        for (auto number : subset)
-          if (std::binary_search (array.begin (), array.end (), number)) return false;
-        return true;
-      };
-      auto resultItr = std::find_if (subsets.begin (), subsets.end (), numbersNotInArray);
-      auto i = 0UL;
-      while (resultItr != subsets.end ())
-        {
-          ranges::copy (subset, results.at (resultCount).begin ());
-          ranges::copy (*resultItr, results.at (resultCount).begin () + subsetSize / 2);
-          resultCount++;
-          resultItr = std::find_if (resultItr + 1, subsets.end (), numbersNotInArray);
-          i++;
-          if (i >= (combintions2 (setOfNumbersSize, subsetSize) / subsets.size ())) break;
-        }
-      itr++;
-      if (itr >= (subsets.size () / 2)) break;
+      ranges::copy (subset, result->begin ());
+      ranges::copy (*resultItr, result->begin () + subsetSize / 2);
+      std::advance (result, 1);
+      resultItr = std::find_if (resultItr + 1, subsets.end (), numbersNotInArray);
+      i++;
+      if (i >= (combintions2 (setOfNumbersSize, subsetSize) / subsets.size ())) break;
     }
 }
 
 template <size_t setOfNumbersSize, size_t subsetSize>
-constexpr std::array<std::array<uint8_t, subsetSize>, combintions2 (setOfNumbersSize, subsetSize)>
+std::array<std::array<uint8_t, subsetSize>, combintions2 (setOfNumbersSize, subsetSize)>
 permutations (std::array<std::array<uint8_t, subsetSize / 2>, combintions (setOfNumbersSize, subsetSize)> subsets)
 {
   std::array<std::array<uint8_t, subsetSize>, combintions2 (setOfNumbersSize, subsetSize)> results;
-  calculatePermutation<setOfNumbersSize, subsetSize> (results, subsets);
-  std::transform (results.begin (), results.begin () + results.size () / 2, results.begin () + results.size () / 2, [] (auto element) {
-    std::rotate (element.begin (), element.begin () + element.size () / 2, element.end ());
-    return element;
+  boost::asio::thread_pool pool{ 4 };
+  boost::asio::post (pool, [result = results.begin (), &subsets] () mutable {
+    for (auto i = 0UL; i < subsets.size () / 4; i++)
+      {
+        calculatePermutation<setOfNumbersSize, subsetSize> (result, subsets.at (i), subsets);
+      }
   });
+  boost::asio::post (pool, [result = results.begin () + results.size () / 4, &subsets] () mutable {
+    for (auto i = subsets.size () / 4; i < subsets.size () / 2; i++)
+      {
+        calculatePermutation<setOfNumbersSize, subsetSize> (result, subsets.at (i), subsets);
+      }
+  });
+  boost::asio::post (pool, [result = results.begin () + results.size () / 2, &subsets] () mutable {
+    for (auto i = subsets.size () / 2; i < (subsets.size () / 4) * 3; i++)
+      {
+        calculatePermutation<setOfNumbersSize, subsetSize> (result, subsets.at (i), subsets);
+      }
+  });
+  boost::asio::post (pool, [result = results.begin () + (results.size () / 4) * 3, &subsets] () mutable {
+    for (auto i = (subsets.size () / 4) * 3; i < subsets.size (); i++)
+      {
+        calculatePermutation<setOfNumbersSize, subsetSize> (result, subsets.at (i), subsets);
+      }
+  });
+  pool.join ();
   return results;
 }
 
@@ -598,6 +614,16 @@ permutations (std::array<std::array<uint8_t, subsetSize / 2>, combintions (setOf
 // {
 //   // std::cout << "subset.size(): " << subset<10, 8> ({ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }).size ();
 // }
+auto const lexicalSort = [] (auto const &a, auto const &b) { return std::lexicographical_compare (a.begin (), a.end (), b.begin (), b.end ()); };
+TEST_CASE ("validation ", "[abc]")
+{
+  auto constexpr setOfNumbersSize = 8;
+  auto constexpr subsetSize = 4;
+  auto result = subset<setOfNumbersSize, subsetSize> ({ 0, 1, 2, 3, 4, 5, 6, 7 });
+  auto permut = permutations<setOfNumbersSize, subsetSize> (result);
+  ranges::sort (permut, lexicalSort);
+  REQUIRE (ranges::adjacent_find (permut) == permut.end ());
+}
 
 TEST_CASE ("subset permutationCombinations BENCHMARK ", "[abc]")
 {
@@ -605,7 +631,7 @@ TEST_CASE ("subset permutationCombinations BENCHMARK ", "[abc]")
   auto constexpr setOfNumbersSize = 20;
   auto constexpr subsetSize = 12;
   auto result = subset<setOfNumbersSize, subsetSize> ({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 });
-  permutations<setOfNumbersSize, subsetSize> (result);
+  auto permut = permutations<setOfNumbersSize, subsetSize> (result);
   // BENCHMARK ("permutations") { return permutations<setOfNumbersSize, subsetSize> (result); };
 }
 
