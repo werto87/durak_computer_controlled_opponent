@@ -553,10 +553,9 @@ subset (std::array<uint8_t, setOfNumbersSize> setOfNumbers)
 }
 
 template <size_t setOfNumbersSize, size_t subsetSize>
-constexpr std::array<std::array<uint8_t, subsetSize>, combintions2 (setOfNumbersSize, subsetSize)>
-permutations (std::array<std::array<uint8_t, subsetSize / 2>, combintions (setOfNumbersSize, subsetSize)> subsets)
+void
+calculatePermutation (std::array<std::array<uint8_t, subsetSize>, combintions2 (setOfNumbersSize, subsetSize)> &results, std::array<std::array<uint8_t, subsetSize / 2>, combintions (setOfNumbersSize, subsetSize)> const &subsets)
 {
-  std::array<std::array<uint8_t, subsetSize>, combintions2 (setOfNumbersSize, subsetSize)> results;
   auto resultCount = 0UL;
   auto itr = 0UL;
   for (auto subset : subsets)
@@ -580,6 +579,14 @@ permutations (std::array<std::array<uint8_t, subsetSize / 2>, combintions (setOf
       itr++;
       if (itr >= (subsets.size () / 2)) break;
     }
+}
+
+template <size_t setOfNumbersSize, size_t subsetSize>
+constexpr std::array<std::array<uint8_t, subsetSize>, combintions2 (setOfNumbersSize, subsetSize)>
+permutations (std::array<std::array<uint8_t, subsetSize / 2>, combintions (setOfNumbersSize, subsetSize)> subsets)
+{
+  std::array<std::array<uint8_t, subsetSize>, combintions2 (setOfNumbersSize, subsetSize)> results;
+  calculatePermutation<setOfNumbersSize, subsetSize> (results, subsets);
   std::transform (results.begin (), results.begin () + results.size () / 2, results.begin () + results.size () / 2, [] (auto element) {
     std::rotate (element.begin (), element.begin () + element.size () / 2, element.end ());
     return element;
@@ -592,7 +599,7 @@ permutations (std::array<std::array<uint8_t, subsetSize / 2>, combintions (setOf
 //   // std::cout << "subset.size(): " << subset<10, 8> ({ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }).size ();
 // }
 
-TEST_CASE ("subset permutationCombinations BENCHMARK", "[abc]")
+TEST_CASE ("subset permutationCombinations BENCHMARK ", "[abc]")
 {
   // TODO try out std::execution::par_unseq again
   auto constexpr setOfNumbersSize = 20;
