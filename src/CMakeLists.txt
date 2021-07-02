@@ -1,3 +1,3 @@
- target_sources(${TARGET_NAME} PRIVATE 
- 
- )
+if(BUILD_CUDA)
+    add_subdirectory(cuda) 
+endif()

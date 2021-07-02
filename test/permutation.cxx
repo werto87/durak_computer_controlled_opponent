@@ -1,10 +1,19 @@
-
+#define CATCH_CONFIG_ENABLE_BENCHMARKING
+#include "test/constant.hxx"
+#include <array>
+#include <boost/asio/post.hpp>
+#include <boost/asio/thread_pool.hpp>
+#include <boost/math/special_functions/factorials.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
+#include <catch2/catch.hpp>
+#include <durak/game.hxx>
+#include <durak/print.hxx>
 #include <execution>
+#include <iomanip>
 #include <iostream>
+#include <range/v3/range.hpp>
 #include <tuple>
 #include <vector>
-
 template <typename Bidi, typename Functor>
 constexpr void
 for_each_permuted_combination (Bidi begin, Bidi middle, Bidi end, Functor func)
@@ -59,7 +68,7 @@ subset (size_t subsetSize, std::vector<uint8_t> setOfNumbers)
 typedef std::tuple<std::vector<u_int8_t>, std::vector<std::vector<u_int8_t> > > subsetAndCombinations;
 
 subsetAndCombinations
-combinationsFor (std::vector<u_int8_t> const &numbersToCheck, std::vector<std::vector<u_int8_t> > const &subResults, std::vector<u_int8_t> const &numbersToChoseFrom)
+combinationsFor (size_t subsetSize, std::vector<u_int8_t> const &numbersToCheck, std::vector<std::vector<u_int8_t> > const &subResults, std::vector<u_int8_t> const &numbersToChoseFrom)
 {
   auto result = std::tuple<std::vector<u_int8_t>, std::vector<std::vector<u_int8_t> > >{};
   std::get<0> (result) = numbersToCheck;
@@ -83,13 +92,12 @@ combine (size_t n, size_t k)
   auto combineResult = std::vector<subsetAndCombinations>{};
   for (auto result : results)
     {
-      combineResult.push_back (combinationsFor (result, subResult, numbersToChoseFrom));
+      combineResult.push_back (combinationsFor (n, result, subResult, numbersToChoseFrom));
     }
   return combineResult;
 }
 
-int
-main ()
+TEST_CASE ("permut validation validation ", "[abc]")
 {
   auto results = combine (6, 4);
   for (auto const &[subset, combis] : results)

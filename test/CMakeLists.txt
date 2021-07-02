@@ -9,6 +9,7 @@ endif()
 add_executable(${TEST_TARGET_NAME} 
 "main.cxx"
 "test.cxx"
+"permutation.cxx"
 "constant.hxx"
 ${TARGET_SOURCES}
  )

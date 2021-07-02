@@ -1,15 +1,30 @@
-cmake_minimum_required(VERSION 3.17)
+OPTION(BUILD_CUDA "enable tests" OFF)
+
+if(BUILD_CUDA)
+cmake_minimum_required(VERSION 3.20)
+project(project VERSION 1.0.0
+  DESCRIPTION project
+  LANGUAGES CUDA CXX
+  ) 
+else()
+cmake_minimum_required(VERSION 3.20)
 project(project VERSION 1.0.0
   DESCRIPTION project
   LANGUAGES CXX
   ) 
+endif()
+
+
+
+
+
 cmake_policy(SET CMP0015 NEW)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -v  -fconstexpr-depth=1048576 -fconstexpr-ops-limit=5000000000")
-#set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -v -fconstexpr-depth=1048576 ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS}")
 
 if(CMAKE_BUILD_TYPE STREQUAL  "Debug")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ")
@@ -49,8 +64,19 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 
 
+
 set(TARGET_NAME project)
 add_executable(${TARGET_NAME})
+
+
+if(BUILD_CUDA)
+find_package(CUDAToolkit)
+set_property(TARGET ${TARGET_NAME} PROPERTY CUDA_STANDARD 20)
+set(CMAKE_CUDA_FLAGS "${CMAKE_CUDA_FLAGS} --extended-lambda")
+endif()
+
+
+
 
 ######## add sub dir
 add_subdirectory(src) 
@@ -64,13 +90,29 @@ target_include_directories(${TARGET_NAME} PRIVATE
   )
   
 
-target_link_libraries(${TARGET_NAME} PRIVATE
-${PROJECT_WARNINGS}
-${PROJECT_OPTIONS}
-CONAN_PKG::durak
-CONAN_PKG::boost
-pthread
-)
+
+
+if(BUILD_CUDA)
+  target_link_libraries(${TARGET_NAME} PRIVATE
+    ${PROJECT_WARNINGS}
+    ${PROJECT_OPTIONS}
+    CUDA::toolkit
+    CONAN_PKG::durak
+    CONAN_PKG::boost
+    CONAN_PKG::thrust
+    pthread
+  )
+else()
+  target_link_libraries(${TARGET_NAME} PRIVATE
+    ${PROJECT_WARNINGS}
+    ${PROJECT_OPTIONS}
+    CONAN_PKG::durak
+    CONAN_PKG::boost
+    CONAN_PKG::thrust
+    pthread
+  )
+endif()
+
 
 ####### create executable
 OPTION(BUILD_TESTS "enable tests" OFF)
@@ -89,6 +131,9 @@ target_compile_definitions(${TARGET_NAME} PRIVATE PATH_TO_BINARY="${CMAKE_BINARY
 endif()
 
 target_compile_definitions(${TARGET_NAME} PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
+if(BUILD_CUDA)
+target_compile_definitions(${TARGET_NAME} PUBLIC BUILD_CUDA)
+endif()
 ####### include what you use
 #find_program(iwyu_path NAMES include-what-you-use iwyu)
 #set_property(TARGET ${TARGET_NAME} PROPERTY CXX_INCLUDE_WHAT_YOU_USE ${iwyu_path})

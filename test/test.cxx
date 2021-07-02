@@ -486,18 +486,6 @@ using namespace durak;
 //   // TODO tabelle  mit zwei zahlen machen von 1 bis 8 dann filtern und abkuerzen
 // }
 
-template <typename Bidi>
-constexpr bool
-next_permutation_n (Bidi begin, Bidi end, size_t permutationStep)
-{
-  auto result = true;
-  for (auto n = permutationStep; n > 1; n--)
-    {
-      std::next_permutation (begin, end);
-    }
-  return std::next_permutation (begin, end);
-}
-
 template <typename Bidi, typename Functor>
 constexpr void
 for_each_permuted_combination (Bidi begin, Bidi middle, Bidi end, Functor func)
@@ -581,32 +569,37 @@ std::array<std::array<uint8_t, subsetSize>, combintions2 (setOfNumbersSize, subs
 permutations (std::array<std::array<uint8_t, subsetSize / 2>, combintions (setOfNumbersSize, subsetSize)> subsets)
 {
   std::array<std::array<uint8_t, subsetSize>, combintions2 (setOfNumbersSize, subsetSize)> results;
-  boost::asio::thread_pool pool{ 4 };
-  boost::asio::post (pool, [result = results.begin (), &subsets] () mutable {
-    for (auto i = 0UL; i < subsets.size () / 4; i++)
-      {
-        calculatePermutation<setOfNumbersSize, subsetSize> (result, subsets.at (i), subsets);
-      }
-  });
-  boost::asio::post (pool, [result = results.begin () + results.size () / 4, &subsets] () mutable {
-    for (auto i = subsets.size () / 4; i < subsets.size () / 2; i++)
-      {
-        calculatePermutation<setOfNumbersSize, subsetSize> (result, subsets.at (i), subsets);
-      }
-  });
-  boost::asio::post (pool, [result = results.begin () + results.size () / 2, &subsets] () mutable {
-    for (auto i = subsets.size () / 2; i < (subsets.size () / 4) * 3; i++)
-      {
-        calculatePermutation<setOfNumbersSize, subsetSize> (result, subsets.at (i), subsets);
-      }
-  });
-  boost::asio::post (pool, [result = results.begin () + (results.size () / 4) * 3, &subsets] () mutable {
-    for (auto i = (subsets.size () / 4) * 3; i < subsets.size (); i++)
-      {
-        calculatePermutation<setOfNumbersSize, subsetSize> (result, subsets.at (i), subsets);
-      }
-  });
-  pool.join ();
+  auto result = results.begin ();
+  for (auto i = 0UL; i < subsets.size (); i++)
+    {
+      calculatePermutation<setOfNumbersSize, subsetSize> (result, subsets.at (i), subsets);
+    }
+  // boost::asio::thread_pool pool{ 4 };
+  // boost::asio::post (pool, [result = results.begin (), &subsets] () mutable {
+  //   for (auto i = 0UL; i < subsets.size () / 4; i++)
+  //     {
+  //       calculatePermutation<setOfNumbersSize, subsetSize> (result, subsets.at (i), subsets);
+  //}
+  // });
+  // boost::asio::post (pool, [result = results.begin () + results.size () / 4, &subsets] () mutable {
+  //   for (auto i = subsets.size () / 4; i < subsets.size () / 2; i++)
+  //     {
+  //       calculatePermutation<setOfNumbersSize, subsetSize> (result, subsets.at (i), subsets);
+  //     }
+  // });
+  // boost::asio::post (pool, [result = results.begin () + results.size () / 2, &subsets] () mutable {
+  //   for (auto i = subsets.size () / 2; i < (subsets.size () / 4) * 3; i++)
+  //     {
+  //       calculatePermutation<setOfNumbersSize, subsetSize> (result, subsets.at (i), subsets);
+  //     }
+  // });
+  // boost::asio::post (pool, [result = results.begin () + (results.size () / 4) * 3, &subsets] () mutable {
+  //   for (auto i = (subsets.size () / 4) * 3; i < subsets.size (); i++)
+  //     {
+  //       calculatePermutation<setOfNumbersSize, subsetSize> (result, subsets.at (i), subsets);
+  //     }
+  // });
+  // pool.join ();
   return results;
 }
 
@@ -615,25 +608,31 @@ permutations (std::array<std::array<uint8_t, subsetSize / 2>, combintions (setOf
 //   // std::cout << "subset.size(): " << subset<10, 8> ({ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 }).size ();
 // }
 auto const lexicalSort = [] (auto const &a, auto const &b) { return std::lexicographical_compare (a.begin (), a.end (), b.begin (), b.end ()); };
-TEST_CASE ("validation ", "[abc]")
-{
-  auto constexpr setOfNumbersSize = 8;
-  auto constexpr subsetSize = 4;
-  auto result = subset<setOfNumbersSize, subsetSize> ({ 0, 1, 2, 3, 4, 5, 6, 7 });
-  auto permut = permutations<setOfNumbersSize, subsetSize> (result);
-  ranges::sort (permut, lexicalSort);
-  REQUIRE (ranges::adjacent_find (permut) == permut.end ());
-}
+// TEST_CASE ("validation ", "[abc]")
+// {
+//   auto constexpr setOfNumbersSize = 6;
+//   auto constexpr subsetSize = 4;
+//   auto result = subset<setOfNumbersSize, subsetSize> ({ 1, 2, 3, 4, 5, 6 });
+//   auto permut = permutations<setOfNumbersSize, subsetSize> (result);
+//   ranges::sort (permut, lexicalSort);
+//   REQUIRE (ranges::adjacent_find (permut) == permut.end ());
+//   for (auto permu : permut)
+//     {
+//       ranges::copy (permu, std::ostream_iterator<int> (std::cout, " "));
+//       // std::cout << permu.at (0) << permu.at (1) << permu.at (2) << permu.at (3);
+//       std::cout << std::endl;
+//     }
+// }
 
-TEST_CASE ("subset permutationCombinations BENCHMARK ", "[abc]")
-{
-  // TODO try out std::execution::par_unseq again
-  auto constexpr setOfNumbersSize = 20;
-  auto constexpr subsetSize = 12;
-  auto result = subset<setOfNumbersSize, subsetSize> ({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 });
-  auto permut = permutations<setOfNumbersSize, subsetSize> (result);
-  // BENCHMARK ("permutations") { return permutations<setOfNumbersSize, subsetSize> (result); };
-}
+// TEST_CASE ("subset permutationCombinations BENCHMARK ", "[abc]")
+// {
+//   // TODO try out std::execution::par_unseq again
+//   auto constexpr setOfNumbersSize = 20;
+//   auto constexpr subsetSize = 12;
+//   auto result = subset<setOfNumbersSize, subsetSize> ({ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 });
+//   auto permut = permutations<setOfNumbersSize, subsetSize> (result);
+//   // BENCHMARK ("permutations") { return permutations<setOfNumbersSize, subsetSize> (result); };
+// }
 
 // TEST_CASE ("permutationCombinations", "[abc]") { permutationCombinations<8, 6> (subset<8, 6> ({ 0, 1, 2, 3, 4, 5, 6, 7 })); }
 

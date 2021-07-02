@@ -1,6 +1,7 @@
 [requires]
 catch2/2.13.1
 durak/0.0.3@werto87/stable
+thrust/1.9.5
 [generators]
 cmake
 [options]
