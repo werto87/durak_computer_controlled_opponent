@@ -23,8 +23,6 @@ ${CMAKE_CURRENT_BINARY_DIR}
   $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
   )
 target_link_libraries(${TARGET_NAME} PRIVATE
-    ${PROJECT_WARNINGS}
-    ${PROJECT_OPTIONS}
     CUDA::toolkit
     CONAN_PKG::thrust
     pthread
