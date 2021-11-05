@@ -1,4 +1,4 @@
-OPTION(BUILD_CUDA "enable tests" OFF)
+OPTION(BUILD_CUDA "enable tests" ON)
 
 if(BUILD_CUDA)
 cmake_minimum_required(VERSION 3.20)
