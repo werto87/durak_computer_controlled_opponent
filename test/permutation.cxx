@@ -68,7 +68,7 @@ subset (size_t subsetSize, std::vector<uint8_t> setOfNumbers)
 typedef std::tuple<std::vector<u_int8_t>, std::vector<std::vector<u_int8_t> > > subsetAndCombinations;
 
 subsetAndCombinations
-combinationsFor (size_t subsetSize, std::vector<u_int8_t> const &numbersToCheck, std::vector<std::vector<u_int8_t> > const &subResults, std::vector<u_int8_t> const &numbersToChoseFrom)
+combinationsFor (std::vector<u_int8_t> const &numbersToCheck, std::vector<std::vector<u_int8_t> > const &subResults, std::vector<u_int8_t> const &numbersToChoseFrom)
 {
   auto result = std::tuple<std::vector<u_int8_t>, std::vector<std::vector<u_int8_t> > >{};
   std::get<0> (result) = numbersToCheck;
@@ -92,7 +92,7 @@ combine (size_t n, size_t k)
   auto combineResult = std::vector<subsetAndCombinations>{};
   for (auto result : results)
     {
-      combineResult.push_back (combinationsFor (n, result, subResult, numbersToChoseFrom));
+      combineResult.push_back (combinationsFor (result, subResult, numbersToChoseFrom));
     }
   return combineResult;
 }
