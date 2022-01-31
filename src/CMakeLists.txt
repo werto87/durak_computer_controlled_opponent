@@ -1,3 +1,1 @@
-if(BUILD_CUDA)
-    add_subdirectory(cuda) 
-endif()
+add_subdirectory(cxx) 

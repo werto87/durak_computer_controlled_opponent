@@ -1,7 +1,9 @@
 [requires]
-catch2/2.13.1
+catch2/2.13.7
 durak/0.0.3@werto87/stable
 thrust/1.9.5
 [generators]
 cmake
 [options]
+catch2:with_main=True
+catch2:with_benchmark=True

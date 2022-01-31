@@ -1,113 +1,53 @@
-#define CATCH_CONFIG_ENABLE_BENCHMARKING
-#include "test/constant.hxx"
-#include <array>
-#include <boost/asio/post.hpp>
-#include <boost/asio/thread_pool.hpp>
-#include <boost/math/special_functions/factorials.hpp>
-#include <boost/multiprecision/cpp_int.hpp>
+#include "src/cxx/permutation.hxx"
+#include "src/cxx/oldPermutation.hxx"
 #include <catch2/catch.hpp>
-#include <durak/game.hxx>
-#include <durak/print.hxx>
-#include <execution>
-#include <iomanip>
+#include <cstddef>
 #include <iostream>
-#include <range/v3/range.hpp>
+#include <numeric>
 #include <tuple>
 #include <vector>
-template <typename Bidi, typename Functor>
-constexpr void
-for_each_permuted_combination (Bidi begin, Bidi middle, Bidi end, Functor func)
-{
-  do
-    {
-      func (begin, middle);
-      std::reverse (middle, end);
-    }
-  while (std::next_permutation (begin, end));
-}
 
-constexpr boost::multiprecision::uint128_t
-factorial (size_t n)
-{
-  unsigned i = 1;
-  boost::multiprecision::uint128_t factorial = 1;
-  while (i < n)
-    {
-      ++i;
-      factorial *= i;
-    }
-  return factorial;
-}
+// TEST_CASE ("permut validation validation ", "[abc]")
+// {
+//   auto results = subset (6, 4);
+//   for (auto const &[subset, combis] : results)
+//     {
+//       for (auto const &combi : combis)
+//         {
+//           std::copy (subset.begin (), subset.end (), std::ostream_iterator<int> (std::cout, " "));
+//           std::copy (combi.begin (), combi.end (), std::ostream_iterator<int> (std::cout, " "));
+//           std::cout << std::endl;
+//         }
+//       std::cout << std::endl;
+//     }
+// }
 
-size_t constexpr
-combintions (size_t setOfNumbersSize, size_t subsetSize)
-{
-  return (factorial (setOfNumbersSize) / (factorial (setOfNumbersSize - (subsetSize / 2)) * factorial (subsetSize / 2))).convert_to<size_t> (); // the size is n! / ((n-(k/2))! * (k/2)!)
-}
 
-size_t constexpr
-combintions2 (size_t setOfNumbersSize, size_t subsetSize)
+TEST_CASE ("subset benchmark ", "[abc]")
 {
-  return (factorial (setOfNumbersSize) / (factorial (setOfNumbersSize - (subsetSize)) * factorial (subsetSize / 2) * factorial (subsetSize / 2))).convert_to<size_t> (); // the size is n! / ((n-(k/2))! * (k/2)!)
-}
+  auto const sixNumbers = std::vector<uint8_t>{ 1, 2, 3, 4, 5, 6 };
+  auto const eightNumbers = std::vector<uint8_t>{ 1, 2, 3, 4, 5, 6, 7, 8 };
+  auto const tenNumbers = std::vector<uint8_t>{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+  auto const twelveNumbers = std::vector<uint8_t>{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 
-std::vector<std::vector<u_int8_t> >
-subset (size_t subsetSize, std::vector<uint8_t> setOfNumbers)
-{
-  if (subsetSize % 2 != 0) return {};
-  std::vector<std::vector<u_int8_t> > subsets{};
-  for_each_permuted_combination (setOfNumbers.begin (), setOfNumbers.begin () + subsetSize / 2, setOfNumbers.end (), [&subsets] (auto begin, auto end) mutable {
-    if (std::is_sorted (begin, end))
-      {
-        subsets.push_back ({ begin, end });
-      }
-  });
-  return subsets;
-}
-
-typedef std::tuple<std::vector<u_int8_t>, std::vector<std::vector<u_int8_t> > > subsetAndCombinations;
-
-subsetAndCombinations
-combinationsFor (std::vector<u_int8_t> const &numbersToCheck, std::vector<std::vector<u_int8_t> > const &subResults, std::vector<u_int8_t> const &numbersToChoseFrom)
-{
-  auto result = std::tuple<std::vector<u_int8_t>, std::vector<std::vector<u_int8_t> > >{};
-  std::get<0> (result) = numbersToCheck;
-  std::get<1> (result).reserve (subResults.size ());
-  std::vector<u_int8_t> numbers (numbersToChoseFrom.size () - numbersToCheck.size ());
-  std::set_difference (numbersToChoseFrom.begin (), numbersToChoseFrom.end (), numbersToCheck.begin (), numbersToCheck.end (), numbers.begin ());
-  std::transform (subResults.begin (), subResults.end (), std::back_inserter (std::get<1> (result)), [&numbers] (auto indexes) {
-    std::transform (indexes.begin (), indexes.end (), indexes.begin (), [&numbers] (auto index) { return numbers[index]; });
-    return indexes;
-  });
-  return result;
-}
-
-std::vector<subsetAndCombinations>
-combine (size_t n, size_t k)
-{
-  auto numbersToChoseFrom = std::vector<uint8_t> (n);
-  std::iota (numbersToChoseFrom.begin (), numbersToChoseFrom.end (), 0);
-  auto results = subset (k, numbersToChoseFrom);
-  auto subResult = subset (k, std::vector<uint8_t> (numbersToChoseFrom.begin (), numbersToChoseFrom.begin () + (n - (k / 2))));
-  auto combineResult = std::vector<subsetAndCombinations>{};
-  for (auto result : results)
-    {
-      combineResult.push_back (combinationsFor (result, subResult, numbersToChoseFrom));
-    }
-  return combineResult;
-}
-
-TEST_CASE ("permut validation validation ", "[abc]")
-{
-  auto results = combine (6, 4);
-  for (auto const &[subset, combis] : results)
-    {
-      for (auto const &combi : combis)
-        {
-          std::copy (subset.begin (), subset.end (), std::ostream_iterator<int> (std::cout, " "));
-          std::copy (combi.begin (), combi.end (), std::ostream_iterator<int> (std::cout, " "));
-          std::cout << std::endl;
-        }
-      std::cout << std::endl;
-    }
+  BENCHMARK ("subset (4, sixNumbers)") { return subset (4, sixNumbers); };
+  BENCHMARK ("oldSubset (4, sixNumbers)") { return oldSubset (4, sixNumbers); };
+  BENCHMARK ("subset (4, eightNumbers)") { return subset (4, eightNumbers); };
+  BENCHMARK ("oldSubset (4, eightNumbers)") { return oldSubset (4, eightNumbers); };
+  BENCHMARK ("subset (6, eightNumbers)") { return subset (6, eightNumbers); };
+  BENCHMARK ("oldSubset (6, eightNumbers)") { return oldSubset (6, eightNumbers); };
+  BENCHMARK ("subset (4, tenNumbers)") { return subset (4, tenNumbers); };
+  BENCHMARK ("oldSubset (4, tenNumbers)") { return oldSubset (4, tenNumbers); };
+  BENCHMARK ("subset (6, tenNumbers)") { return subset (6, tenNumbers); };
+  BENCHMARK ("oldSubset (6, tenNumbers)") { return oldSubset (6, tenNumbers); };
+  BENCHMARK ("subset (8, tenNumbers)") { return subset (8, tenNumbers); };
+  BENCHMARK ("oldSubset (8, tenNumbers)") { return oldSubset (8, tenNumbers); };
+  BENCHMARK ("subset (4, twelveNumbers)") { return subset (4, twelveNumbers); };
+  BENCHMARK ("oldSubset (4, twelveNumbers)") { return oldSubset (4, twelveNumbers); };
+  BENCHMARK ("subset (6, twelveNumbers)") { return subset (6, twelveNumbers); };
+  BENCHMARK ("oldSubset (6, twelveNumbers)") { return oldSubset (6, twelveNumbers); };
+  BENCHMARK ("subset (8, twelveNumbers)") { return subset (8, twelveNumbers); };
+  BENCHMARK ("oldSubset (8, twelveNumbers)") { return oldSubset (8, twelveNumbers); };
+  BENCHMARK ("subset (10, twelveNumbers)") { return subset (10, twelveNumbers); };
+  BENCHMARK ("oldSubset (10, twelveNumbers)") { return oldSubset (10, twelveNumbers); };
 }
