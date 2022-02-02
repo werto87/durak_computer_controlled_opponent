@@ -1,5 +1,20 @@
 #include "oldPermutation.hxx"
-#include "util.hxx"
+#include <exception>
+#include <stdexcept>
+
+// Requires: sequence from begin to end is sorted
+//           middle is between begin and end
+template <typename Bidi, typename Functor>
+void
+for_each_permuted_combination (Bidi begin, Bidi middle, Bidi end, Functor func)
+{
+  do
+    {
+      func (begin, middle);
+      std::reverse (middle, end);
+    }
+  while (std::next_permutation (begin, end));
+}
 
 std::vector<std::vector<uint8_t> >
 oldSubset (int subsetSize, std::vector<uint8_t> setOfNumbers)

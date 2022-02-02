@@ -15,6 +15,6 @@ add_test(NAME ${TEST_TARGET_NAME}
 ) 
 
 target_compile_definitions(${TEST_TARGET_NAME} PRIVATE
-#  RUN_BENCHMARK
+ RUN_BENCHMARK
  )
 

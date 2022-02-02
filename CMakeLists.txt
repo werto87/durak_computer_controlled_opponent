@@ -25,6 +25,7 @@ target_link_libraries(${TARGET_NAME_LIB} INTERFACE
 ${PROJECT_WARNINGS}
 ${PROJECT_OPTIONS}
   CONAN_PKG::boost
+  CONAN_PKG::range-v3
 )
 target_compile_definitions(${TARGET_NAME_LIB} INTERFACE 
 $<$<CONFIG:DEBUG>:DEBUG>
@@ -187,3 +188,4 @@ ENDIF(BUILD_TESTS)
 # # foreach (_variableName ${_variableNames})
 # #    message(STATUS "${_variableName}=${${_variableName}}")
 # # endforeach()
+

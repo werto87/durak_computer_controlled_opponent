@@ -1,17 +1,19 @@
 #include "permutation.hxx"
+#include "src/cxx/combination.hxx"
+#include <boost/numeric/conversion/cast.hpp>
 #include <cstddef>
 #include <numeric>
+#include <range/v3/algorithm.hpp>
+#include <range/v3/iterator/insert_iterators.hpp>
 
 std::vector<std::vector<u_int8_t> >
-subsetPermutation (long int subsetSize, std::vector<uint8_t> setOfNumbers)
+combinationsNoRepetitionAndOrderDoesNotMatter (long int subsetSize, std::vector<uint8_t> setOfNumbers)
 {
-  if (subsetSize % 2 != 0) return {};
   std::vector<std::vector<u_int8_t> > subsets{};
-  for_each_permuted_combination (setOfNumbers.begin (), setOfNumbers.begin () + subsetSize / 2, setOfNumbers.end (), [&subsets] (auto begin, auto end) mutable {
-    if (std::is_sorted (begin, end))
-      {
-        subsets.push_back ({ begin, end });
-      }
+  subsets.reserve (count_each_combination (setOfNumbers.begin (), setOfNumbers.begin () + subsetSize, setOfNumbers.end ()));
+  for_each_combination (setOfNumbers.begin (), setOfNumbers.begin () + subsetSize, setOfNumbers.end (), [&subsets] (auto first, auto last) {
+    subsets.push_back (std::vector<uint8_t>{ first, last });
+    return false;
   });
   return subsets;
 }
@@ -19,15 +21,15 @@ subsetPermutation (long int subsetSize, std::vector<uint8_t> setOfNumbers)
 subsetAndCombinations
 combinationsFor (std::vector<u_int8_t> const &numbersToCheck, std::vector<std::vector<u_int8_t> > const &subResults, std::vector<u_int8_t> const &indexes)
 {
-  auto result = std::tuple<std::vector<u_int8_t>, std::vector<std::vector<u_int8_t> > >{};
-  std::get<0> (result) = numbersToCheck;
+  auto result = subsetAndCombinations{};
   std::get<1> (result).reserve (subResults.size ());
   std::vector<u_int8_t> numbers (indexes.size () - numbersToCheck.size ());
-  std::set_difference (indexes.begin (), indexes.end (), numbersToCheck.begin (), numbersToCheck.end (), numbers.begin ());
-  std::transform (subResults.begin (), subResults.end (), std::back_inserter (std::get<1> (result)), [&numbers] (auto indexes) {
-    std::transform (indexes.begin (), indexes.end (), indexes.begin (), [&numbers] (auto index) { return numbers[index]; });
+  ranges::set_difference (indexes, numbersToCheck, numbers.begin ());
+  ranges::transform (subResults, ranges::back_inserter (std::get<1> (result)), [&numbers] (auto indexes) {
+    ranges::transform (indexes, indexes.begin (), [&numbers] (auto const &index) { return numbers[index]; });
     return indexes;
   });
+  std::get<0> (result) = numbersToCheck;
   return result;
 }
 
@@ -36,12 +38,19 @@ subset (long int k, size_t n)
 {
   auto indexes = std::vector<uint8_t> (n);
   std::iota (indexes.begin (), indexes.end (), 0);
-  auto results = subsetPermutation (k, indexes);
-  auto subResult = subsetPermutation (k, std::vector<uint8_t> (indexes.begin (), indexes.begin () + static_cast<long int> (n) - (k / 2)));
+  auto const &subResult = combinationsNoRepetitionAndOrderDoesNotMatter (k / 2, std::vector<uint8_t> (indexes.begin (), indexes.begin () + static_cast<long int> (n) - (k / 2)));
   auto combineResult = std::vector<subsetAndCombinations>{};
-  for (auto result : results)
+  for (auto &&result : combinationsNoRepetitionAndOrderDoesNotMatter (k / 2, indexes))
     {
-      combineResult.push_back (combinationsFor (result, subResult, indexes));
+      combineResult.emplace_back (combinationsFor (std::move (result), subResult, indexes));
     }
   return combineResult;
+}
+
+std::tuple<std::vector<std::vector<u_int8_t> >, std::vector<std::vector<u_int8_t> > >
+subset2 (long int k, size_t n)
+{
+  auto indexes = std::vector<uint8_t> (n);
+  std::iota (indexes.begin (), indexes.end (), 0);
+  return { combinationsNoRepetitionAndOrderDoesNotMatter (k / 2, indexes), combinationsNoRepetitionAndOrderDoesNotMatter (k / 2, std::vector<uint8_t> (indexes.begin (), indexes.begin () + static_cast<long int> (n) - (k / 2))) };
 }

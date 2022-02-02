@@ -2,5 +2,6 @@
 util.cxx
 oldPermutation.cxx
 permutation.cxx
+combination.hxx
  )
  
