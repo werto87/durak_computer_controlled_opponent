@@ -4,15 +4,16 @@
 #include "util.hxx"
 #include <vector>
 
-typedef std::tuple<std::vector<u_int8_t>, std::vector<std::vector<u_int8_t> > > subsetAndCombinations;
+typedef std::tuple<std::vector<uint8_t>, std::vector<std::vector<uint8_t> > > subsetAndCombinations;
 
-std::vector<std::vector<u_int8_t> > combinationsNoRepetitionAndOrderDoesNotMatter (long int subsetSize, std::vector<uint8_t> setOfNumbers);
+std::vector<std::vector<uint8_t> > combinationsNoRepetitionAndOrderDoesNotMatter (long int subsetSize, std::vector<uint8_t> setOfNumbers);
 
-subsetAndCombinations combinationsFor (std::vector<u_int8_t> const &numbersToCheck, std::vector<std::vector<u_int8_t> > const &subResults, std::vector<u_int8_t> const &indexes);
+subsetAndCombinations combinationsFor (std::vector<uint8_t> const &numbersToCheck, std::vector<std::vector<uint8_t> > const &subResults, std::vector<uint8_t> const &indexes);
 
-std::vector<subsetAndCombinations> subset (long int k, size_t n);
+// calls "callThis" for every card_combination. If callThis returns true stops.
+void for_each_card_combination (size_t k, size_t n, std::function<bool (std::vector<uint8_t>)> callThis);
 
-std::tuple<std::vector<std::vector<u_int8_t> >, std::vector<std::vector<u_int8_t> > > subset2 (long int k, size_t n);
+std::tuple<std::vector<std::vector<uint8_t> >, std::vector<std::vector<uint8_t> > > numbersToCombine (long int k, size_t n);
 
 constexpr boost::multiprecision::uint256_t
 factorial (size_t n)

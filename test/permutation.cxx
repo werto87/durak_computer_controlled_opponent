@@ -6,6 +6,7 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <catch2/catch.hpp>
 #include <cstddef>
+#include <cstdint>
 #include <iostream>
 #include <numeric>
 #include <tuple>
@@ -18,17 +19,17 @@ auto const twelveNumbers = std::vector<uint8_t>{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 
 
 TEST_CASE ("permut validation validation ", "[abc]")
 {
-  auto results = subset (4, 6);
-  REQUIRE (results.size () * get<1> (results.at (0)).size () == 90);
-  // print results
-  for (auto const &[subset, combis] : results)
+  size_t n = 6;
+  size_t k = 4;
+  auto combinations = std::vector<std::vector<uint8_t> >{};
+  for_each_card_combination (k, n, [&combinations] (std::vector<uint8_t> combi) {
+    combinations.push_back (combi);
+    return false;
+  });
+  REQUIRE (combinations.size () == 90);
+  for (auto const &combi : combinations)
     {
-      for (auto const &combi : combis)
-        {
-          std::copy (subset.begin (), subset.end (), std::ostream_iterator<int> (std::cout, " "));
-          std::copy (combi.begin (), combi.end (), std::ostream_iterator<int> (std::cout, " "));
-          std::cout << std::endl;
-        }
+      std::copy (combi.begin (), combi.end (), std::ostream_iterator<int> (std::cout, " "));
       std::cout << std::endl;
     }
 }
@@ -49,30 +50,13 @@ TEST_CASE ("subset benchmark ", "[abc]")
   // BENCHMARK ("subset (10, 14)") { return subset (10, 14); };
   // BENCHMARK ("subset (12, 14)") { return subset (12, 14); };
   // BENCHMARK ("subset (12, 36)") { return subset (12, 36); };
-  // BENCHMARK ("subset2 (10, 12)")
-  // {
-  //
-  auto n = 36;
-  auto r = 12;
-
-  // for (auto &&result : results)
-  //   {
-  //     combineResult.emplace_back (combinationsFor (result, subResult, indexes));
-  //   }
-
-  // BENCHMARK ("subset2 (12, 36)") { return subset2 (r, n); };
-  auto subset2Result = subset2 (r, n);
-  auto indexes = std::vector<uint8_t> (n);
-  std::iota (indexes.begin (), indexes.end (), 0);
-  BENCHMARK ("subset2 (12, 36)") { return combinationsFor (get<0> (subset2Result).at (0), get<1> (subset2Result), indexes); };
-  // // TODO it looks like it could be possible to calculate all the subsets in (1947792 * 0.023)/3600) 12.44 hours
-  // //  TODO memory 7 terabyte :(
-  // combineResult.push_back (combinationsFor (std::move (get<0> (subset2Result).at (0)), get<1> (subset2Result), indexes));
-  // std::cout << get<0> (subset2Result).size () << std::endl;
-  // combineResult.emplace_back (combinationsFor (results.at (0), subResult, indexes));
-  // combineResult.emplace_back (combinationsFor (results.at (1), subResult, indexes));
-
-  // };
+  // auto n = 36;
+  // auto r = 12;
+  // auto indexes = std::vector<uint8_t> (n);
+  // std::iota (indexes.begin (), indexes.end (), 0);
+  // auto numbersToCheck = combinationsNoRepetitionAndOrderDoesNotMatter (r / 2, indexes);
+  // auto subResults = combinationsNoRepetitionAndOrderDoesNotMatter (r / 2, std::vector<uint8_t> (indexes.begin (), indexes.begin () + static_cast<long int> (n) - (r / 2)));
+  // BENCHMARK ("subset2 (12, 36)") { return combinationsFor (numbersToCheck.at (0), subResults, indexes); };
 }
 
 TEST_CASE ("combinationsFor benchmark ", "[abc]")
@@ -99,7 +83,7 @@ TEST_CASE ("combinationsFor benchmark ", "[abc]")
   // {
   //   for (auto &&result : results)
   //     {
-  //       combineResult.emplace_back (combinationsFor (std::move (result), subResult, indexes));
+  //       combineResult.emplace_back (combinationsFor (result, subResult, indexes));
   //     }
   // };
 
