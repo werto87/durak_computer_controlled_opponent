@@ -12,11 +12,6 @@
 #include <tuple>
 #include <vector>
 
-auto const sixNumbers = std::vector<uint8_t>{ 1, 2, 3, 4, 5, 6 };
-auto const eightNumbers = std::vector<uint8_t>{ 1, 2, 3, 4, 5, 6, 7, 8 };
-auto const tenNumbers = std::vector<uint8_t>{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-auto const twelveNumbers = std::vector<uint8_t>{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
-
 TEST_CASE ("permut validation validation ", "[abc]")
 {
   size_t n = 6;
