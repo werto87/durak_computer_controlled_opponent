@@ -26,6 +26,8 @@ ${PROJECT_WARNINGS}
 ${PROJECT_OPTIONS}
   CONAN_PKG::boost
   CONAN_PKG::range-v3
+  CONAN_PKG::fmt
+  CONAN_PKG::durak
 )
 target_compile_definitions(${TARGET_NAME_LIB} INTERFACE 
 $<$<CONFIG:DEBUG>:DEBUG>
