@@ -47,14 +47,4 @@ combinations2 (size_t setOfNumbersSize, size_t subsetSize)
   return (factorial (setOfNumbersSize) / (factorial (setOfNumbersSize - (subsetSize)) * factorial (subsetSize / 2) * factorial (subsetSize / 2))).convert_to<size_t> (); // the size is n! / ((n-(k/2))! * (k/2)!)
 }
 
-durak::Card idToCard (uint8_t id);
-
-uint8_t cardToId (durak::Card const &card);
-
-std::vector<uint8_t> cardsToIds (std::vector<durak::Card> cards);
-
-std::vector<durak::Card> idsToCards (std::vector<uint8_t> ids);
-
-std::vector<durak::Card> compress (std::vector<durak::Card> cards);
-
 #endif /* AD23FB0A_B3C3_406D_A401_3231159AE486 */
