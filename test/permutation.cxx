@@ -57,21 +57,14 @@ printSymbol (uint8_t number)
 TEST_CASE ("permut validation validation ", "[abc]")
 {
   size_t k = 4;
-  for (auto n = k + 2; n <= 20; n = n + 2)
-    {
-      auto combinations = std::vector<std::vector<uint8_t> >{};
-      auto compressedCombinations = std::set<std::vector<uint8_t> >{};
-      for_each_card_combination (k, n, [&compressedCombinations] (std::vector<uint8_t> combi) {
-        compressedCombinations.insert (cardsToIds (compress (idsToCards (combi))));
-        return false;
-      });
-      // std::cout << "n: " << n << " k: " << k << " results: " << compressedCombinations.size () << std::endl;
-      // for (auto combi : compressedCombinations)
-      //   {
-      //     std::cout << idsToCards (combi) << std::endl;
-      //   }
-      std::cout << "results: " << compressedCombinations.size () << std::endl;
-    }
+  size_t n = 20;
+  auto combinations = std::vector<std::vector<uint8_t> >{};
+
+  for_each_card_combination (k, n, [&combinations] (std::vector<uint8_t> combi) {
+    combinations.push_back (std::move (combi));
+    return false;
+  });
+  REQUIRE (combinations.size () == 29070);
 }
 
 TEST_CASE ("compress", "[abc]")

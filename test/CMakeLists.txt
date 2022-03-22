@@ -3,7 +3,7 @@ add_executable(${TEST_TARGET_NAME}
 main.cxx
 test.cxx
 permutation.cxx
-constant.hxx
+compressCard.cxx
 )
 
 target_link_libraries(${TEST_TARGET_NAME}
