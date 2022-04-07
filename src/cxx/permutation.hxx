@@ -3,6 +3,7 @@
 
 #include "util.hxx"
 #include <durak/card.hxx>
+#include <set>
 #include <vector>
 
 typedef std::tuple<std::vector<uint8_t>, std::vector<std::vector<uint8_t> > > subsetAndCombinations;
@@ -12,9 +13,11 @@ std::vector<std::vector<uint8_t> > combinationsNoRepetitionAndOrderDoesNotMatter
 subsetAndCombinations combinationsFor (std::vector<uint8_t> const &numbersToCheck, std::vector<std::vector<uint8_t> > const &subResults, std::vector<uint8_t> const &indexes);
 
 // calls "callThis" for every card_combination. If callThis returns true stops.
-void for_each_card_combination (size_t k, size_t n, std::function<bool (std::vector<uint8_t>)> callThis);
+void for_each_card_combination (std::tuple<size_t, size_t> const &attackAndDefendCardCount, size_t n, std::function<bool (std::vector<uint8_t>)> callThis);
 
-std::tuple<std::vector<std::vector<uint8_t> >, std::vector<std::vector<uint8_t> > > numbersToCombine (long int k, size_t n);
+std::set<std::vector<uint8_t> > compressed_permutations (std::tuple<size_t, size_t> const &attackAndDefendCardCount, size_t n);
+
+std::tuple<std::vector<std::vector<uint8_t> >, std::vector<std::vector<uint8_t> > > numbersToCombine (std::tuple<size_t, size_t> const &attackAndDefendCardCount, size_t n);
 
 constexpr boost::multiprecision::uint256_t
 factorial (size_t n)

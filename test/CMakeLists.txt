@@ -4,6 +4,8 @@ main.cxx
 test.cxx
 permutation.cxx
 compressCard.cxx
+solve.cxx
+gameTree.cxx
 )
 
 target_link_libraries(${TEST_TARGET_NAME}

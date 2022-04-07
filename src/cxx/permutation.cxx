@@ -1,5 +1,6 @@
 #include "permutation.hxx"
 #include "src/cxx/combination.hxx"
+#include "src/cxx/compressCard.hxx"
 #include <boost/numeric/conversion/cast.hpp>
 #include <cstddef>
 #include <numeric>
@@ -34,11 +35,11 @@ combinationsFor (std::vector<uint8_t> const &numbersToCheck, std::vector<std::ve
 }
 
 void
-for_each_card_combination (size_t k, size_t n, std::function<bool (std::vector<uint8_t>)> callThis)
+for_each_card_combination (std::tuple<size_t, size_t> const &attackAndDefendCardCount, size_t n, std::function<bool (std::vector<uint8_t>)> callThis)
 {
   auto indexes = std::vector<uint8_t> (n);
   std::iota (indexes.begin (), indexes.end (), 0);
-  auto results = numbersToCombine (static_cast<long int> (k), n);
+  auto results = numbersToCombine (attackAndDefendCardCount, n);
   for (auto &&result : get<0> (results))
     {
       auto const [subset, combis] = combinationsFor (result, std::get<1> (results), indexes);
@@ -55,11 +56,21 @@ for_each_card_combination (size_t k, size_t n, std::function<bool (std::vector<u
     }
 }
 
+std::set<std::vector<uint8_t> >
+compressed_permutations (std::tuple<size_t, size_t> const &attackAndDefendCardCount, size_t n)
+{
+  auto compressedCombinations = std::set<std::vector<uint8_t> >{};
+  for_each_card_combination (attackAndDefendCardCount, n, [&compressedCombinations] (std::vector<uint8_t> combi) {
+    compressedCombinations.insert (cardsToIds (compress (idsToCards (std::move (combi)))));
+    return false;
+  });
+  return compressedCombinations;
+}
+
 std::tuple<std::vector<std::vector<uint8_t> >, std::vector<std::vector<uint8_t> > >
-numbersToCombine (long int k, size_t n)
+numbersToCombine (std::tuple<size_t, size_t> const &attackAndDefendCardCount, size_t n)
 {
   auto indexes = std::vector<uint8_t> (n);
   std::iota (indexes.begin (), indexes.end (), 0);
-  return { combinationsNoRepetitionAndOrderDoesNotMatter (k / 2, indexes), combinationsNoRepetitionAndOrderDoesNotMatter (k / 2, std::vector<uint8_t> (indexes.begin (), indexes.begin () + static_cast<long int> (n) - (k / 2))) };
+  return { combinationsNoRepetitionAndOrderDoesNotMatter (std::get<0> (attackAndDefendCardCount), indexes), combinationsNoRepetitionAndOrderDoesNotMatter (std::get<1> (attackAndDefendCardCount), std::vector<uint8_t> (indexes.begin (), indexes.begin () + static_cast<long int> (n) - (std::get<0> (attackAndDefendCardCount)))) };
 }
-

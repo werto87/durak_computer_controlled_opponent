@@ -2,5 +2,6 @@
 util.cxx
 permutation.cxx
 compressCard.cxx
+solve.cxx
  )
  
