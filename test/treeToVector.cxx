@@ -49,7 +49,7 @@ childrenByPath (std::vector<T> const &vec, std::vector<T> const &path, size_t ch
     {
       if (auto index = childWithValue (vec, someValue, childrenCount, value))
         {
-          someValue = index.value ();
+          someValue = static_cast<size_t> (index.value ());
         }
       else
         {
