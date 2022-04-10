@@ -244,36 +244,6 @@ durakInGame (Result result, durak::Game const &game)
     }
 }
 
-std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4>
-results1v1 ()
-{
-  using namespace durak;
-  size_t n = 36;
-  size_t const attackCardCount = 1;
-  size_t const defendCardCount = 1;
-  auto combinations = compressed_permutations ({ attackCardCount, defendCardCount }, n);
-  auto compresedGames = std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4>{};
-  for (auto combi : combinations)
-    {
-      for (auto trumpType : { Type::hearts, Type::clubs, Type::diamonds, Type::spades })
-        {
-          auto cards = idsToCards (combi);
-          auto attackCards = std::vector<Card> (cards.begin (), cards.begin () + attackCardCount);
-          auto defendCards = std::vector<Card> (cards.begin () + attackCardCount, cards.end ());
-          auto gameToAnalyse = Game{ { "a", "b" }, GameOption{ .trump = trumpType, .customCardDeck = std::vector<Card>{}, .cardsInHands = std::vector<std::vector<Card> >{ attackCards, defendCards } } };
-          auto tmpResults = simulateRound (gameToAnalyse);
-          auto histories = std::vector<ResultAndHistory>{};
-          //   TODO use another solver. solver should solve one round and than look up the result of the game
-          ranges::transform (tmpResults, ranges::back_inserter (histories), [] (Game const &game) { return std::make_tuple (game.durak (), onlyFirstRound (game.getHistory ())); });
-          auto round = Round{ gameToAnalyse.getAttackingPlayer ()->getCards (), gameToAnalyse.getDefendingPlayer ()->getCards (), histories };
-          auto t = createTree (round);
-          solveGameTree (t);
-          compresedGames.at (static_cast<size_t> (trumpType)).push_back ({ cardsToIds (attackCards), cardsToIds (defendCards), t });
-        }
-    }
-  return compresedGames;
-}
-
 std::tuple<std::vector<durak::Card>, std::vector<durak::Card> >
 attackAndDefendCompressed (std::vector<durak::Card> const &attackCards, std::vector<durak::Card> const &defendCards)
 {
@@ -317,80 +287,6 @@ calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, 
                 {
                   std::cout << "could not find " << std::to_string (attackCardsIds.size ()) << "v" << std::to_string (defendCardsIds.size ()) << " in game lookup" << std::endl;
                   abort;
-                }
-            }
-        }
-      else
-        {
-          std::cout << "game not over but no attacking or/and defending player" << std::endl;
-          abort ();
-        }
-    }
-  return {};
-}
-
-boost::optional<durak::Player>
-calcGameResultThreeVersusThree (durak::Game const &game, std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4> const &oneVersusOne, std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4> const &twoVersusTwo, std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4> const &twoVersusFour)
-{
-  // find game in lookup
-  if (game.checkIfGameIsOver ())
-    {
-      return game.durak ();
-    }
-  else
-    {
-      if (game.getAttackingPlayer () and game.getDefendingPlayer ())
-        {
-          auto const &attackCards = game.getAttackingPlayer ()->getCards ();
-          auto const &defendCards = game.getDefendingPlayer ()->getCards ();
-          if (attackCards.size () < 2 and defendCards.size () > 1)
-            {
-              return game.getDefendingPlayer ().value ();
-            }
-          else
-            {
-              auto const &[attackCardsCompressed, defendCardsCompressed] = attackAndDefendCompressed (attackCards, defendCards);
-              auto attackCardsIds = cardsToIds (attackCardsCompressed);
-              ranges::sort (attackCardsIds);
-              auto defendCardsIds = cardsToIds (defendCardsCompressed);
-              ranges::sort (defendCardsIds);
-              auto const &gameResultsToSearchIn = oneVersusOne.at (static_cast<uint8_t> (game.getTrump ()));
-              auto const &gameResultsTwoVersusTwo = twoVersusTwo.at (static_cast<uint8_t> (game.getTrump ()));
-              auto const &gameResultsTwoVersusFour = twoVersusFour.at (static_cast<uint8_t> (game.getTrump ()));
-              auto result = Result::Undefined;
-              if (attackCards.size () == 1 && defendCards.size () == 1)
-                {
-                  result = searchForGameResult (attackCardsIds, defendCardsIds, gameResultsToSearchIn);
-                }
-              else if (attackCards.size () == 2 && defendCards.size () == 2)
-                {
-                  result = searchForGameResult (attackCardsIds, defendCardsIds, gameResultsTwoVersusTwo);
-                }
-              else if (attackCards.size () == 2 && defendCards.size () == 4)
-                {
-                  result = searchForGameResult (attackCardsIds, defendCardsIds, gameResultsTwoVersusFour);
-                }
-              else
-                {
-                  std::cout << "game should be in lookup but is not" << std::endl;
-                  abort ();
-                }
-              if (result == Result::AttackWon)
-                {
-                  return game.getDefendingPlayer ().value ();
-                }
-              else if (result == Result::DefendWon)
-                {
-                  return game.getAttackingPlayer ().value ();
-                }
-              else if (result == Result::Draw)
-                {
-                  return {};
-                }
-              else
-                {
-                  std::cout << "game should have a winner or draw" << std::endl;
-                  abort ();
                 }
             }
         }
