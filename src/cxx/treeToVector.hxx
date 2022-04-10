@@ -6,14 +6,20 @@
 #include <st_tree.h>
 #include <vector>
 
+template <typename T> concept TupleLike = requires (T a)
+{
+  std::tuple_size<T>::value;
+  std::get<0> (a);
+};
+
 template <typename T>
 std::vector<T>
-children (std::vector<T> const &vec, size_t index, size_t childrenCount)
+children (std::vector<T> const &vec, size_t index, size_t childrenCount, T emptyMarker)
 {
   auto result = std::vector<T>{};
   for (auto i = size_t{ 1 }; i <= childrenCount; i++)
     {
-      if (vec[index + i] != 255)
+      if (vec[index + i] != emptyMarker)
         {
           result.push_back (vec[index + i]);
         }
@@ -27,9 +33,19 @@ childWithValue (std::vector<T> const &vec, size_t index, size_t childrenCount, T
 {
   for (auto i = size_t{ 1 }; i <= childrenCount; i++)
     {
-      if (vec[static_cast<size_t> (vec[index + i])] == value)
+      if constexpr (TupleLike<T>)
         {
-          return vec[index + i];
+          if (vec[static_cast<size_t> (std::get<0> (vec[index + i]))] == value)
+            {
+              return vec[index + i];
+            }
+        }
+      else
+        {
+          if (vec[static_cast<size_t> (vec[index + i])] == value)
+            {
+              return vec[index + i];
+            }
         }
     }
   return {};
@@ -37,21 +53,28 @@ childWithValue (std::vector<T> const &vec, size_t index, size_t childrenCount, T
 
 template <typename T>
 std::vector<T>
-childrenByPath (std::vector<T> const &vec, std::vector<T> const &path, size_t childrenCount)
+childrenByPath (std::vector<T> const &vec, std::vector<T> const &path, size_t childrenCount, T const &markerForEmpty)
 {
   auto someValue = size_t{ 0 };
   for (auto value : path)
     {
       if (auto index = childWithValue (vec, someValue, childrenCount, value))
         {
-          someValue = static_cast<size_t> (index.value ());
+          if constexpr (TupleLike<T>)
+            {
+              someValue = static_cast<size_t> (std::get<0> (index.value ()));
+            }
+          else
+            {
+              someValue = static_cast<size_t> (index.value ());
+            }
         }
       else
         {
           break;
         }
     }
-  return children (vec, someValue, childrenCount);
+  return children (vec, someValue, childrenCount, markerForEmpty);
 }
 
 template <typename T>
@@ -79,8 +102,16 @@ treeToVector (st_tree::tree<T> const &tree, size_t maxChildren, T const &markerF
     {
       if (value == markerForChild)
         {
-          value = static_cast<T> (nodeCount * (maxChildren + 1));
-          nodeCount++;
+          if constexpr (TupleLike<T>)
+            {
+              std::get<0> (value) = static_cast<typename std::decay<decltype (std::get<0> (value))>::type> (nodeCount * (maxChildren + 1));
+              nodeCount++;
+            }
+          else
+            {
+              value = static_cast<T> (nodeCount * (maxChildren + 1));
+              nodeCount++;
+            }
         }
     }
   return result;
