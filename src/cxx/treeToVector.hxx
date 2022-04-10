@@ -78,6 +78,29 @@ childrenByPath (std::vector<T> const &vec, std::vector<T> const &path, size_t ch
 }
 
 template <typename T>
+void
+fillChilds (std::vector<T> &vec, size_t maxChildren, T const &markerForChild)
+{
+  auto nodeCount = size_t{ 1 };
+  for (auto &value : vec)
+    {
+      if (value == markerForChild)
+        {
+          if constexpr (TupleLike<T>)
+            {
+              std::get<0> (value) = static_cast<typename std::decay<decltype (std::get<0> (value))>::type> (nodeCount * (maxChildren + 1));
+              nodeCount++;
+            }
+          else
+            {
+              value = static_cast<T> (nodeCount * (maxChildren + 1));
+              nodeCount++;
+            }
+        }
+    }
+}
+
+template <typename T>
 std::vector<T>
 treeToVector (st_tree::tree<T> const &tree, size_t maxChildren, T const &markerForEmpty, T const &markerForChild)
 {
@@ -97,23 +120,7 @@ treeToVector (st_tree::tree<T> const &tree, size_t maxChildren, T const &markerF
           currentChildren++;
         }
     }
-  auto nodeCount = size_t{ 1 };
-  for (auto &value : result)
-    {
-      if (value == markerForChild)
-        {
-          if constexpr (TupleLike<T>)
-            {
-              std::get<0> (value) = static_cast<typename std::decay<decltype (std::get<0> (value))>::type> (nodeCount * (maxChildren + 1));
-              nodeCount++;
-            }
-          else
-            {
-              value = static_cast<T> (nodeCount * (maxChildren + 1));
-              nodeCount++;
-            }
-        }
-    }
+  fillChilds (result, maxChildren, markerForChild);
   return result;
 }
 
