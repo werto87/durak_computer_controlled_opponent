@@ -116,7 +116,6 @@ TEST_CASE ("2 children", "[abc]")
 
 TEST_CASE ("3 children", "[abc]")
 {
-
   auto tree = st_tree::tree<int>{};
   tree.insert (1);
   tree.root ().insert (2);
