@@ -17,7 +17,7 @@ std::vector<uint8_t>
 cardsToIds (std::vector<durak::Card> const cards)
 {
   auto results = std::vector<uint8_t>{};
-  ranges::transform (cards, ranges::back_inserter (results), [] (durak::Card const &cards) { return cardToId (cards); });
+  ranges::transform (cards, ranges::back_inserter (results), [] (durak::Card const &cards_) { return cardToId (cards_); });
   return results;
 }
 

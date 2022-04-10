@@ -393,7 +393,10 @@ template <class BidirIter>
 std::uintmax_t
 count_each_combination (BidirIter first, BidirIter mid, BidirIter last)
 {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
   return count_each_combination<std::uintmax_t> (std::distance (first, mid), std::distance (mid, last));
+#pragma GCC diagnostic pop
 }
 
 // For each of the permutation algorithms, use for_each_combination (or

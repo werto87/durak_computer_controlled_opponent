@@ -1,7 +1,9 @@
 #include "solve.hxx"
 #include "src/cxx/compressCard.hxx"
+#include "src/cxx/permutation.hxx"
 #include <cstddef>
 #include <durak/game.hxx>
+#include <magic_enum.hpp>
 #include <range/v3/algorithm/find_if.hpp>
 #include <vector>
 using Histories = std::vector<durak::HistoryEvent>;
@@ -435,8 +437,8 @@ solve (durak::Game const &game)
   auto gamesToKeepPlaying = std::vector<durak::Game>{};
   auto finishedGames = std::vector<durak::Game>{};
   auto tmpResults = simulateRound (game);
-  ranges::copy_if (tmpResults, ranges::back_inserter (finishedGames), [] (Game const &game) { return game.checkIfGameIsOver (); });
-  ranges::copy_if (tmpResults, ranges::back_inserter (gamesToKeepPlaying), [] (Game const &game) { return not game.checkIfGameIsOver (); });
+  ranges::copy_if (tmpResults, ranges::back_inserter (finishedGames), [] (Game const &game_) { return game_.checkIfGameIsOver (); });
+  ranges::copy_if (tmpResults, ranges::back_inserter (gamesToKeepPlaying), [] (Game const &game_) { return not game_.checkIfGameIsOver (); });
   while (not gamesToKeepPlaying.empty ())
     {
       auto gamesToAnalyze = std::move (gamesToKeepPlaying);
@@ -444,8 +446,8 @@ solve (durak::Game const &game)
       for (auto &gameToAnalyze : gamesToAnalyze)
         {
           auto results = simulateRound (gameToAnalyze);
-          ranges::copy_if (results, ranges::back_inserter (finishedGames), [] (Game const &game) { return game.checkIfGameIsOver (); });
-          ranges::copy_if (results, ranges::back_inserter (gamesToKeepPlaying), [] (Game const &game) { return not game.checkIfGameIsOver (); });
+          ranges::copy_if (results, ranges::back_inserter (finishedGames), [] (Game const &game_) { return game_.checkIfGameIsOver (); });
+          ranges::copy_if (results, ranges::back_inserter (gamesToKeepPlaying), [] (Game const &game_) { return not game_.checkIfGameIsOver (); });
         }
     }
   return finishedGames;
@@ -461,4 +463,222 @@ moveTree (std::vector<durak::Card> const &attackCards, std::vector<durak::Card> 
   //   TODO use another solver. solver should solve one round and than look up the result of the game
   ranges::transform (solve (gameToAnalyse), ranges::back_inserter (histories), [] (Game const &game) { return std::make_tuple (game.durak (), onlyFirstRound (game.getHistory ())); });
   return Round{ gameToAnalyse.getAttackingPlayer ()->getCards (), gameToAnalyse.getDefendingPlayer ()->getCards (), histories };
+}
+
+using Histories = std::vector<durak::HistoryEvent>;
+using Ids = std::vector<uint8_t>;
+using ResultAndHistory = std::tuple<boost::optional<durak::Player>, Histories>;
+
+void
+setParentResultType (bool isProAttack, Result const &childResult, Result &parentResult)
+{
+  if (isProAttack)
+    {
+      if (magic_enum::enum_integer (childResult) > magic_enum::enum_integer (parentResult))
+        {
+          parentResult = childResult;
+        }
+    }
+  else
+    {
+      if (parentResult == Result::Undefined || (childResult != Result::Undefined && magic_enum::enum_integer (childResult) < magic_enum::enum_integer (parentResult)))
+        {
+          parentResult = childResult;
+        }
+    }
+}
+
+bool
+validActionSequence (std::vector<Action> actions, std::vector<durak::Card> const &attackCards)
+{
+  for (auto i = size_t{ 0 }; i < actions.size (); i++)
+    {
+      auto const shouldBeAttackTurn = i % 2 == 0;
+      auto const isAttackTurn = actions.at (i).playedCard () && ranges::find (attackCards, actions.at (i).playedCard ().value ()) != attackCards.end ();
+      if (not shouldBeAttackTurn and isAttackTurn)
+        {
+          return false;
+        }
+    }
+  return true;
+}
+
+std::vector<std::vector<Action> >
+insertDrawCardsAction (std::vector<durak::Card> const &attackCards, std::vector<std::vector<Action> > const &vectorsOfActions)
+{
+  auto results = std::vector<std::vector<Action> >{};
+  for (auto actions : vectorsOfActions)
+    {
+      auto result = std::vector<Action>{};
+      while (validActionSequence (actions, attackCards) == false)
+        {
+          for (auto i = size_t{ 0 }; i < actions.size (); i++)
+            {
+              auto const shouldBeAttackTurn = i % 2 == 0;
+              auto const isAttackTurn = actions.at (i).playedCard () && ranges::find (attackCards, actions.at (i).playedCard ().value ()) != attackCards.end ();
+              if (not shouldBeAttackTurn and isAttackTurn)
+                {
+                  actions.insert (actions.begin () + static_cast<long> (i), Action{});
+                  break;
+                }
+            }
+        }
+      if (actions.size () % 2 != 0)
+        {
+          actions.push_back (Action{});
+        }
+      results.emplace_back (std::move (actions));
+    }
+  return results;
+}
+
+void
+vectorWithMovesToTree (std::vector<durak::Card> const &attackCards, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > &tree, std::vector<std::vector<Action> > const &vectorsOfActions, Result result)
+{
+  for (auto actions : insertDrawCardsAction (attackCards, vectorsOfActions))
+    {
+      auto isAttack = true;
+      auto node = tree.root ().insert (actions.at (0), std::tuple<Result, bool>{ Result::Undefined, true });
+      for (auto i = size_t{ 1 }; i < actions.size (); ++i)
+        {
+          isAttack = !isAttack;
+          node = node.first->insert (actions.at (i), std::tuple<Result, bool>{ (actions.size () - i == 1) ? result : Result::Undefined, isAttack });
+        }
+    }
+}
+
+st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> >
+createTree (Round const &round)
+{
+  auto result = st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> >{};
+  result.insert (std::tuple<Result, bool>{ Result::Undefined, true });
+  vectorWithMovesToTree (round.attackingPlayerCards, result, round.attackIsWinning, Result::AttackWon);
+  vectorWithMovesToTree (round.attackingPlayerCards, result, round.defendIsWinning, Result::DefendWon);
+  vectorWithMovesToTree (round.attackingPlayerCards, result, round.draw, Result::Draw);
+  return result;
+}
+
+Result
+searchForGameResult (std::vector<uint8_t> const &attackCardsIds, std::vector<uint8_t> const &defendCardsIds, std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > > const &gameResults)
+{
+  if (auto gameResultTwoVersusTwo = ranges::find_if (gameResults,
+                                                     [&attackCardsIds, &defendCardsIds] (std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > const &attackDefendCardsAndTree) {
+                                                       auto const &[attackCardsIdsToCompare, defendCardsIdsToCompare, tree] = attackDefendCardsAndTree;
+                                                       return attackCardsIds == attackCardsIdsToCompare && defendCardsIds == defendCardsIdsToCompare;
+                                                     });
+      gameResultTwoVersusTwo != gameResults.end ())
+    {
+      st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > const &resultTree = std::get<2> (*gameResultTwoVersusTwo);
+      return std::get<0> (resultTree.root ().data ());
+    }
+  return Result::Undefined;
+}
+boost::optional<durak::Player>
+durakInGame (Result result, durak::Game const &game)
+{
+  if (result == Result::AttackWon)
+    {
+      return game.getDefendingPlayer ().value ();
+    }
+  else if (result == Result::DefendWon)
+    {
+      return game.getAttackingPlayer ().value ();
+    }
+  else if (result == Result::Draw)
+    {
+      return {};
+    }
+  else
+    {
+      std::cout << "game should have a winner or draw" << std::endl;
+      abort ();
+    }
+}
+
+std::tuple<std::vector<durak::Card>, std::vector<durak::Card> >
+attackAndDefendCompressed (std::vector<durak::Card> const &attackCards, std::vector<durak::Card> const &defendCards)
+{
+  auto result = std::tuple<std::vector<durak::Card>, std::vector<durak::Card> >{};
+  auto tmpVector = attackCards;
+  tmpVector.insert (tmpVector.end (), defendCards.begin (), defendCards.end ());
+  auto cards = compress (tmpVector);
+  return { { cards.begin (), cards.begin () + static_cast<long> (attackCards.size ()) }, { cards.begin () + static_cast<long> (attackCards.size ()), cards.end () } };
+}
+
+boost::optional<durak::Player>
+calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4> > const &gameLookup)
+{
+  // find game in lookup
+  if (game.checkIfGameIsOver ())
+    {
+      return game.durak ();
+    }
+  else
+    {
+      if (game.getAttackingPlayer () and game.getDefendingPlayer ())
+        {
+          auto const &attackCards = game.getAttackingPlayer ()->getCards ();
+          auto const &defendCards = game.getDefendingPlayer ()->getCards ();
+          if (attackCards.size () < 2 and defendCards.size () > 1)
+            {
+              return game.getDefendingPlayer ().value ();
+            }
+          else
+            {
+              auto [attackCardsCompressed, defendCardsCompressed] = attackAndDefendCompressed (attackCards, defendCards);
+              auto attackCardsIds = cardsToIds (attackCardsCompressed);
+              ranges::sort (attackCardsIds);
+              auto defendCardsIds = cardsToIds (defendCardsCompressed);
+              ranges::sort (defendCardsIds);
+              if (gameLookup.count ({ attackCardsIds.size (), defendCardsIds.size () }) != 0)
+                {
+                  return durakInGame (searchForGameResult (attackCardsIds, defendCardsIds, gameLookup.at ({ attackCardsIds.size (), defendCardsIds.size () }).at (static_cast<uint8_t> (game.getTrump ()))), game);
+                }
+              else
+                {
+                  std::cout << "could not find " << std::to_string (attackCardsIds.size ()) << "v" << std::to_string (defendCardsIds.size ()) << " in game lookup" << std::endl;
+                  abort ();
+                }
+            }
+        }
+      else
+        {
+          std::cout << "game not over but no attacking or/and defending player" << std::endl;
+          abort ();
+        }
+    }
+  return {};
+}
+
+std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4>
+solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4> > const &gameLookup)
+{
+  using namespace durak;
+  auto combinations = compressed_permutations ({ attackCardCount, defendCardCount }, n);
+  std::cout << "combinations.size(): " << combinations.size () << std::endl;
+  auto compresedGames = std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4>{};
+  auto i = size_t{};
+  for (auto combi : combinations)
+    {
+      if (i % 1000 == 0)
+        {
+          std::cout << "i: " << i << std::endl;
+        }
+      for (auto trumpType : { Type::hearts, Type::clubs, Type::diamonds, Type::spades })
+        {
+          auto cards = idsToCards (combi);
+          auto attackCards = std::vector<Card> (cards.begin (), cards.begin () + static_cast<long> (attackCardCount));
+          auto defendCards = std::vector<Card> (cards.begin () + static_cast<long> (attackCardCount), cards.end ());
+          auto gameToAnalyse = Game{ { "a", "b" }, GameOption{ .trump = trumpType, .customCardDeck = std::vector<Card>{}, .cardsInHands = std::vector<std::vector<Card> >{ attackCards, defendCards } } };
+          auto tmpResults = simulateRound (gameToAnalyse);
+          auto histories = std::vector<ResultAndHistory>{};
+          ranges::transform (tmpResults, ranges::back_inserter (histories), [&gameLookup] (Game const &game) { return std::make_tuple (calcGameResult (game, gameLookup), onlyFirstRound (game.getHistory ())); });
+          auto round = Round{ gameToAnalyse.getAttackingPlayer ()->getCards (), gameToAnalyse.getDefendingPlayer ()->getCards (), histories };
+          auto t = createTree (round);
+          solveGameTree (t);
+          compresedGames.at (static_cast<size_t> (trumpType)).push_back ({ cardsToIds (attackCards), cardsToIds (defendCards), t });
+        }
+      i++;
+    }
+  return compresedGames;
 }

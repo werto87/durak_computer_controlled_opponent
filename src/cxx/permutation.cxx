@@ -26,9 +26,9 @@ combinationsFor (std::vector<uint8_t> const &numbersToCheck, std::vector<std::ve
   std::get<1> (result).reserve (subResults.size ());
   std::vector<uint8_t> numbers (indexes.size () - numbersToCheck.size ());
   ranges::set_difference (indexes, numbersToCheck, numbers.begin ());
-  ranges::transform (subResults, ranges::back_inserter (std::get<1> (result)), [&numbers] (auto indexes) {
-    ranges::transform (indexes, indexes.begin (), [&numbers] (auto const &index) { return numbers[index]; });
-    return indexes;
+  ranges::transform (subResults, ranges::back_inserter (std::get<1> (result)), [&numbers] (auto indexes_) {
+    ranges::transform (indexes_, indexes_.begin (), [&numbers] (auto const &index) { return numbers[index]; });
+    return indexes_;
   });
   std::get<0> (result) = numbersToCheck;
   return result;
@@ -72,5 +72,5 @@ numbersToCombine (std::tuple<size_t, size_t> const &attackAndDefendCardCount, si
 {
   auto indexes = std::vector<uint8_t> (n);
   std::iota (indexes.begin (), indexes.end (), 0);
-  return { combinationsNoRepetitionAndOrderDoesNotMatter (std::get<0> (attackAndDefendCardCount), indexes), combinationsNoRepetitionAndOrderDoesNotMatter (std::get<1> (attackAndDefendCardCount), std::vector<uint8_t> (indexes.begin (), indexes.begin () + static_cast<long int> (n) - (std::get<0> (attackAndDefendCardCount)))) };
+  return { combinationsNoRepetitionAndOrderDoesNotMatter (static_cast<long> (std::get<0> (attackAndDefendCardCount)), indexes), combinationsNoRepetitionAndOrderDoesNotMatter (static_cast<long> (std::get<1> (attackAndDefendCardCount)), std::vector<uint8_t> (indexes.begin (), indexes.begin () + static_cast<long int> (n) - (static_cast<long> (std::get<0> (attackAndDefendCardCount))))) };
 }
