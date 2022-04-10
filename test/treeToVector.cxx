@@ -110,7 +110,7 @@ TEST_CASE ("2 children", "[abc]")
   auto myVec = treeToVector (tree, 2);
   for (auto &value : childrenByPath (myVec, { 2, 4 }, 2))
     {
-      REQUIRE (myVec[value] == 42);
+      REQUIRE (myVec[static_cast<size_t> (value)] == 42);
     }
 }
 
@@ -126,6 +126,6 @@ TEST_CASE ("3 children", "[abc]")
   auto myVec = treeToVector (tree, 3);
   for (auto &value : childrenByPath (myVec, { 2, 4 }, 3))
     {
-      REQUIRE (myVec[value] == 42);
+      REQUIRE (myVec[static_cast<size_t> (value)] == 42);
     }
 }
