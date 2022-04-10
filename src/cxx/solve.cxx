@@ -375,7 +375,7 @@ defend (std::tuple<durak::Game, AttackDefendPass> const &gameWithPasses)
 std::optional<durak::Card>
 Action::playedCard () const
 {
-  if (cardPlayed == 255)
+  if (cardPlayed >= 253)
     {
       return std::nullopt;
     }
@@ -389,14 +389,14 @@ bool
 Action::playCard (durak::Card const &card)
 {
   auto cardAsId = cardToId (card);
-  if (cardAsId < 255)
+  if (cardPlayed >= 253)
     {
-      cardPlayed = cardAsId;
-      return true;
+      return false;
     }
   else
     {
-      return false;
+      cardPlayed = cardAsId;
+      return true;
     }
 }
 

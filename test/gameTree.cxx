@@ -30,7 +30,7 @@ serialize_indented (const Iterator &F, const Iterator &L, Stream &s, size_t inde
     {
       s << indent_padding (j->ply () * indent);
       using namespace durak;
-      s << ((j->ply () != 0) ? std::string{ "Node: " }.c_str () : std::string{ "" }.c_str ()) << ((j->key ().playedCard ()) ? j->key ().playedCard ().value () : Card{ 255, Type::hearts }) << " " << magic_enum::enum_name (std::get<0> (j->data ())) << (std::get<1> (j->data ()) ? std::string{ " Attack" } : std::string{ " Defend" });
+      s << ((j->ply () != 0) ? std::string{ "Node: " }.c_str () : std::string{ "" }.c_str ()) << ((j->key ().playedCard ()) ? j->key ().playedCard ().value () : Card{ 253, Type::hearts }) << " " << magic_enum::enum_name (std::get<0> (j->data ())) << (std::get<1> (j->data ()) ? std::string{ " Attack" } : std::string{ " Defend" });
       s << "\n";
     }
 }
@@ -342,11 +342,11 @@ indent (unsigned n)
 
 TEST_CASE ("simulate round ", "[abc]")
 {
-  // typedef std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4> GameResults;
-  // auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, GameResults>{};
-  // auto start = std::chrono::system_clock::now ();
-  // std::cout << "1v1" << std::endl;
-  // gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
+  typedef std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4> GameResults;
+  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, GameResults>{};
+  auto start = std::chrono::system_clock::now ();
+  std::cout << "1v1" << std::endl;
+  gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
   // std::cout << "2v2" << std::endl;
   // gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
   // std::cout << "3v1" << std::endl;

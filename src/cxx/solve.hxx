@@ -17,7 +17,7 @@ public:
   [[nodiscard ("FALSE if card value invalid")]] bool playCard (durak::Card const &card);
 
 private:
-  std::uint8_t cardPlayed{ 255 };
+  std::uint8_t cardPlayed{ 253 };
 };
 
 std::optional<Action> historyEventToAction (durak::HistoryEvent const &historyEvent);

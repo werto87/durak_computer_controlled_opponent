@@ -1,6 +1,7 @@
 #ifndef CD77E88E_7A82_4A96_B983_3A9338969CDC
 #define CD77E88E_7A82_4A96_B983_3A9338969CDC
 
+#include <cstddef>
 #include <optional>
 #include <st_tree.h>
 #include <vector>
@@ -55,7 +56,7 @@ childrenByPath (std::vector<T> const &vec, std::vector<T> const &path, size_t ch
 
 template <typename T>
 std::vector<T>
-treeToVector (st_tree::tree<T> const &tree, size_t maxChildren)
+treeToVector (st_tree::tree<T> const &tree, size_t maxChildren, T const &markerForEmpty, T const &markerForChild)
 {
   auto result = std::vector<T>{};
   for (auto &node : tree)
@@ -64,19 +65,19 @@ treeToVector (st_tree::tree<T> const &tree, size_t maxChildren)
       auto currentChildren = size_t{};
       while (currentChildren < node.size ())
         {
-          result.push_back (254);
+          result.push_back (markerForChild);
           currentChildren++;
         }
       while (currentChildren < maxChildren)
         {
-          result.push_back (255);
+          result.push_back (markerForEmpty);
           currentChildren++;
         }
     }
   auto nodeCount = size_t{ 1 };
   for (auto &value : result)
     {
-      if (value == 254)
+      if (value == markerForChild)
         {
           value = static_cast<T> (nodeCount * (maxChildren + 1));
           nodeCount++;

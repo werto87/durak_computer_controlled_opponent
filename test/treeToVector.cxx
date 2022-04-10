@@ -20,7 +20,7 @@ TEST_CASE ("2 children", "[abc]")
   tree.root ().insert (3);
   tree.root ()[0].insert (4);
   tree.root ()[0][0].insert (42);
-  auto myVec = treeToVector (tree, maxChildren (tree));
+  auto myVec = treeToVector (tree, maxChildren (tree), 255, 254);
   for (auto &value : childrenByPath (myVec, { 2, 4 }, maxChildren (tree)))
     {
       REQUIRE (myVec[static_cast<size_t> (value)] == 42);
@@ -36,7 +36,7 @@ TEST_CASE ("3 children", "[abc]")
   tree.root ().insert (69);
   tree.root ()[0].insert (4);
   tree.root ()[0][0].insert (42);
-  auto myVec = treeToVector (tree, maxChildren (tree));
+  auto myVec = treeToVector (tree, maxChildren (tree), uint8_t{ 255 }, uint8_t{ 254 });
   for (auto &value : childrenByPath (myVec, { 2, 4 }, maxChildren (tree)))
     {
       REQUIRE (myVec[static_cast<size_t> (value)] == 42);
