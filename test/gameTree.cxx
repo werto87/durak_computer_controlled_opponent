@@ -2,9 +2,11 @@
 #include "src/cxx/permutation.hxx"
 #include "src/cxx/solve.hxx"
 #include <catch2/catch.hpp>
+#include <chrono>
 #include <cstddef>
 #include <cstdint>
 #include <cstdlib>
+#include <date/date.h>
 #include <durak/card.hxx>
 #include <durak/print.hxx>
 #include <functional>
@@ -434,34 +436,42 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
   return compresedGames;
 }
 
+const char *
+indent (unsigned n)
+{
+  static char const spaces[] = "                                             ";
+  static const unsigned ns = sizeof (spaces) / sizeof (*spaces);
+  return spaces + (ns - 1 - n);
+}
+
 TEST_CASE ("simulate round ", "[abc]")
 {
-  typedef std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4> GameResults;
-  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, GameResults>{};
-  std::cout << "1v1" << std::endl;
-  gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
-  std::cout << "2v2" << std::endl;
-  gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
-  std::cout << "3v1" << std::endl;
-  gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
-  std::cout << "2v4" << std::endl;
-  gameLookup.insert ({ { 2, 4 }, solveDurak (36, 2, 4, gameLookup) });
-  std::cout << "3v3" << std::endl;
-  auto threeVersusThree = solveDurak (36, 3, 3, gameLookup);
-  // auto const &results = threeVersusThree.at (magic_enum::enum_integer (durak::Type::hearts));
-  // std::cout << "attack cards:" << std::endl;
-  // auto const &result = results.at (42);
-  // for (auto id : std::get<0> (result))
+  // typedef std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4> GameResults;
+  // auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, GameResults>{};
+  // auto start = std::chrono::system_clock::now ();
+  // std::cout << "1v1" << std::endl;
+  // gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
+  // std::cout << "2v2" << std::endl;
+  // gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
+  // std::cout << "3v1" << std::endl;
+  // gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
+  // std::cout << "2v4" << std::endl;
+  // gameLookup.insert ({ { 2, 4 }, solveDurak (36, 2, 4, gameLookup) });
+  // using namespace date;
+  // std::cout << "duration: " << std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::system_clock::now () - start) << std::endl;
+
+  // // std::cout << "3v3" << std::endl;
+  // // auto threeVersusThree = solveDurak (36, 3, 3, gameLookup);
+  // auto const &results = gameLookup.at ({ 2, 4 }).at (magic_enum::enum_integer (durak::Type::hearts));
+  // auto total_depth = double{ 0 };
+  // auto total_tree_size = double{ 0 };
+  // for (auto const &[attack, defend, result] : results)
   //   {
-  //     std::cout << idToCard (id) << std::endl;
+  //     total_depth += result.root ().depth ();
+  //     total_tree_size += result.root ().subtree_size ();
   //   }
-  // std::cout << "defend cards:" << std::endl;
-  // for (auto id : std::get<1> (result))
-  //   {
-  //     std::cout << idToCard (id) << std::endl;
-  //   }
-  // std::cout << "trump: " << magic_enum::enum_name (durak::Type::hearts) << std::endl;
-  // serialize_indented (std::get<2> (result), std::cout);
+  // std::cout << total_depth / static_cast<double> (results.size ()) << std::endl;
+  // std::cout << total_tree_size / static_cast<double> (results.size ()) << std::endl;
 }
 
 TEST_CASE ("insertDrawCardsAction", "[abc]")

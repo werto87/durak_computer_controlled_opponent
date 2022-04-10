@@ -6,6 +6,7 @@ permutation.cxx
 compressCard.cxx
 solve.cxx
 gameTree.cxx
+treeToVector.cxx
 )
 
 target_link_libraries(${TEST_TARGET_NAME}
