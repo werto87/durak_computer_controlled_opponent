@@ -63,13 +63,6 @@ template <typename T>
 std::vector<T>
 treeToVector (st_tree::tree<T> const &tree, size_t maxChildren)
 {
-  for (auto const &node : tree)
-    {
-      if (maxChildren < node.size ())
-        {
-          maxChildren = node.size ();
-        }
-    }
   auto result = std::vector<T>{};
   for (auto &node : tree)
     {
@@ -86,7 +79,6 @@ treeToVector (st_tree::tree<T> const &tree, size_t maxChildren)
           currentChildren++;
         }
     }
-
   auto nodeCount = size_t{ 1 };
   for (auto &value : result)
     {
@@ -99,6 +91,21 @@ treeToVector (st_tree::tree<T> const &tree, size_t maxChildren)
   return result;
 }
 
+template <typename T>
+size_t
+maxChildren (st_tree::tree<T> const &tree)
+{
+  auto maxChildren = size_t{};
+  for (auto const &node : tree)
+    {
+      if (maxChildren < node.size ())
+        {
+          maxChildren = node.size ();
+        }
+    }
+  return maxChildren;
+}
+
 TEST_CASE ("2 children", "[abc]")
 {
   auto tree = st_tree::tree<int>{};
@@ -107,8 +114,8 @@ TEST_CASE ("2 children", "[abc]")
   tree.root ().insert (3);
   tree.root ()[0].insert (4);
   tree.root ()[0][0].insert (42);
-  auto myVec = treeToVector (tree, 2);
-  for (auto &value : childrenByPath (myVec, { 2, 4 }, 2))
+  auto myVec = treeToVector (tree, maxChildren (tree));
+  for (auto &value : childrenByPath (myVec, { 2, 4 }, maxChildren (tree)))
     {
       REQUIRE (myVec[static_cast<size_t> (value)] == 42);
     }
@@ -123,8 +130,8 @@ TEST_CASE ("3 children", "[abc]")
   tree.root ().insert (69);
   tree.root ()[0].insert (4);
   tree.root ()[0][0].insert (42);
-  auto myVec = treeToVector (tree, 3);
-  for (auto &value : childrenByPath (myVec, { 2, 4 }, 3))
+  auto myVec = treeToVector (tree, maxChildren (tree));
+  for (auto &value : childrenByPath (myVec, { 2, 4 }, maxChildren (tree)))
     {
       REQUIRE (myVec[static_cast<size_t> (value)] == 42);
     }
