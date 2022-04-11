@@ -387,6 +387,12 @@ Action::playedCard () const
     }
 }
 
+std::uint8_t
+Action::value () const
+{
+  return cardPlayed;
+}
+
 bool
 Action::playCard (durak::Card const &card)
 {

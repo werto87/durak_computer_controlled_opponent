@@ -2,6 +2,7 @@
 #define CD77E88E_7A82_4A96_B983_3A9338969CDC
 
 #include <cstddef>
+#include <functional>
 #include <optional>
 #include <st_tree.h>
 #include <vector>
@@ -71,7 +72,7 @@ childrenByPath (std::vector<T> const &vec, std::vector<T> const &path, size_t ch
         }
       else
         {
-          break;
+          return {};
         }
     }
   return children (vec, someValue, childrenCount, markerForEmpty);
@@ -102,12 +103,19 @@ fillChilds (std::vector<T> &vec, size_t maxChildren, T const &markerForChild)
 
 template <typename T>
 std::vector<T>
-treeToVector (st_tree::tree<T> const &tree, size_t maxChildren, T const &markerForEmpty, T const &markerForChild)
+treeToVector (auto const &tree, size_t maxChildren, T const &markerForEmpty, T const &markerForChild, std::function<typename std::decay<decltype (markerForEmpty)>::type (typename std::decay<decltype (*tree.begin ())>::type const &node)> nodeToData = {})
 {
   auto result = std::vector<T>{};
   for (auto &node : tree)
     {
-      result.push_back (node.data ());
+      if (nodeToData)
+        {
+          result.push_back (nodeToData (node));
+        }
+      else
+        {
+          result.push_back (node.data ());
+        }
       auto currentChildren = size_t{};
       while (currentChildren < node.size ())
         {
@@ -126,7 +134,7 @@ treeToVector (st_tree::tree<T> const &tree, size_t maxChildren, T const &markerF
 
 template <typename T>
 size_t
-maxChildren (st_tree::tree<T> const &tree)
+maxChildren (T const &tree)
 {
   auto maxChildren = size_t{};
   for (auto const &node : tree)

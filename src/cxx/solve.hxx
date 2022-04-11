@@ -17,6 +17,8 @@ public:
 
   [[nodiscard ("FALSE if card value invalid")]] bool playCard (durak::Card const &card);
 
+  std::uint8_t value () const;
+
 private:
   std::uint8_t cardPlayed{ 253 };
 };
