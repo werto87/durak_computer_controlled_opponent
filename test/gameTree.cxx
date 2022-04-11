@@ -98,6 +98,7 @@ TEST_CASE ("simulate round ", "[abc]")
   auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, std::vector<std::tuple<uint8_t, Result> > > >, 4> >{};
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
   gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
-  // gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
-  // gameLookup.insert ({ { 2, 4 }, solveDurak (36, 2, 4, gameLookup) });
+  REQUIRE (gameLookup.at ({ 1, 1 }).at (0).size () == 44);
+  REQUIRE (gameLookup.at ({ 2, 2 }).at (0).size () == 3678);
+  REQUIRE (std::get<1> (std::get<2> (gameLookup.at ({ 2, 2 }).at (0).at (1971)).at (0)) == Result::DefendWon);
 }
