@@ -131,6 +131,7 @@ treeToVector (auto const &tree, size_t maxChildren, T const &markerForEmpty, T c
           currentChildren++;
         }
     }
+  result.shrink_to_fit ();
   fillChilds (result, maxChildren, markerForChild);
   return result;
 }
