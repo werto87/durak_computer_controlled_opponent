@@ -85,42 +85,30 @@ indent (unsigned n)
   return spaces + (ns - 1 - n);
 }
 
-TEST_CASE ("simulate round ", "[abc]")
-{
-  typedef std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4> GameResults;
-  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, GameResults>{};
-  // auto start = std::chrono::system_clock::now ();
-  std::cout << "1v1" << std::endl;
-  solveDurak (36, 1, 1, gameLookup);
-
-  // gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
-  // std::cout << "2v2" << std::endl;
-  // gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
-  // std::cout << "3v1" << std::endl;
-  // gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
-  // std::cout << "2v4" << std::endl;
-  // gameLookup.insert ({ { 2, 4 }, solveDurak (36, 2, 4, gameLookup) });
-  // using namespace date;
-  // std::cout << "duration: " << std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::system_clock::now () - start) << std::endl;
-
-  // // std::cout << "3v3" << std::endl;
-  // // auto threeVersusThree = solveDurak (36, 3, 3, gameLookup);
-  // auto const &results = gameLookup.at ({ 2, 4 }).at (magic_enum::enum_integer (durak::Type::hearts));
-  // auto total_depth = double{ 0 };
-  // auto total_tree_size = double{ 0 };
-  // for (auto const &[attack, defend, result] : results)
-  //   {
-  //     total_depth += result.root ().depth ();
-  //     total_tree_size += result.root ().subtree_size ();
-  //   }
-  // std::cout << total_depth / static_cast<double> (results.size ()) << std::endl;
-  // std::cout << total_tree_size / static_cast<double> (results.size ()) << std::endl;
-}
-
 TEST_CASE ("insertDrawCardsAction", "[abc]")
 {
 
   std::vector<durak::Card> attackCards{ { 0, durak::Type::hearts }, { 0, durak::Type::clubs }, { 0, durak::Type::diamonds } };
   std::vector<std::vector<Action> > vectorsOfActions{ { { 0 }, { 1 }, { 2 } } };
   REQUIRE (insertDrawCardsAction (attackCards, vectorsOfActions).at (0).size () == 6);
+}
+
+TEST_CASE ("simulate round ", "[abc]")
+{
+  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, std::vector<std::tuple<uint8_t, Result> > > >, 4> >{};
+  auto start = std::chrono::system_clock::now ();
+  std::cout << "1v1" << std::endl;
+  // solveDurak (36, 1, 1, gameLookup);
+
+  gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
+  std::cout << "2v2" << std::endl;
+  gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
+  std::cout << "3v1" << std::endl;
+  gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
+  std::cout << "2v4" << std::endl;
+  gameLookup.insert ({ { 2, 4 }, solveDurak (36, 2, 4, gameLookup) });
+  // std::cout << "3v3" << std::endl;
+  // auto threeVersusThree = solveDurak (36, 3, 3, gameLookup);
+  using namespace date;
+  std::cout << "duration: " << std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::system_clock::now () - start) << std::endl;
 }

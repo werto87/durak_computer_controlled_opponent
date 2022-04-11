@@ -114,7 +114,10 @@ treeToVector (auto const &tree, size_t maxChildren, T const &markerForEmpty, T c
         }
       else
         {
-          result.push_back (node.data ());
+          if constexpr (std::is_same<typename std::decay<decltype (node.data ())>::type, T>::value)
+            {
+              result.push_back (node.data ());
+            }
         }
       auto currentChildren = size_t{};
       while (currentChildren < node.size ())

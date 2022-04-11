@@ -47,22 +47,16 @@ TEST_CASE ("3 children and tuple", "[abc]")
 TEST_CASE ("treeToVector", "[abc]")
 {
 
-  auto tree = st_tree::tree<std::tuple<int8_t, bool>, st_tree::keyed<Action> >{};
-  tree.insert ({ -1, true });
-  tree.root ().insert (0, { -1, true });
-  tree.root ().insert (2, { -1, true });
-  tree.root ().insert (3, { -1, true });
-  tree.root ()[0].insert (0, { -2, true });
-  tree.root ()[0][0].insert (1, { -1, true });
-  auto myVec = treeToVector (tree, maxChildren (tree), std::tuple<uint8_t, int8_t>{ 255, -1 }, std::tuple<uint8_t, int8_t>{ 254, -1 }, [] (auto const &node) { return std::tuple<uint8_t, int8_t>{ node.key ().value (), static_cast<int8_t> (std::get<0> (node.data ())) }; });
+  auto tree = st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> >{};
+  tree.insert ({ Result::Undefined, true });
+  tree.root ().insert (0, { Result::Undefined, true });
+  tree.root ().insert (2, { Result::Undefined, true });
+  tree.root ().insert (3, { Result::Undefined, true });
+  tree.root ()[0].insert (0, { Result::Undefined, true });
+  tree.root ()[0][0].insert (1, { Result::Undefined, true });
+  auto myVec = treeToVector (tree, maxChildren (tree), std::tuple<uint8_t, Result>{ 255, Result::Undefined }, std::tuple<uint8_t, Result>{ 254, Result::Undefined }, [] (auto const &node) { return std::tuple<uint8_t, Result>{ node.key ().value (), std::get<0> (node.data ()) }; });
   REQUIRE (myVec.size () == 24);
-  for (auto value : myVec)
-    {
-      auto [action, result] = value;
-      std::cout << static_cast<int> (action) << std::endl;
-      // std::cout << static_cast<int> (result) << std::endl;
-    }
-  auto result = childrenByPath (myVec, { { 0, -1 }, { 0, -2 } }, maxChildren (tree), { 255, -1 });
+  auto result = childrenByPath (myVec, { { 0, Result::Undefined }, { 0, Result::Undefined } }, maxChildren (tree), { 255, Result::Undefined });
   REQUIRE_FALSE (result.empty ());
-  REQUIRE (myVec[std::get<0> (result.at (0))] == std::tuple<uint8_t, int8_t>{ 1, -1 });
+  REQUIRE (myVec[std::get<0> (result.at (0))] == std::tuple<uint8_t, Result>{ 1, Result::Undefined });
 }

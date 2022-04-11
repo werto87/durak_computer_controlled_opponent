@@ -1,7 +1,9 @@
 #include "solve.hxx"
 #include "src/cxx/compressCard.hxx"
 #include "src/cxx/permutation.hxx"
+#include "src/cxx/treeToVector.hxx"
 #include <cstddef>
+#include <cstdint>
 #include <durak/game.hxx>
 #include <magic_enum.hpp>
 #include <range/v3/algorithm/find_if.hpp>
@@ -565,17 +567,17 @@ createTree (Round const &round)
 }
 
 Result
-searchForGameResult (std::vector<uint8_t> const &attackCardsIds, std::vector<uint8_t> const &defendCardsIds, std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > > const &gameResults)
+searchForGameResult (std::vector<uint8_t> const &attackCardsIds, std::vector<uint8_t> const &defendCardsIds, std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, std::vector<std::tuple<uint8_t, Result> > > > const &gameResults)
 {
   if (auto gameResultTwoVersusTwo = ranges::find_if (gameResults,
-                                                     [&attackCardsIds, &defendCardsIds] (std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > const &attackDefendCardsAndTree) {
+                                                     [&attackCardsIds, &defendCardsIds] (auto const &attackDefendCardsAndTree) {
                                                        auto const &[attackCardsIdsToCompare, defendCardsIdsToCompare, tree] = attackDefendCardsAndTree;
                                                        return attackCardsIds == attackCardsIdsToCompare && defendCardsIds == defendCardsIdsToCompare;
                                                      });
       gameResultTwoVersusTwo != gameResults.end ())
     {
-      st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > const &resultTree = std::get<2> (*gameResultTwoVersusTwo);
-      return std::get<0> (resultTree.root ().data ());
+      auto const &[attackCardsIdsToCompare, defendCardsIdsToCompare, tree] = *gameResultTwoVersusTwo;
+      return std::get<1> (tree.at (0));
     }
   return Result::Undefined;
 }
@@ -612,7 +614,7 @@ attackAndDefendCompressed (std::vector<durak::Card> const &attackCards, std::vec
 }
 
 boost::optional<durak::Player>
-calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4> > const &gameLookup)
+calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, std::vector<std::tuple<uint8_t, Result> > > >, 4> > const &gameLookup)
 {
   // find game in lookup
   if (game.checkIfGameIsOver ())
@@ -656,13 +658,13 @@ calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, 
   return {};
 }
 
-std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4>
-solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4> > const &gameLookup)
+std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, std::vector<std::tuple<uint8_t, Result> > > >, 4>
+solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, std::vector<std::tuple<uint8_t, Result> > > >, 4> > const &gameLookup)
 {
   using namespace durak;
   auto combinations = compressed_permutations ({ attackCardCount, defendCardCount }, n);
   std::cout << "combinations.size(): " << combinations.size () << std::endl;
-  auto compresedGames = std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4>{};
+  auto compresedGames = std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, std::vector<std::tuple<uint8_t, Result> > > >, 4>{};
   auto i = size_t{};
   for (auto combi : combinations)
     {
@@ -680,9 +682,9 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
           auto histories = std::vector<ResultAndHistory>{};
           ranges::transform (tmpResults, ranges::back_inserter (histories), [&gameLookup] (Game const &game) { return std::make_tuple (calcGameResult (game, gameLookup), onlyFirstRound (game.getHistory ())); });
           auto round = Round{ gameToAnalyse.getAttackingPlayer ()->getCards (), gameToAnalyse.getDefendingPlayer ()->getCards (), histories };
-          auto t = createTree (round);
-          solveGameTree (t);
-          compresedGames.at (static_cast<size_t> (trumpType)).push_back ({ cardsToIds (attackCards), cardsToIds (defendCards), t });
+          auto tree = createTree (round);
+          solveGameTree (tree);
+          compresedGames.at (static_cast<size_t> (trumpType)).push_back ({ cardsToIds (attackCards), cardsToIds (defendCards), treeToVector (tree, maxChildren (tree), std::tuple<uint8_t, Result>{ 255, Result::Undefined }, std::tuple<uint8_t, Result>{ 254, Result::Undefined }, [] (auto const &node) { return std::tuple<uint8_t, Result>{ node.key ().value (), std::get<0> (node.data ()) }; }) });
         }
       i++;
     }
