@@ -663,15 +663,15 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
 {
   using namespace durak;
   auto combinations = compressed_permutations ({ attackCardCount, defendCardCount }, n);
-  std::cout << "combinations.size(): " << combinations.size () << std::endl;
+  // std::cout << "combinations.size(): " << combinations.size () << std::endl;
   auto compresedGames = std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, std::vector<std::tuple<uint8_t, Result> > > >, 4>{};
-  auto i = size_t{};
+  // auto i = size_t{};
   for (auto combi : combinations)
     {
-      if (i % 1000 == 0)
-        {
-          std::cout << "i: " << i << std::endl;
-        }
+      // if (i % 1000 == 0)
+      //   {
+      //     std::cout << "i: " << i << std::endl;
+      //   }
       for (auto trumpType : { Type::hearts, Type::clubs, Type::diamonds, Type::spades })
         {
           auto cards = idsToCards (combi);
@@ -686,7 +686,7 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
           solveGameTree (tree);
           compresedGames.at (static_cast<size_t> (trumpType)).push_back ({ cardsToIds (attackCards), cardsToIds (defendCards), treeToVector (tree, maxChildren (tree), std::tuple<uint8_t, Result>{ 255, Result::Undefined }, std::tuple<uint8_t, Result>{ 254, Result::Undefined }, [] (auto const &node) { return std::tuple<uint8_t, Result>{ node.key ().value (), std::get<0> (node.data ()) }; }) });
         }
-      i++;
+      // i++;
     }
   return compresedGames;
 }

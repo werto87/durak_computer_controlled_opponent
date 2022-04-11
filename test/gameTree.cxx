@@ -96,19 +96,8 @@ TEST_CASE ("insertDrawCardsAction", "[abc]")
 TEST_CASE ("simulate round ", "[abc]")
 {
   auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, std::vector<std::tuple<uint8_t, Result> > > >, 4> >{};
-  auto start = std::chrono::system_clock::now ();
-  std::cout << "1v1" << std::endl;
-  // solveDurak (36, 1, 1, gameLookup);
-
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
-  std::cout << "2v2" << std::endl;
   gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
-  std::cout << "3v1" << std::endl;
-  gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
-  std::cout << "2v4" << std::endl;
-  gameLookup.insert ({ { 2, 4 }, solveDurak (36, 2, 4, gameLookup) });
-  // std::cout << "3v3" << std::endl;
-  // auto threeVersusThree = solveDurak (36, 3, 3, gameLookup);
-  using namespace date;
-  std::cout << "duration: " << std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::system_clock::now () - start) << std::endl;
+  // gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
+  // gameLookup.insert ({ { 2, 4 }, solveDurak (36, 2, 4, gameLookup) });
 }
