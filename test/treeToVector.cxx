@@ -46,7 +46,6 @@ TEST_CASE ("3 children and tuple", "[abc]")
 
 TEST_CASE ("treeToVector", "[abc]")
 {
-
   auto tree = st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> >{};
   tree.insert ({ Result::Undefined, true });
   tree.root ().insert (0, { Result::Undefined, true });
