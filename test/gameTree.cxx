@@ -26,7 +26,7 @@ TEST_CASE ("simulate round ", "[abc]")
   auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
   // auto start = std::chrono::system_clock::now ();
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
-  gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
+  // gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
   // gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
   // gameLookup.insert ({ { 2, 4 }, solveDurak (36, 2, 4, gameLookup) });
   // gameLookup.insert ({ { 3, 3 }, solveDurak (36, 3, 3, gameLookup) });
@@ -36,8 +36,7 @@ TEST_CASE ("simulate round ", "[abc]")
   // gameLookup.insert ({ { 3, 5 }, solveDurak (36, 3, 5, gameLookup) });
   // gameLookup.insert ({ { 4, 4 }, solveDurak (36, 4, 4, gameLookup) });
   REQUIRE (gameLookup.at ({ 1, 1 }).at (0).size () == 44);
-  REQUIRE (gameLookup.at ({ 2, 2 }).at (0).size () == 3678);
-  REQUIRE (std::get<1> (gameLookup.at ({ 2, 2 }).at (0).at ({ { '\0', '\a' }, { '\n', '\f' } }).at (0)) == Result::DefendWon);
+  REQUIRE (std::get<1> (gameLookup.at ({ 1, 1 }).at (0).at ({ { 0 }, { 4 } }).at (0)) == Result::Draw);
   // using namespace date;
   // std::cout << "duration: " << std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::system_clock::now () - start) << std::endl;
 }
