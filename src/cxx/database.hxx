@@ -3,9 +3,9 @@
 
 #include "confu_soci/convenienceFunctionForSoci.hxx"
 
-std::string const databaseName = "database/modern-durak.db";
+std::string const databaseName = "database/combination.db";
 
-BOOST_FUSION_DEFINE_STRUCT ((database), Account, (std::string, accountName) (std::string, password) (size_t, rating))
+BOOST_FUSION_DEFINE_STRUCT ((database), Combination, (std::string, gameState) (std::vector<uint8_t>, combination))
 
 namespace database
 {

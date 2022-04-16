@@ -7,6 +7,8 @@ compressCard.cxx
 solve.cxx
 gameTree.cxx
 treeToVector.cxx
+database.cxx
+util.cxx
 )
 
 target_link_libraries(${TEST_TARGET_NAME}

@@ -2,6 +2,7 @@
 #define AD23FB0A_B3C3_406D_A401_3231159AE486
 
 #include "util.hxx"
+#include <boost/multiprecision/cpp_int.hpp>
 #include <durak/card.hxx>
 #include <set>
 #include <vector>

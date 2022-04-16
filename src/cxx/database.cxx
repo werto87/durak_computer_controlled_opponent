@@ -55,7 +55,7 @@ createTables ()
   soci::session sql (soci::sqlite3, databaseName);
   try
     {
-      confu_soci::createTableForStruct<Account> (sql);
+      confu_soci::createTableForStruct<Combination> (sql);
     }
   catch (soci::soci_error const &error)
     {
@@ -63,12 +63,4 @@ createTables ()
     }
 }
 
-auto constexpr START_RATING = 1500;
-
-boost::optional<Account>
-createAccount (std::string const &accountName, std::string const &password)
-{
-  soci::session sql (soci::sqlite3, databaseName);
-  return confu_soci::findStruct<Account> (sql, "accountName", confu_soci::insertStruct (sql, Account{ accountName, password, START_RATING }, true));
-}
 }
