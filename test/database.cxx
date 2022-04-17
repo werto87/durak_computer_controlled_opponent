@@ -9,6 +9,8 @@
 
 TEST_CASE ("database setup", "[abc]") { REQUIRE (database::gameStateAsString ({ { '1', '2', '3', 'a' }, { 'c', 'b' } }, durak::Type::hearts) == "1,2,3,a;c,b;0"); }
 
+
+
 TEST_CASE ("save solve result to database", "[abc]")
 {
   database::createEmptyDatabase ();
@@ -29,4 +31,5 @@ TEST_CASE ("save solve result to database", "[abc]")
     }
   auto someRound = confu_soci::findStruct<database::Round> (sql, "gameState", database::gameStateAsString ({ { 0 }, { 1 } }, Type::clubs));
   REQUIRE (someRound.has_value ());
+
 }
