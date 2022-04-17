@@ -9,20 +9,6 @@
 
 TEST_CASE ("database setup", "[abc]") { REQUIRE (database::gameStateAsString ({ { '1', '2', '3', 'a' }, { 'c', 'b' } }, durak::Type::hearts) == "1,2,3,a;c,b;0"); }
 
-std::vector<uint8_t>
-moveResultToBinary (std::vector<std::tuple<uint8_t, Result> > const &moveResults)
-{
-  auto results = std::vector<uint8_t>{};
-  results.reserve (moveResults.size () * 2);
-  for (auto moveResult : moveResults)
-    {
-      auto [move, result] = moveResult;
-      results.push_back (move);
-      results.push_back (magic_enum::enum_integer (result));
-    }
-  return results;
-}
-
 TEST_CASE ("save solve result to database", "[abc]")
 {
   database::createEmptyDatabase ();
@@ -37,7 +23,7 @@ TEST_CASE ("save solve result to database", "[abc]")
           auto const &[cards, combination] = resultForTrump;
           auto round = database::Round{};
           round.gameState = database::gameStateAsString (cards, trumpType);
-          round.combination = moveResultToBinary (combination);
+          round.combination = database::moveResultToBinary (combination);
           confu_soci::insertStruct (sql, round);
         }
     }

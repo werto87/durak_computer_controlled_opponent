@@ -73,4 +73,17 @@ gameStateAsString (std::tuple<std::vector<uint8_t>, std::vector<uint8_t> > const
   return vectorToString (std::get<0> (cards)) + ";" + vectorToString (std::get<1> (cards)) + ";" + std::to_string (magic_enum::enum_integer (trump));
 }
 
+std::vector<uint8_t>
+moveResultToBinary (std::vector<std::tuple<uint8_t, Result> > const &moveResults)
+{
+  auto results = std::vector<uint8_t>{};
+  results.reserve (moveResults.size () * 2);
+  for (auto moveResult : moveResults)
+    {
+      auto [move, result] = moveResult;
+      results.push_back (move);
+      results.push_back (magic_enum::enum_integer (result));
+    }
+  return results;
+}
 }
