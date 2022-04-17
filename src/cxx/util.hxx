@@ -13,7 +13,7 @@ vectorToString (T const &vec)
   auto ss = std::stringstream{};
   for (auto i = size_t{}; i < vec.size (); i++)
     {
-      ss << vec.at (i);
+      ss << static_cast<int> (vec.at (i));
       if (i != vec.size () - 1)
         {
           ss << ',';

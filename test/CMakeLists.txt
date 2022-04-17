@@ -1,7 +1,6 @@
 set(TEST_TARGET_NAME _test)
 add_executable(${TEST_TARGET_NAME} 
 main.cxx
-test.cxx
 permutation.cxx
 compressCard.cxx
 solve.cxx
