@@ -2,13 +2,14 @@
 #define D179262B_4D2C_43C0_ACA1_5464B5C2533B
 
 #include "confu_soci/convenienceFunctionForSoci.hxx"
+#include <durak/card.hxx>
 
-std::string const databaseName = "database/combination.db";
-
-BOOST_FUSION_DEFINE_STRUCT ((database), Combination, (std::string, gameState) (std::vector<uint8_t>, combination))
+BOOST_FUSION_DEFINE_STRUCT ((database), Round, (std::string, gameState) (std::vector<uint8_t>, combination) (durak::Type, trump))
 
 namespace database
 {
+std::string const databaseName = "database/combination.db";
+
 void createEmptyDatabase ();
 
 void createDatabaseIfNotExist ();

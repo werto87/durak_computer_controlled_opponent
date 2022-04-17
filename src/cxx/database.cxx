@@ -55,7 +55,7 @@ createTables ()
   soci::session sql (soci::sqlite3, databaseName);
   try
     {
-      confu_soci::createTableForStruct<Combination> (sql);
+      confu_soci::createTableForStruct<Round> (sql);
     }
   catch (soci::soci_error const &error)
     {
