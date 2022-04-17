@@ -1,6 +1,7 @@
 #ifndef E408197E_0D11_4D88_B43B_B5D6B657C114
 #define E408197E_0D11_4D88_B43B_B5D6B657C114
 
+#include <cstdint>
 #include <durak/game.hxx>
 #include <st_tree.h>
 #include <vector>
@@ -75,12 +76,12 @@ std::vector<durak::Game> solve (durak::Game const &game);
 
 Round moveTree (std::vector<durak::Card> const &attackCards, std::vector<durak::Card> const &defendCards, durak::Type trumpType);
 
-enum class Result : int8_t
+enum class Result : uint8_t
 {
-  Undefined = -1,
-  DefendWon = 0,
-  Draw = 1,
-  AttackWon = 2
+  Undefined,
+  DefendWon,
+  Draw,
+  AttackWon
 };
 
 void setParentResultType (bool isProAttack, Result const &childResult, Result &parentResult);
@@ -129,7 +130,6 @@ std::tuple<std::vector<durak::Card>, std::vector<durak::Card> > attackAndDefendC
 
 boost::optional<durak::Player> calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4> > const &gameLookup);
 
-std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4>
-solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> > const &gameLookup);
+std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> > const &gameLookup);
 
 #endif /* E408197E_0D11_4D88_B43B_B5D6B657C114 */

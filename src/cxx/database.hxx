@@ -4,7 +4,7 @@
 #include "confu_soci/convenienceFunctionForSoci.hxx"
 #include <durak/card.hxx>
 
-BOOST_FUSION_DEFINE_STRUCT ((database), Round, (std::string, gameState) (std::vector<uint8_t>, combination) (durak::Type, trump))
+BOOST_FUSION_DEFINE_STRUCT ((database), Round, (std::string, gameState) (std::vector<uint8_t>, combination))
 
 namespace database
 {
@@ -15,6 +15,8 @@ void createEmptyDatabase ();
 void createDatabaseIfNotExist ();
 
 void createTables ();
+
+std::string gameStateAsString (std::tuple<std::vector<uint8_t>, std::vector<uint8_t> > const &cards, durak::Type trump);
 
 }
 
