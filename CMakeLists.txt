@@ -34,6 +34,7 @@ ${PROJECT_OPTIONS}
   CONAN_PKG::date
   CONAN_PKG::st_tree
   CONAN_PKG::confu_soci
+  
 )
 target_compile_definitions(${TARGET_NAME_LIB} INTERFACE 
 $<$<CONFIG:DEBUG>:DEBUG>
