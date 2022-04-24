@@ -6,7 +6,7 @@ fmt/8.1.1
 date/3.0.1
 st_tree/1.2.1
 confu_soci/0.3.2@werto87/stable
-boost/1.78.0 
+boost/1.78.0
 [generators]
 cmake
 [options]
