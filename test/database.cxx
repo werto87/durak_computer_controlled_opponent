@@ -72,7 +72,7 @@ TEST_CASE ("save solve result to database", "[abc]")
   // gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
   // gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
   // gameLookup.insert ({ { 2, 4 }, solveDurak (36, 2, 4, gameLookup) });
-  // gameLookup.insert ({ { 3, 3 }, solveDurak (36, 3, 3, gameLookup) });
+  // gameLookup.insert ({ { 3, 3 }, solveDurak (36, 3, 3, gameLookup) }); 
   using namespace durak;
   using namespace date;
   soci::session sql (soci::sqlite3, database::databaseName);
