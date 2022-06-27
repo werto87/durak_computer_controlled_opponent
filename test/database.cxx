@@ -20,9 +20,9 @@ std::vector<durak::Card>
 stringToCards (std::string const &cardsAsString)
 {
   auto result = std::vector<durak::Card>{};
-  std::vector<std::string> splitMesssage{};
-  boost::algorithm::split (splitMesssage, cardsAsString, boost::is_any_of (","));
-  for (auto const &value : splitMesssage)
+  std::vector<std::string> splitMessage{};
+  boost::algorithm::split (splitMessage, cardsAsString, boost::is_any_of (","));
+  for (auto const &value : splitMessage)
     {
       uint8_t tmp{};
       auto [ptr, ec]{ std::from_chars (value.data (), value.data () + value.size (), tmp) };
@@ -47,13 +47,13 @@ attackAndDefendCardsAndTrump (std::string const &gameState)
 {
   auto result = std::tuple<std::vector<durak::Card>, std::vector<durak::Card>, durak::Type>{};
   auto &[attack, defend, trump] = result;
-  std::vector<std::string> splitMesssage{};
-  boost::algorithm::split (splitMesssage, gameState, boost::is_any_of (";"));
-  if (splitMesssage.size () == 3)
+  std::vector<std::string> splitMessage{};
+  boost::algorithm::split (splitMessage, gameState, boost::is_any_of (";"));
+  if (splitMessage.size () == 3)
     {
-      attack = stringToCards (splitMesssage.at (0));
-      defend = stringToCards (splitMesssage.at (1));
-      trump = magic_enum::enum_cast<durak::Type> (std::stoi (splitMesssage.at (2))).value ();
+      attack = stringToCards (splitMessage.at (0));
+      defend = stringToCards (splitMessage.at (1));
+      trump = magic_enum::enum_cast<durak::Type> (std::stoi (splitMessage.at (2))).value ();
     }
   else
     {
@@ -68,11 +68,11 @@ TEST_CASE ("save solve result to database", "[abc]")
   database::createTables ();
 
   auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
-  gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) }); 
+  gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
   // gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
   // gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
   // gameLookup.insert ({ { 2, 4 }, solveDurak (36, 2, 4, gameLookup) });
-  // gameLookup.insert ({ { 3, 3 }, solveDurak (36, 3, 3, gameLookup) }); 
+  // gameLookup.insert ({ { 3, 3 }, solveDurak (36, 3, 3, gameLookup) });
   using namespace durak;
   using namespace date;
   soci::session sql (soci::sqlite3, database::databaseName);
