@@ -30,8 +30,8 @@
 TEST_CASE ("solve ", "[abc]")
 {
   using namespace durak;
-  auto gameToAnalyse = Game{ { "a", "b" }, GameOption{ .numberOfCardsPlayerShouldHave = 2, .customCardDeck = std::vector<Card>{ { 1, Type::hearts }, { 1, Type::clubs }, { 1, Type::diamonds }, { 1, Type::spades } } } };
-  auto results = solve (gameToAnalyse);
+  auto gameToAnalyze = Game{ { "a", "b" }, GameOption{ .numberOfCardsPlayerShouldHave = 2, .customCardDeck = std::vector<Card>{ { 1, Type::hearts }, { 1, Type::clubs }, { 1, Type::diamonds }, { 1, Type::spades } } } };
+  auto results = solve (gameToAnalyze);
   REQUIRE (results.size () == 6);
 }
 
