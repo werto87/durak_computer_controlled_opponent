@@ -86,4 +86,27 @@ moveResultToBinary (std::vector<std::tuple<uint8_t, Result> > const &moveResults
     }
   return results;
 }
+
+void
+insertGameLookUp (std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> > const &gameLookup)
+{
+  soci::session sql (soci::sqlite3, database::databaseName);
+  soci::transaction tr (sql);
+  for (auto const &gameTypeAndGame : gameLookup)
+    {
+      using namespace durak;
+      for (auto trumpType : { Type::hearts, Type::clubs, Type::diamonds, Type::spades })
+        {
+          for (auto const &resultForTrump : std::get<1> (gameTypeAndGame).at (static_cast<size_t> (trumpType)))
+            {
+              auto const &[cards, combination] = resultForTrump;
+              auto round = database::Round{};
+              round.gameState = database::gameStateAsString (cards, trumpType);
+              round.combination = database::moveResultToBinary (combination);
+              confu_soci::insertStruct (sql, round);
+            }
+        }
+    }
+  tr.commit ();
+}
 }

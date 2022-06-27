@@ -73,28 +73,10 @@ TEST_CASE ("save solve result to database", "[abc]")
   // gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
   // gameLookup.insert ({ { 2, 4 }, solveDurak (36, 2, 4, gameLookup) });
   // gameLookup.insert ({ { 3, 3 }, solveDurak (36, 3, 3, gameLookup) });
-  // std::cout << "database start: " << std::endl;
-  // auto start = std::chrono::system_clock::now ();
   using namespace durak;
-  soci::session sql (soci::sqlite3, database::databaseName);
-  soci::transaction tr (sql);
-  for (auto const &gameTypeAndGame : gameLookup)
-    {
-      for (auto trumpType : { Type::hearts, Type::clubs, Type::diamonds, Type::spades })
-        {
-          for (auto const &resultForTrump : std::get<1> (gameTypeAndGame).at (static_cast<size_t> (trumpType)))
-            {
-              auto const &[cards, combination] = resultForTrump;
-              auto round = database::Round{};
-              round.gameState = database::gameStateAsString (cards, trumpType);
-              round.combination = database::moveResultToBinary (combination);
-              confu_soci::insertStruct (sql, round);
-            }
-        }
-    }
-  tr.commit ();
   using namespace date;
-  // std::cout << std::chrono::system_clock::now () - start << std::endl;
+  soci::session sql (soci::sqlite3, database::databaseName);
+  database::insertGameLookUp (gameLookup);
   auto someRound = confu_soci::findStruct<database::Round> (sql, "gameState", database::gameStateAsString ({ { 0 }, { 1 } }, Type::clubs));
   REQUIRE (someRound.has_value ());
   auto [attack, defend, trump] = attackAndDefendCardsAndTrump (someRound->gameState);
