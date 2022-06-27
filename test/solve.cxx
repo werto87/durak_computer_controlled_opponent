@@ -1,11 +1,13 @@
 #include "src/cxx/solve.hxx"
 #include "src/cxx/compressCard.hxx"
+#include "src/cxx/database.hxx"
 #include "src/cxx/permutation.hxx"
 #include <boost/fusion/adapted/struct/detail/adapt_auto.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <catch2/catch.hpp>
 #include <chrono>
 #include <confu_json/to_json.hxx>
+#include <confu_soci/convenienceFunctionForSoci.hxx>
 #include <cstddef>
 #include <cstdint>
 #include <date/date.h>
@@ -58,4 +60,29 @@ TEST_CASE ("solve multiple games", "[abc]")
   REQUIRE (results.at (0).at (3).attackIsWinning.size () == 1);
   REQUIRE (results.at (0).at (3).defendIsWinning.size () == 0);
   REQUIRE (results.at (0).at (3).draw.size () == 1);
+}
+
+TEST_CASE ("cardToPlay", "[abc]")
+{
+  database::createEmptyDatabase ();
+  database::createTables ();
+
+  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
+  gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
+  // gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
+  // gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
+  // gameLookup.insert ({ { 2, 4 }, solveDurak (36, 2, 4, gameLookup) });
+  // gameLookup.insert ({ { 3, 3 }, solveDurak (36, 3, 3, gameLookup) });
+  using namespace durak;
+  using namespace date;
+  soci::session sql (soci::sqlite3, database::databaseName);
+  database::insertGameLookUp (gameLookup);
+  auto someRound = confu_soci::findStruct<database::Round> (sql, "gameState", database::gameStateAsString ({ { 0 }, { 1 } }, Type::clubs));
+  REQUIRE (someRound.has_value ());
+  // auto [attack, defend, trump] = attackAndDefendCardsAndTrump (someRound->gameState);
+  // REQUIRE (attack == idsToCards (std::vector<uint8_t>{ 0 }));
+  // REQUIRE (defend == idsToCards (std::vector<uint8_t>{ 1 }));
+  // REQUIRE (trump == Type::clubs);
+  // TODO write test for this
+  // cardToPlay ({}, {}, {});
 }

@@ -162,7 +162,22 @@ cardToPlay (Round const &round, std::vector<std::pair<durak::Card, boost::option
           auto const &drawMoves = round.draw;
           if (auto combination = ranges::find_if (drawMoves, [&actionsDone] (auto const &combi) { return ranges::starts_with (combi, actionsDone.value ()); }); combination != drawMoves.end ())
             {
-              return std::nullopt;
+              if (actionsDone->size () < combination->size ())
+                {
+                  auto cardToPlay = combination->at (actionsDone->size ()).playedCard ();
+                  if (ranges::find (playerCards, cardToPlay) != playerCards.end ())
+                    {
+                      return cardToPlay;
+                    }
+                  else
+                    {
+                      return std::nullopt;
+                    }
+                }
+              else
+                {
+                  return std::nullopt;
+                }
             }
           else
             {
@@ -436,6 +451,8 @@ Round::Round (std::vector<durak::Card> const &attackingPlayerCards_, std::vector
   sortUniqueErase (defendIsWinning);
   sortUniqueErase (draw);
 }
+// TODO implement this
+Round::Round (database::Round const &databaseRound) {}
 
 std::vector<durak::Game>
 solve (durak::Game const &game)

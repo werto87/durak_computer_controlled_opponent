@@ -6,6 +6,11 @@
 #include <st_tree.h>
 #include <vector>
 
+namespace database
+{
+struct Round;
+}
+
 std::vector<durak::HistoryEvent> onlyFirstRound (std::vector<durak::HistoryEvent> const &histories);
 
 class Action
@@ -39,6 +44,7 @@ sortUniqueErase (T &t)
 struct Round
 {
   Round (std::vector<durak::Card> const &attackingPlayerCards_, std::vector<durak::Card> const &defendingPlayerCards_, std::vector<std::tuple<boost::optional<durak::Player>, std::vector<durak::HistoryEvent> > > const &resultsAndHistories);
+  Round (database::Round const &databaseRound);
   std::vector<durak::Card> attackingPlayerCards{};
   std::vector<durak::Card> defendingPlayerCards{};
   std::vector<std::vector<Action> > attackIsWinning{};
