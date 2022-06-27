@@ -1,6 +1,7 @@
 #ifndef A082A940_2718_473D_8151_50956A0E5B42
 #define A082A940_2718_473D_8151_50956A0E5B42
 
+#include <durak/card.hxx>
 #include <sstream>
 #include <string>
 #include <tuple>
@@ -21,5 +22,9 @@ vectorToString (T const &vec)
     }
   return ss.str ();
 }
+
+std::tuple<std::vector<durak::Card>, std::vector<durak::Card>, durak::Type> attackAndDefendCardsAndTrump (std::string const &gameState);
+
+std::vector<durak::Card> stringToCards (std::string const &cardsAsString);
 
 #endif /* A082A940_2718_473D_8151_50956A0E5B42 */

@@ -1,5 +1,7 @@
 #include "database.hxx"
+#include "src/cxx/compressCard.hxx"
 #include "src/cxx/util.hxx"
+#include <charconv>
 #include <durak/card.hxx>
 #include <filesystem> // for create_directory
 #include <iostream>   // for endl, basic_ost...
@@ -109,4 +111,5 @@ insertGameLookUp (std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std
     }
   tr.commit ();
 }
+
 }
