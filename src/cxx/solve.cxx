@@ -466,11 +466,11 @@ moveTree (std::vector<durak::Card> const &attackCards, std::vector<durak::Card> 
 {
   using namespace durak;
   auto playerCards = std::vector<std::vector<Card> >{ attackCards, defendCards };
-  auto gameToAnalyse = Game{ { "a", "b" }, GameOption{ .trump = trumpType, .customCardDeck = std::vector<Card>{}, .cardsInHands = playerCards } };
+  auto gameToAnalyze = Game{ { "a", "b" }, GameOption{ .trump = trumpType, .customCardDeck = std::vector<Card>{}, .cardsInHands = playerCards } };
   auto histories = std::vector<ResultAndHistory>{};
   //   TODO use another solver. solver should solve one round and than look up the result of the game
-  ranges::transform (solve (gameToAnalyse), ranges::back_inserter (histories), [] (Game const &game) { return std::make_tuple (game.durak (), onlyFirstRound (game.getHistory ())); });
-  return Round{ gameToAnalyse.getAttackingPlayer ()->getCards (), gameToAnalyse.getDefendingPlayer ()->getCards (), histories };
+  ranges::transform (solve (gameToAnalyze), ranges::back_inserter (histories), [] (Game const &game) { return std::make_tuple (game.durak (), onlyFirstRound (game.getHistory ())); });
+  return Round{ gameToAnalyze.getAttackingPlayer ()->getCards (), gameToAnalyze.getDefendingPlayer ()->getCards (), histories };
 }
 
 using Histories = std::vector<durak::HistoryEvent>;
@@ -660,7 +660,7 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
   using namespace durak;
   auto combinations = compressed_permutations ({ attackCardCount, defendCardCount }, n);
   // std::cout << "combinations.size(): " << combinations.size () << std::endl;
-  auto compresedGames = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4>{};
+  auto compressedGames = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4>{};
   // auto i = size_t{};
   for (auto combi : combinations)
     {
@@ -673,16 +673,16 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
           auto cards = idsToCards (combi);
           auto attackCards = std::vector<Card> (cards.begin (), cards.begin () + static_cast<long> (attackCardCount));
           auto defendCards = std::vector<Card> (cards.begin () + static_cast<long> (attackCardCount), cards.end ());
-          auto gameToAnalyse = Game{ { "a", "b" }, GameOption{ .trump = trumpType, .customCardDeck = std::vector<Card>{}, .cardsInHands = std::vector<std::vector<Card> >{ attackCards, defendCards } } };
-          auto tmpResults = simulateRound (gameToAnalyse);
+          auto gameToAnalyze = Game{ { "a", "b" }, GameOption{ .trump = trumpType, .customCardDeck = std::vector<Card>{}, .cardsInHands = std::vector<std::vector<Card> >{ attackCards, defendCards } } };
+          auto tmpResults = simulateRound (gameToAnalyze);
           auto histories = std::vector<ResultAndHistory>{};
           ranges::transform (tmpResults, ranges::back_inserter (histories), [&gameLookup] (Game const &game) { return std::make_tuple (calcGameResult (game, gameLookup), onlyFirstRound (game.getHistory ())); });
-          auto round = Round{ gameToAnalyse.getAttackingPlayer ()->getCards (), gameToAnalyse.getDefendingPlayer ()->getCards (), histories };
+          auto round = Round{ gameToAnalyze.getAttackingPlayer ()->getCards (), gameToAnalyze.getDefendingPlayer ()->getCards (), histories };
           auto tree = createTree (round);
           solveGameTree (tree);
-          compresedGames.at (static_cast<size_t> (trumpType)).insert ({ { cardsToIds (attackCards), cardsToIds (defendCards) }, treeToVector (tree, maxChildren (tree), std::tuple<uint8_t, Result>{ 255, Result::Undefined }, std::tuple<uint8_t, Result>{ 254, Result::Undefined }, [] (auto const &node) { return std::tuple<uint8_t, Result>{ node.key ().value (), std::get<0> (node.data ()) }; }) });
+          compressedGames.at (static_cast<size_t> (trumpType)).insert ({ { cardsToIds (attackCards), cardsToIds (defendCards) }, treeToVector (tree, maxChildren (tree), std::tuple<uint8_t, Result>{ 255, Result::Undefined }, std::tuple<uint8_t, Result>{ 254, Result::Undefined }, [] (auto const &node) { return std::tuple<uint8_t, Result>{ node.key ().value (), std::get<0> (node.data ()) }; }) });
         }
       // i++;
     }
-  return compresedGames;
+  return compressedGames;
 }
