@@ -1,12 +1,14 @@
 #include "solve.hxx"
+#include "small_memory_tree/small_memory_tree.hxx"
 #include "src/cxx/compressCard.hxx"
+#include "src/cxx/database.hxx"
 #include "src/cxx/permutation.hxx"
-#include "src/cxx/treeToVector.hxx"
 #include <cstddef>
 #include <cstdint>
 #include <durak/game.hxx>
 #include <magic_enum.hpp>
 #include <range/v3/algorithm/find_if.hpp>
+#include <utility>
 #include <vector>
 using Histories = std::vector<durak::HistoryEvent>;
 using Ids = std::vector<uint8_t>;
@@ -413,14 +415,13 @@ Action::value () const
 bool
 Action::playCard (durak::Card const &card)
 {
-  auto cardAsId = cardToId (card);
   if (cardPlayed >= 253)
     {
       return false;
     }
   else
     {
-      cardPlayed = cardAsId;
+      cardPlayed = cardToId (card);
       return true;
     }
 }
@@ -451,8 +452,15 @@ Round::Round (std::vector<durak::Card> const &attackingPlayerCards_, std::vector
   sortUniqueErase (defendIsWinning);
   sortUniqueErase (draw);
 }
+
 // TODO implement this
-Round::Round (database::Round const &databaseRound) {}
+Round::Round (database::Round const &databaseRound)
+{
+  auto [attack, defend, trump] = attackAndDefendCardsAndTrump (databaseRound.gameState);
+  attackingPlayerCards = std::move (attack);
+  defendingPlayerCards = std::move (defend);
+  // databaseRound.combination;
+}
 
 std::vector<durak::Game>
 solve (durak::Game const &game)
@@ -697,7 +705,7 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
           auto round = Round{ gameToAnalyze.getAttackingPlayer ()->getCards (), gameToAnalyze.getDefendingPlayer ()->getCards (), histories };
           auto tree = createTree (round);
           solveGameTree (tree);
-          compressedGames.at (static_cast<size_t> (trumpType)).insert ({ { cardsToIds (attackCards), cardsToIds (defendCards) }, treeToVector (tree, maxChildren (tree), std::tuple<uint8_t, Result>{ 255, Result::Undefined }, std::tuple<uint8_t, Result>{ 254, Result::Undefined }, [] (auto const &node) { return std::tuple<uint8_t, Result>{ node.key ().value (), std::get<0> (node.data ()) }; }) });
+          compressedGames.at (static_cast<size_t> (trumpType)).insert ({ { cardsToIds (attackCards), cardsToIds (defendCards) }, small_memory_tree::treeToVector (tree, std::tuple<uint8_t, Result>{ 255, Result::Undefined }, std::tuple<uint8_t, Result>{ 254, Result::Undefined }, [] (auto const &node) { return std::tuple<uint8_t, Result>{ node.key ().value (), std::get<0> (node.data ()) }; }) });
         }
       // i++;
     }

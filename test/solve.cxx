@@ -77,8 +77,8 @@ TEST_CASE ("cardToPlay", "[abc]")
   using namespace date;
   soci::session sql (soci::sqlite3, database::databaseName);
   database::insertGameLookUp (gameLookup);
-  auto someRound = confu_soci::findStruct<database::Round> (sql, "gameState", database::gameStateAsString ({ { 0 }, { 1 } }, Type::clubs));
-  REQUIRE (someRound.has_value ());
+  auto someRound = confu_soci::findStruct<database::Round> (sql, "gameState", database::gameStateAsString ({ { 0 }, { 1 } }, Type::clubs)).value ();
+  auto test = 42;
   // auto [attack, defend, trump] = attackAndDefendCardsAndTrump (someRound->gameState);
   // REQUIRE (attack == idsToCards (std::vector<uint8_t>{ 0 }));
   // REQUIRE (defend == idsToCards (std::vector<uint8_t>{ 1 }));

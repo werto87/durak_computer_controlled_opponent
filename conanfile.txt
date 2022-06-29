@@ -1,5 +1,5 @@
 [requires]
-catch2/2.13.7
+catch2/2.13.9 
 durak/0.0.8@werto87/stable
 thrust/1.9.5
 fmt/8.1.1
@@ -7,6 +7,8 @@ date/3.0.1
 st_tree/1.2.1
 confu_soci/0.3.2@werto87/stable
 boost/1.78.0
+small_memory_tree/0.0.1
+range-v3/0.12.0
 [generators]
 cmake
 [options]

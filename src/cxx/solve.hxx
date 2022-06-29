@@ -99,6 +99,7 @@ std::vector<std::vector<Action> > insertDrawCardsAction (std::vector<durak::Card
 void vectorWithMovesToTree (std::vector<durak::Card> const &attackCards, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > &tree, std::vector<std::vector<Action> > const &vectorsOfActions, Result result);
 
 st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > createTree (Round const &round);
+
 template <typename T>
 void
 solveGameTree (T &t)
