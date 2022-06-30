@@ -8,6 +8,7 @@
 #include <durak/game.hxx>
 #include <magic_enum.hpp>
 #include <range/v3/algorithm/find_if.hpp>
+#include <small_memory_tree/dataFromVector.hxx>
 #include <utility>
 #include <vector>
 using Histories = std::vector<durak::HistoryEvent>;
@@ -97,28 +98,6 @@ tableValidForMoveLookUp (std::vector<std::pair<durak::Card, boost::optional<dura
   return true;
 }
 
-std::optional<std::vector<Action> >
-tableToActions (std::vector<std::pair<durak::Card, boost::optional<durak::Card> > > const &table)
-{
-  if (tableValidForMoveLookUp (table))
-    {
-      auto result = std::vector<Action>{};
-      for (auto const &[card, cardToBeat] : table)
-        {
-          result.push_back (cardToId (card));
-          if (cardToBeat)
-            {
-              result.push_back (cardToId (cardToBeat.value ()));
-            }
-        }
-      return result;
-    }
-  else
-    {
-      return std::nullopt;
-    }
-}
-
 std::ostream &
 operator<< (std::ostream &os, const Action &action)
 {
@@ -133,65 +112,65 @@ operator<< (std::ostream &os, const Action &action)
   return os;
 }
 
-std::optional<durak::Card>
-cardToPlay (Round const &round, std::vector<std::pair<durak::Card, boost::optional<durak::Card> > > const &cardsOnTable, durak::PlayerRole playerRole)
-{
-  if (auto actionsDone = tableToActions (cardsOnTable))
-    {
-      auto const &winningMoves = (playerRole == durak::PlayerRole::attack) ? round.attackIsWinning : round.defendIsWinning;
-      auto const &playerCards = (playerRole == durak::PlayerRole::attack) ? round.attackingPlayerCards : round.defendingPlayerCards;
-      if (auto winningCombination = ranges::find_if (winningMoves, [&actionsDone] (auto const &combi) { return ranges::starts_with (combi, actionsDone.value ()); }); winningCombination != winningMoves.end ())
-        {
-          if (actionsDone->size () < winningCombination->size ())
-            {
-              auto cardToPlay = winningCombination->at (actionsDone->size ()).playedCard ();
-              if (ranges::find (playerCards, cardToPlay) != playerCards.end ())
-                {
-                  return cardToPlay;
-                }
-              else
-                {
-                  return std::nullopt;
-                }
-            }
-          else
-            {
-              return std::nullopt;
-            }
-        }
-      else
-        {
-          auto const &drawMoves = round.draw;
-          if (auto combination = ranges::find_if (drawMoves, [&actionsDone] (auto const &combi) { return ranges::starts_with (combi, actionsDone.value ()); }); combination != drawMoves.end ())
-            {
-              if (actionsDone->size () < combination->size ())
-                {
-                  auto cardToPlay = combination->at (actionsDone->size ()).playedCard ();
-                  if (ranges::find (playerCards, cardToPlay) != playerCards.end ())
-                    {
-                      return cardToPlay;
-                    }
-                  else
-                    {
-                      return std::nullopt;
-                    }
-                }
-              else
-                {
-                  return std::nullopt;
-                }
-            }
-          else
-            {
-              return std::nullopt;
-            }
-        }
-    }
-  else
-    {
-      return std::nullopt;
-    }
-}
+// std::optional<durak::Card>
+// cardToPlay (Round const &round, std::vector<std::pair<durak::Card, boost::optional<durak::Card> > > const &cardsOnTable, durak::PlayerRole playerRole)
+// {
+//   if (auto actionsDone = tableToActions (cardsOnTable))
+//     {
+//       auto const &winningMoves = (playerRole == durak::PlayerRole::attack) ? round.attackIsWinning : round.defendIsWinning;
+//       auto const &playerCards = (playerRole == durak::PlayerRole::attack) ? round.attackingPlayerCards : round.defendingPlayerCards;
+//       if (auto winningCombination = ranges::find_if (winningMoves, [&actionsDone] (auto const &combi) { return ranges::starts_with (combi, actionsDone.value ()); }); winningCombination != winningMoves.end ())
+//         {
+//           if (actionsDone->size () < winningCombination->size ())
+//             {
+//               auto cardToPlay = winningCombination->at (actionsDone->size ()).playedCard ();
+//               if (ranges::find (playerCards, cardToPlay) != playerCards.end ())
+//                 {
+//                   return cardToPlay;
+//                 }
+//               else
+//                 {
+//                   return std::nullopt;
+//                 }
+//             }
+//           else
+//             {
+//               return std::nullopt;
+//             }
+//         }
+//       else
+//         {
+//           auto const &drawMoves = round.draw;
+//           if (auto combination = ranges::find_if (drawMoves, [&actionsDone] (auto const &combi) { return ranges::starts_with (combi, actionsDone.value ()); }); combination != drawMoves.end ())
+//             {
+//               if (actionsDone->size () < combination->size ())
+//                 {
+//                   auto cardToPlay = combination->at (actionsDone->size ()).playedCard ();
+//                   if (ranges::find (playerCards, cardToPlay) != playerCards.end ())
+//                     {
+//                       return cardToPlay;
+//                     }
+//                   else
+//                     {
+//                       return std::nullopt;
+//                     }
+//                 }
+//               else
+//                 {
+//                   return std::nullopt;
+//                 }
+//             }
+//           else
+//             {
+//               return std::nullopt;
+//             }
+//         }
+//     }
+//   else
+//     {
+//       return std::nullopt;
+//     }
+// }
 
 std::vector<std::tuple<durak::Game, AttackDefendPass> >
 startAttack (std::tuple<durak::Game, AttackDefendPass> const &gameWithPasses)
@@ -453,15 +432,6 @@ Round::Round (std::vector<durak::Card> const &attackingPlayerCards_, std::vector
   sortUniqueErase (draw);
 }
 
-// TODO implement this
-Round::Round (database::Round const &databaseRound)
-{
-  auto [attack, defend, trump] = attackAndDefendCardsAndTrump (databaseRound.gameState);
-  attackingPlayerCards = std::move (attack);
-  defendingPlayerCards = std::move (defend);
-  // databaseRound.combination;
-}
-
 std::vector<durak::Game>
 solve (durak::Game const &game)
 {
@@ -710,4 +680,28 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
       // i++;
     }
   return compressedGames;
+}
+std::vector<std::tuple<uint8_t, Result> >
+binaryToMoveResult (std::vector<uint8_t> const &movesAndResultAsBinary)
+{
+  auto results = std::vector<std::tuple<uint8_t, Result> >{};
+  results.reserve (movesAndResultAsBinary.size () / 2);
+  for (size_t i = 0; i < movesAndResultAsBinary.size (); i = i + 2)
+    {
+      results.push_back (std::tuple<uint8_t, Result>{ { movesAndResultAsBinary.at (i) }, Result{ movesAndResultAsBinary.at (i + 1) } });
+    }
+  return results;
+}
+std::vector<std::tuple<uint8_t, Result> >
+nextActions (std::vector<Action> const &actions, std::vector<std::tuple<uint8_t, Result> > const &moveResults)
+{
+  auto children = small_memory_tree::childrenByPath (moveResults, {}, moveResults.back ());
+  for (auto const &action : actions)
+    {
+      if (auto childResultToPlay = ranges::find_if (children, [action] (std::tuple<uint8_t, Result> const &moveResult) { return action.value () == std::get<0> (moveResult); }); childResultToPlay != children.end ())
+        {
+          children = small_memory_tree::childrenByPath (moveResults, { *childResultToPlay }, moveResults.back ());
+        }
+    }
+  return children;
 }

@@ -22,8 +22,11 @@
 #include <range/v3/algorithm.hpp>
 #include <range/v3/algorithm/equal.hpp>
 #include <range/v3/algorithm/find.hpp>
+#include <range/v3/algorithm/find_if.hpp>
 #include <range/v3/iterator/insert_iterators.hpp>
 #include <ratio>
+#include <small_memory_tree/dataFromVector.hxx>
+#include <st_tree.h>
 #include <stdexcept>
 #include <tuple>
 #include <utility>
@@ -62,27 +65,19 @@ TEST_CASE ("solve multiple games", "[abc]")
   REQUIRE (results.at (0).at (3).draw.size () == 1);
 }
 
-TEST_CASE ("cardToPlay", "[abc]")
+TEST_CASE ("nextActions", "[abc]")
 {
   database::createEmptyDatabase ();
   database::createTables ();
 
   auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
-  // gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
-  // gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
-  // gameLookup.insert ({ { 2, 4 }, solveDurak (36, 2, 4, gameLookup) });
-  // gameLookup.insert ({ { 3, 3 }, solveDurak (36, 3, 3, gameLookup) });
   using namespace durak;
   using namespace date;
   soci::session sql (soci::sqlite3, database::databaseName);
   database::insertGameLookUp (gameLookup);
   auto someRound = confu_soci::findStruct<database::Round> (sql, "gameState", database::gameStateAsString ({ { 0 }, { 1 } }, Type::clubs)).value ();
-  auto test = 42;
-  // auto [attack, defend, trump] = attackAndDefendCardsAndTrump (someRound->gameState);
-  // REQUIRE (attack == idsToCards (std::vector<uint8_t>{ 0 }));
-  // REQUIRE (defend == idsToCards (std::vector<uint8_t>{ 1 }));
-  // REQUIRE (trump == Type::clubs);
-  // TODO write test for this
-  // cardToPlay ({}, {}, {});
+  auto moveResult = binaryToMoveResult (someRound.combination);
+  auto result = nextActions ({ 0 }, moveResult);
+  REQUIRE (result == std::vector<std::tuple<uint8_t, Result> >{ { 1, Result::Draw }, { 253, Result::AttackWon } });
 }

@@ -2,6 +2,7 @@
 #include "src/cxx/compressCard.hxx"
 #include "src/cxx/util.hxx"
 #include <charconv>
+#include <cstddef>
 #include <durak/card.hxx>
 #include <filesystem> // for create_directory
 #include <iostream>   // for endl, basic_ost...

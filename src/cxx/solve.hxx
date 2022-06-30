@@ -90,6 +90,10 @@ enum class Result : uint8_t
   AttackWon
 };
 
+std::vector<std::tuple<uint8_t, Result> > nextActions (std::vector<Action> const &actions, std::vector<std::tuple<uint8_t, Result> > const &moveResults);
+
+std::vector<std::tuple<uint8_t, Result> > binaryToMoveResult (std::vector<uint8_t> const &movesAndResultAsBinary);
+
 void setParentResultType (bool isProAttack, Result const &childResult, Result &parentResult);
 
 bool validActionSequence (std::vector<Action> actions, std::vector<durak::Card> const &attackCards);
