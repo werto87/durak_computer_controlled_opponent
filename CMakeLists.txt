@@ -33,7 +33,6 @@ target_link_libraries(${TARGET_NAME_LIB} PUBLIC
   CONAN_PKG::durak
   CONAN_PKG::date
   CONAN_PKG::st_tree
-  CONAN_PKG::confu_soci
   CONAN_PKG::small_memory_tree
 )
 target_compile_definitions(${TARGET_NAME_LIB} PUBLIC

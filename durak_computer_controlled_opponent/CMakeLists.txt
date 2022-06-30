@@ -3,5 +3,4 @@ target_sources(${TARGET_NAME_LIB} PUBLIC
     permutation.cxx
     compressCard.cxx
     solve.cxx
-    database.cxx
 )

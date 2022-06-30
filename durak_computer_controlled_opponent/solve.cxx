@@ -1,6 +1,5 @@
 #include "solve.hxx"
 #include "durak_computer_controlled_opponent/compressCard.hxx"
-#include "durak_computer_controlled_opponent/database.hxx"
 #include "durak_computer_controlled_opponent/permutation.hxx"
 #include "small_memory_tree/small_memory_tree.hxx"
 #include <cstddef>

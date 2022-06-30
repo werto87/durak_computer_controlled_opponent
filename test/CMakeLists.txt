@@ -5,7 +5,6 @@ add_executable(${TEST_TARGET_NAME}
     compressCard.cxx
     solve.cxx
     gameTree.cxx
-    database.cxx
     util.cxx
 )
 
