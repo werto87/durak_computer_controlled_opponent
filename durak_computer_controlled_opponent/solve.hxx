@@ -58,8 +58,6 @@ std::optional<std::vector<Action> > tableToActions (std::vector<std::pair<durak:
 
 std::ostream &operator<< (std::ostream &os, const Action &action);
 
-std::optional<durak::Card> cardToPlay (Round const &round, std::vector<std::pair<durak::Card, boost::optional<durak::Card> > > const &cardsOnTable, durak::PlayerRole playerRole);
-
 struct AttackDefendPass
 {
   bool attackPass = false;
