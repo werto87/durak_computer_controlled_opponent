@@ -1,8 +1,6 @@
 [requires]
 catch2/2.13.9 
 durak/0.0.8@werto87/stable
-fmt/8.1.1
-date/3.0.1
 st_tree/1.2.1
 boost/1.78.0
 small_memory_tree/0.0.1

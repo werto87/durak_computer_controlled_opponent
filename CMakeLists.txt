@@ -29,9 +29,7 @@ target_link_libraries(${TARGET_NAME_LIB} PUBLIC
   ${PROJECT_OPTIONS}
   CONAN_PKG::boost
   CONAN_PKG::range-v3
-  CONAN_PKG::fmt
   CONAN_PKG::durak
-  CONAN_PKG::date
   CONAN_PKG::st_tree
   CONAN_PKG::small_memory_tree
 )
