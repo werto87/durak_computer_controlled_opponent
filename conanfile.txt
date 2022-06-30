@@ -1,7 +1,6 @@
 [requires]
 catch2/2.13.9 
 durak/0.0.8@werto87/stable
-thrust/1.9.5
 fmt/8.1.1
 date/3.0.1
 st_tree/1.2.1
