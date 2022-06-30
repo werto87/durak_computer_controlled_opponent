@@ -1,7 +1,7 @@
-#include "src/cxx/database.hxx"
-#include "src/cxx/compressCard.hxx"
-#include "src/cxx/solve.hxx"
-#include "src/cxx/util.hxx"
+#include "durak_computer_controlled_opponent/database.hxx"
+#include "durak_computer_controlled_opponent/compressCard.hxx"
+#include "durak_computer_controlled_opponent/solve.hxx"
+#include "durak_computer_controlled_opponent/util.hxx"
 #include <catch2/catch.hpp>
 #include <charconv>
 #include <confu_soci/convenienceFunctionForSoci.hxx>

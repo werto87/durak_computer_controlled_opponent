@@ -1,7 +1,7 @@
-#include "src/cxx/solve.hxx"
-#include "src/cxx/compressCard.hxx"
-#include "src/cxx/database.hxx"
-#include "src/cxx/permutation.hxx"
+#include "durak_computer_controlled_opponent/solve.hxx"
+#include "durak_computer_controlled_opponent/compressCard.hxx"
+#include "durak_computer_controlled_opponent/database.hxx"
+#include "durak_computer_controlled_opponent/permutation.hxx"
 #include <boost/fusion/adapted/struct/detail/adapt_auto.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <catch2/catch.hpp>

@@ -1,6 +1,6 @@
-#include "src/cxx/compressCard.hxx"
-#include "src/cxx/permutation.hxx"
-#include "src/cxx/solve.hxx"
+#include "durak_computer_controlled_opponent/compressCard.hxx"
+#include "durak_computer_controlled_opponent/permutation.hxx"
+#include "durak_computer_controlled_opponent/solve.hxx"
 #include <catch2/catch.hpp>
 #include <chrono>
 #include <cstddef>

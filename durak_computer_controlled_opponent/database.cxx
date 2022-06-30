@@ -1,6 +1,6 @@
 #include "database.hxx"
-#include "src/cxx/compressCard.hxx"
-#include "src/cxx/util.hxx"
+#include "durak_computer_controlled_opponent/compressCard.hxx"
+#include "durak_computer_controlled_opponent/util.hxx"
 #include <charconv>
 #include <cstddef>
 #include <durak/card.hxx>

@@ -1,5 +1,5 @@
 #include "util.hxx"
-#include "src/cxx/compressCard.hxx"
+#include "durak_computer_controlled_opponent/compressCard.hxx"
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <charconv>

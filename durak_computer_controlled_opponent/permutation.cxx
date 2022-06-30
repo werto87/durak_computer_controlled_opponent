@@ -1,6 +1,6 @@
 #include "permutation.hxx"
-#include "src/cxx/combination.hxx"
-#include "src/cxx/compressCard.hxx"
+#include "durak_computer_controlled_opponent/combination.hxx"
+#include "durak_computer_controlled_opponent/compressCard.hxx"
 #include <boost/numeric/conversion/cast.hpp>
 #include <cstddef>
 #include <numeric>

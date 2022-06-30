@@ -23,7 +23,7 @@ conan_basic_setup(TARGETS)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(TARGET_NAME_LIB project_lib)
 add_library(${TARGET_NAME_LIB} INTERFACE)
-add_subdirectory(src)
+add_subdirectory(durak_computer_controlled_opponent)
 target_link_libraries(${TARGET_NAME_LIB} INTERFACE
   ${PROJECT_WARNINGS}
   ${PROJECT_OPTIONS}

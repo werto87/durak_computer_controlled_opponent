@@ -1,7 +1,7 @@
-#include "src/cxx/permutation.hxx"
-#include "src/cxx/combination.hxx"
-// #include "src/cxx/util.hxx"
-#include "src/cxx/compressCard.hxx"
+#include "durak_computer_controlled_opponent/permutation.hxx"
+#include "durak_computer_controlled_opponent/combination.hxx"
+// #include "durak_computer_controlled_opponent/util.hxx"
+#include "durak_computer_controlled_opponent/compressCard.hxx"
 #include <algorithm>
 #include <boost/numeric/conversion/cast.hpp>
 #include <catch2/catch.hpp>
