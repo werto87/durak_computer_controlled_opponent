@@ -26,6 +26,9 @@
 #include <limits>
 #include <stdexcept>
 
+namespace durak_computer_controlled_opponent
+{
+
 namespace detail
 {
 
@@ -311,7 +314,11 @@ public:
     return f_ (first_, last_);
   }
 
-  bool operator() (It, It) { return f_ (first_, last_); }
+  bool
+  operator() (It, It)
+  {
+    return f_ (first_, last_);
+  }
 };
 
 // A binder for binding arguments to call permute
@@ -357,7 +364,11 @@ gcd (UInt x, UInt y)
   return x;
 }
 
-template <class Int> inline typename std::enable_if<std::is_unsigned<Int>::value, void>::type check_non_negative (Int, Int) {}
+template <class Int>
+inline typename std::enable_if<std::is_unsigned<Int>::value, void>::type
+check_non_negative (Int, Int)
+{
+}
 
 template <class Int>
 typename std::enable_if<!std::is_unsigned<Int>::value, void>::type
@@ -815,5 +826,5 @@ count_each_reversible_circular_permutation (BidirIter first, BidirIter mid, Bidi
 {
   return count_each_reversible_circular_permutation<std::uintmax_t> (std::distance (first, mid), std::distance (mid, last));
 }
-
+}
 #endif // COMBINATIONS_H

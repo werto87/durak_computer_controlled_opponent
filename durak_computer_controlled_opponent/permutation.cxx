@@ -7,6 +7,9 @@
 #include <range/v3/algorithm.hpp>
 #include <range/v3/iterator/insert_iterators.hpp>
 
+namespace durak_computer_controlled_opponent
+{
+
 std::vector<std::vector<uint8_t> >
 combinationsNoRepetitionAndOrderDoesNotMatter (long int subsetSize, std::vector<uint8_t> setOfNumbers)
 {
@@ -73,4 +76,5 @@ numbersToCombine (std::tuple<size_t, size_t> const &attackAndDefendCardCount, si
   auto indexes = std::vector<uint8_t> (n);
   std::iota (indexes.begin (), indexes.end (), 0);
   return { combinationsNoRepetitionAndOrderDoesNotMatter (static_cast<long> (std::get<0> (attackAndDefendCardCount)), indexes), combinationsNoRepetitionAndOrderDoesNotMatter (static_cast<long> (std::get<1> (attackAndDefendCardCount)), std::vector<uint8_t> (indexes.begin (), indexes.begin () + static_cast<long int> (n) - (static_cast<long> (std::get<0> (attackAndDefendCardCount))))) };
+}
 }

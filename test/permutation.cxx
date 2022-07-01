@@ -23,6 +23,8 @@
 #include <tuple>
 #include <vector>
 
+using namespace durak_computer_controlled_opponent;
+
 TEST_CASE ("permut validation validation ", "[abc]")
 {
   size_t const attackCardCount = 2;

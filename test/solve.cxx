@@ -30,6 +30,8 @@
 #include <utility>
 #include <variant>
 
+using namespace durak_computer_controlled_opponent;
+
 TEST_CASE ("solve ", "[abc]")
 {
   using namespace durak;

@@ -14,7 +14,9 @@
 #include <range/v3/algorithm/find_if.hpp>
 #include <st_tree.h>
 
-TEST_CASE ("insertDrawCardsAction", "[abc]")
+using namespace durak_computer_controlled_opponent;
+
+    TEST_CASE ("insertDrawCardsAction", "[abc]")
 {
   std::vector<durak::Card> attackCards{ { 0, durak::Type::hearts }, { 0, durak::Type::clubs }, { 0, durak::Type::diamonds } };
   std::vector<std::vector<Action> > vectorsOfActions{ { { 0 }, { 1 }, { 2 } } };

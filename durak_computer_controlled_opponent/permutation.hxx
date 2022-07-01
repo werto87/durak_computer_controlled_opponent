@@ -7,6 +7,9 @@
 #include <set>
 #include <vector>
 
+namespace durak_computer_controlled_opponent
+{
+
 typedef std::tuple<std::vector<uint8_t>, std::vector<std::vector<uint8_t> > > subsetAndCombinations;
 
 std::vector<std::vector<uint8_t> > combinationsNoRepetitionAndOrderDoesNotMatter (long int subsetSize, std::vector<uint8_t> setOfNumbers);
@@ -51,4 +54,5 @@ combinations2 (size_t setOfNumbersSize, size_t subsetSize)
   return (factorial (setOfNumbersSize) / (factorial (setOfNumbersSize - (subsetSize)) * factorial (subsetSize / 2) * factorial (subsetSize / 2))).convert_to<size_t> (); // the size is n! / ((n-(k/2))! * (k/2)!)
 }
 
+}
 #endif /* AD23FB0A_B3C3_406D_A401_3231159AE486 */

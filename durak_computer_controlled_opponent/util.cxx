@@ -4,7 +4,8 @@
 #include <boost/algorithm/string/split.hpp>
 #include <charconv>
 #include <magic_enum.hpp>
-
+namespace durak_computer_controlled_opponent
+{
 std::tuple<std::vector<durak::Card>, std::vector<durak::Card>, durak::Type>
 attackAndDefendCardsAndTrump (std::string const &gameState)
 {
@@ -48,4 +49,5 @@ stringToCards (std::string const &cardsAsString)
         }
     }
   return result;
+}
 }

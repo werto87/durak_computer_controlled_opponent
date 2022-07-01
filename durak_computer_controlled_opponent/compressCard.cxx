@@ -1,6 +1,9 @@
 #include "compressCard.hxx"
 #include <boost/numeric/conversion/cast.hpp>
 
+namespace durak_computer_controlled_opponent
+{
+
 durak::Card
 idToCard (uint8_t id)
 {
@@ -49,4 +52,5 @@ compress (std::vector<durak::Card> cards)
   ranges::sort (idsAndCards);
   ranges::transform (idsAndCards, cards.begin (), [] (std::tuple<size_t, durak::Card> const &idAndCard) { return std::get<1> (idAndCard); });
   return cards;
+}
 }

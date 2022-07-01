@@ -3,6 +3,8 @@
 #include <catch2/catch.hpp>
 #include <cstddef>
 
+using namespace durak_computer_controlled_opponent;
+
 TEST_CASE ("compress", "[abc]")
 {
   SECTION ("4 different values", "[matchmaking]")
