@@ -1,34 +1,16 @@
 #include "durak_computer_controlled_opponent/solve.hxx"
 #include "durak_computer_controlled_opponent/compressCard.hxx"
 #include "durak_computer_controlled_opponent/permutation.hxx"
-#include <boost/fusion/adapted/struct/detail/adapt_auto.hpp>
-#include <boost/numeric/conversion/cast.hpp>
 #include <catch2/catch.hpp>
-#include <chrono>
 #include <confu_json/to_json.hxx>
 #include <cstddef>
 #include <cstdint>
-#include <date/date.h>
 #include <durak/card.hxx>
 #include <durak/game.hxx>
-#include <durak/gameData.hxx>
 #include <durak/gameOption.hxx>
-#include <iterator>
 #include <magic_enum.hpp>
-#include <numeric>
-#include <ostream>
-#include <range/v3/algorithm.hpp>
-#include <range/v3/algorithm/equal.hpp>
-#include <range/v3/algorithm/find.hpp>
-#include <range/v3/algorithm/find_if.hpp>
-#include <range/v3/iterator/insert_iterators.hpp>
-#include <ratio>
-#include <small_memory_tree/dataFromVector.hxx>
 #include <st_tree.h>
-#include <stdexcept>
 #include <tuple>
-#include <utility>
-#include <variant>
 
 using namespace durak_computer_controlled_opponent;
 
@@ -41,8 +23,6 @@ TEST_CASE ("solve ", "[abc]")
 }
 
 using Histories = std::vector<durak::HistoryEvent>;
-using Ids = std::vector<uint8_t>;
-using ResultAndHistory = std::tuple<boost::optional<durak::Player>, Histories>;
 
 TEST_CASE ("solve multiple games", "[abc]")
 {
@@ -70,7 +50,7 @@ TEST_CASE ("nextActions", "[abc]")
   auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
   using namespace durak;
-  using namespace date;
+
   // auto someRound = { { 0 }, { 1 } }, Type::clubs;
   // auto moveResult = binaryToMoveResult (someRound.combination);
   // auto result = nextActions ({ 0 }, moveResult);
