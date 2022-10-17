@@ -1,17 +1,10 @@
-#include "durak_computer_controlled_opponent/compressCard.hxx"
 #include "durak_computer_controlled_opponent/permutation.hxx"
 #include "durak_computer_controlled_opponent/solve.hxx"
 #include <catch2/catch.hpp>
-#include <chrono>
-#include <cstddef>
 #include <cstdint>
-#include <cstdlib>
-#include <date/date.h>
 #include <durak/card.hxx>
-#include <durak/print.hxx>
 #include <functional>
 #include <magic_enum.hpp>
-#include <range/v3/algorithm/find_if.hpp>
 #include <st_tree.h>
 
 using namespace durak_computer_controlled_opponent;
@@ -39,8 +32,6 @@ TEST_CASE ("simulate round ", "[abc]")
   // gameLookup.insert ({ { 4, 4 }, solveDurak (36, 4, 4, gameLookup) });
   REQUIRE (gameLookup.at ({ 1, 1 }).at (0).size () == 44);
   REQUIRE (std::get<1> (gameLookup.at ({ 1, 1 }).at (0).at ({ { 0 }, { 4 } }).at (0)) == Result::Draw);
-  // using namespace date;
-  // std::cout << "duration: " << std::chrono::duration_cast<std::chrono::milliseconds> (std::chrono::system_clock::now () - start) << std::endl;
 }
 
 #ifdef RUN_BENCHMARK_SOLVE_DURAK
