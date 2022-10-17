@@ -45,9 +45,5 @@ target_compile_definitions(${TARGET_NAME_LIB} PUBLIC
 )
 
 # create executable
-OPTION(BUILD_TESTS "enable tests" OFF)
-
-IF(BUILD_TESTS)
   enable_testing()
   add_subdirectory(test)
-ENDIF(BUILD_TESTS)
