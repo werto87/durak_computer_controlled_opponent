@@ -22,8 +22,6 @@ TEST_CASE ("solve ", "[abc]")
   REQUIRE (results.size () == 6);
 }
 
-using Histories = std::vector<durak::HistoryEvent>;
-
 TEST_CASE ("solve multiple games", "[abc]")
 {
   using namespace durak;
