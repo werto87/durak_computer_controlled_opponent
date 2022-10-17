@@ -47,6 +47,7 @@ TEST_CASE ("solve multiple games", "[abc]")
 
 TEST_CASE ("nextActions", "[abc]")
 {
+//  TODO write test
   auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
   using namespace durak;
