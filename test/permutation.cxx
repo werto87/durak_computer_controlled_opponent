@@ -1,25 +1,8 @@
 #include "durak_computer_controlled_opponent/permutation.hxx"
-#include "durak_computer_controlled_opponent/combination.hxx"
-// #include "durak_computer_controlled_opponent/util.hxx"
-#include "durak_computer_controlled_opponent/compressCard.hxx"
-#include <algorithm>
-#include <boost/numeric/conversion/cast.hpp>
 #include <catch2/catch.hpp>
 #include <cstddef>
 #include <cstdint>
-#include <durak/card.hxx>
-#include <durak/print.hxx>
-#include <fmt/color.h>
-#include <fmt/core.h>
 #include <fmt/format.h>
-#include <fmt/printf.h>
-#include <iostream>
-#include <numeric>
-#include <range/v3/algorithm/max_element.hpp>
-#include <range/v3/algorithm/min_element.hpp>
-#include <range/v3/algorithm/replace.hpp>
-#include <range/v3/iterator/insert_iterators.hpp>
-#include <range/v3/range.hpp>
 #include <tuple>
 #include <vector>
 

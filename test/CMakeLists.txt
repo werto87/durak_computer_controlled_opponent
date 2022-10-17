@@ -5,7 +5,6 @@ add_executable(${TEST_TARGET_NAME}
     compressCard.cxx
     solve.cxx
     gameTree.cxx
-    util.cxx
 )
 
 target_link_libraries(${TEST_TARGET_NAME}
