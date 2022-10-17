@@ -14,7 +14,6 @@
 namespace durak_computer_controlled_opponent
 {
 using Histories = std::vector<durak::HistoryEvent>;
-using Ids = std::vector<uint8_t>;
 using ResultAndHistory = std::tuple<boost::optional<durak::Player>, Histories>;
 Histories
 onlyFirstRound (std::vector<durak::HistoryEvent> const &histories)
