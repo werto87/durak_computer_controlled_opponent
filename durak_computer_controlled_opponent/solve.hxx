@@ -11,15 +11,25 @@ namespace durak_computer_controlled_opponent
 
 std::vector<durak::HistoryEvent> onlyFirstRound (std::vector<durak::HistoryEvent> const &histories);
 
+
+
 class Action
 {
 public:
+   enum struct Category
+  {
+    Undefined,
+    PlayCard,
+    PassOrTakeCard
+  };
+
   Action () = default;
   Action (std::uint8_t cardPlayed_) : cardPlayed (cardPlayed_) {}
   auto operator<=> (const Action &) const = default;
+
+  Category operator()() const;
   std::optional<durak::Card> playedCard () const;
 
-  [[nodiscard ("FALSE if card value invalid")]] bool playCard (durak::Card const &card);
 
   std::uint8_t value () const;
 

@@ -43,15 +43,32 @@ TEST_CASE ("solve multiple games", "[abc]")
   REQUIRE (results.at (0).at (3).draw.size () == 1);
 }
 
+TEST_CASE ("Action", "[abc]")
+{
+  SECTION ("action()==Action::Category::PlayCard")
+  {
+    auto action=Action{42};
+    REQUIRE (action()==Action::Category::PlayCard);
+  }
+  SECTION ("action()==Action::Category::PassOrTakeCard")
+  {
+    auto action=Action{253};
+    REQUIRE (action()==Action::Category::PassOrTakeCard);
+  }
+  SECTION ("action()==Action::Category::Undefined")
+  {
+    auto action=Action{254};
+    REQUIRE (action()==Action::Category::Undefined);
+  }
+}
+
+
 TEST_CASE ("nextActions", "[abc]")
 {
-//  TODO write test
+  using namespace durak;
   auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
-  using namespace durak;
-
-
-//   auto moveResult = binaryToMoveResult (someRound.combination);
-  // auto result = nextActions ({ 0 }, moveResult);
-  // REQUIRE (result == std::vector<std::tuple<uint8_t, Result> >{ { 1, Result::Draw }, { 253, Result::AttackWon } });
+  auto oneCardVsOneCard= std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> {gameLookup.at ({1,1})};
+  auto result = nextActions ({ 0 }, oneCardVsOneCard.at(0).at ({{0},{1}}));
+  REQUIRE (result == std::vector<std::tuple<uint8_t, Result> >{ { 253, Result::AttackWon } });
 }

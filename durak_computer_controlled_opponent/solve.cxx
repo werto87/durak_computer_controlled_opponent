@@ -391,20 +391,20 @@ Action::value () const
 {
   return cardPlayed;
 }
-
-bool
-Action::playCard (durak::Card const &card)
+Action::Category
+Action::operator() () const
 {
-  if (cardPlayed >= 253)
-    {
-      return false;
+  if (cardPlayed>253){
+      return Category::Undefined;
     }
-  else
-    {
-      cardPlayed = cardToId (card);
-      return true;
+  else if(cardPlayed==253){
+      return Category::PassOrTakeCard;
+    }
+  else{
+      return Category::PlayCard;
     }
 }
+
 
 Round::Round (std::vector<durak::Card> const &attackingPlayerCards_, std::vector<durak::Card> const &defendingPlayerCards_, std::vector<ResultAndHistory> const &resultsAndHistories) : attackingPlayerCards{ attackingPlayerCards_ }, defendingPlayerCards{ defendingPlayerCards_ }
 {
