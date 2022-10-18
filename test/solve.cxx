@@ -51,7 +51,7 @@ TEST_CASE ("nextActions", "[abc]")
   using namespace durak;
 
 
-   auto moveResult = binaryToMoveResult (someRound.combination);
+//   auto moveResult = binaryToMoveResult (someRound.combination);
   // auto result = nextActions ({ 0 }, moveResult);
   // REQUIRE (result == std::vector<std::tuple<uint8_t, Result> >{ { 1, Result::Draw }, { 253, Result::AttackWon } });
 }
