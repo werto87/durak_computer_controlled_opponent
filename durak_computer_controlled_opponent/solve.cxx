@@ -9,7 +9,9 @@
 #include <range/v3/algorithm/find_if.hpp>
 #include <small_memory_tree/dataFromVector.hxx>
 #include <utility>
+#include <algorithm>
 #include <vector>
+#include <range/v3/algorithm.hpp>
 
 namespace durak_computer_controlled_opponent
 {
@@ -693,8 +695,8 @@ binaryToMoveResult (std::vector<uint8_t> const &movesAndResultAsBinary)
     }
   return results;
 }
-std::vector<std::tuple<uint8_t, Result> >
-nextActions (std::vector<Action> const &actions, std::vector<std::tuple<uint8_t, Result> > const &moveResults)
+std::vector<std::tuple<Action, Result> >
+nextActionsAndResults (std::vector<Action> const &actions, std::vector<std::tuple<uint8_t, Result> > const &moveResults)
 {
   auto children = small_memory_tree::childrenByPath (moveResults, {}, moveResults.back ());
   for (auto const &action : actions)
@@ -704,6 +706,11 @@ nextActions (std::vector<Action> const &actions, std::vector<std::tuple<uint8_t,
           children = small_memory_tree::childrenByPath (moveResults, { *childResultToPlay }, moveResults.back ());
         }
     }
-  return children;
+  auto result=std::vector<std::tuple<Action, Result> >{};
+  ranges::transform(children,ranges::back_inserter(result),[](auto const& valueResult){
+    auto const&[value, _result]=valueResult;
+    return std::tuple<Action, Result>{value, _result };
+  });
+  return result;
 }
 }

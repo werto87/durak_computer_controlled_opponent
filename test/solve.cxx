@@ -63,12 +63,12 @@ TEST_CASE ("Action", "[abc]")
 }
 
 
-TEST_CASE ("nextActions", "[abc]")
+TEST_CASE ("nextActionsAndResults", "[abc]")
 {
   using namespace durak;
   auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
   auto oneCardVsOneCard= std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> {gameLookup.at ({1,1})};
-  auto result = nextActions ({ 0 }, oneCardVsOneCard.at(0).at ({{0},{1}}));
-  REQUIRE (result == std::vector<std::tuple<uint8_t, Result> >{ { 253, Result::AttackWon } });
+  auto actionsAndResults = nextActionsAndResults ({ 0 }, oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }));
+  REQUIRE (actionsAndResults == std::vector<std::tuple<Action, Result> >{ { Action{253}, Result::AttackWon } });
 }
