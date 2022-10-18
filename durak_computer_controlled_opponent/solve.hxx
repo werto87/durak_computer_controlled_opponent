@@ -51,7 +51,7 @@ sortUniqueErase (T &t)
 
 struct Round
 {
-  Round (std::vector<durak::Card> const &attackingPlayerCards_, std::vector<durak::Card> const &defendingPlayerCards_, std::vector<std::tuple<boost::optional<durak::Player>, std::vector<durak::HistoryEvent> > > const &resultsAndHistories);
+  Round (std::vector<durak::Card> attackingPlayerCards_, std::vector<durak::Card> const &defendingPlayerCards_, std::vector<std::tuple<boost::optional<durak::Player>, std::vector<durak::HistoryEvent> > > const &resultsAndHistories);
   std::vector<durak::Card> attackingPlayerCards{};
   std::vector<durak::Card> defendingPlayerCards{};
   std::vector<std::vector<Action> > attackIsWinning{};

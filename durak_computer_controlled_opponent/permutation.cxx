@@ -1,7 +1,6 @@
 #include "permutation.hxx"
 #include "durak_computer_controlled_opponent/combination.hxx"
 #include "durak_computer_controlled_opponent/compressCard.hxx"
-#include <boost/numeric/conversion/cast.hpp>
 #include <cstddef>
 #include <numeric>
 #include <range/v3/algorithm.hpp>
@@ -38,7 +37,7 @@ combinationsFor (std::vector<uint8_t> const &numbersToCheck, std::vector<std::ve
 }
 
 void
-for_each_card_combination (std::tuple<size_t, size_t> const &attackAndDefendCardCount, size_t n, std::function<bool (std::vector<uint8_t>)> callThis)
+for_each_card_combination (std::tuple<size_t, size_t> const &attackAndDefendCardCount, size_t n, const std::function<bool (std::vector<uint8_t>)>& callThis)
 {
   auto indexes = std::vector<uint8_t> (n);
   std::iota (indexes.begin (), indexes.end (), 0);

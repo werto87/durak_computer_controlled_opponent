@@ -17,7 +17,7 @@ cardToId (durak::Card const &card)
 }
 
 std::vector<uint8_t>
-cardsToIds (std::vector<durak::Card> const cards)
+cardsToIds (std::vector<durak::Card> const& cards)
 {
   auto results = std::vector<uint8_t>{};
   ranges::transform (cards, ranges::back_inserter (results), [] (durak::Card const &cards_) { return cardToId (cards_); });
@@ -25,7 +25,7 @@ cardsToIds (std::vector<durak::Card> const cards)
 }
 
 std::vector<durak::Card>
-idsToCards (std::vector<uint8_t> const ids)
+idsToCards (std::vector<uint8_t> const& ids)
 {
   auto results = std::vector<durak::Card>{};
   ranges::transform (ids, ranges::back_inserter (results), [] (uint8_t id) { return idToCard (id); });

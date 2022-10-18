@@ -71,7 +71,7 @@ std::vector<Action>
 historyEventsToActions (Histories const &histories)
 {
   auto result = std::vector<Action>{};
-  for (auto history : histories)
+  for (const auto& history : histories)
     {
       if (auto action = historyEventToAction (history))
         {
@@ -268,7 +268,7 @@ simulateRound (durak::Game const &game)
     {
       auto tmpResults = std::vector<std::tuple<Game, AttackDefendPass> >{};
       auto const finishedRoundAndNewResult = [&resultsWithPass] (std::tuple<Game, AttackDefendPass> const &gameAndDefPass) {
-        return std::get<1> (gameAndDefPass).attackPass == true && std::get<1> (gameAndDefPass).defendPass == true
+        return std::get<1> (gameAndDefPass).attackPass && std::get<1> (gameAndDefPass).defendPass
                && (ranges::find_if (resultsWithPass,
                                     [&game = std::get<0> (gameAndDefPass)] (std::tuple<Game, AttackDefendPass> const &resultWithPass) {
                                       // TODO find out why std::equal does not work with game.getHistory () == std::get<0> (resultWithPass).getHistory ()
@@ -294,15 +294,15 @@ simulateRound (durak::Game const &game)
                                     })
                    == resultsWithPass.end ());
       };
-      auto const notFinishedRound = [] (std::tuple<Game, AttackDefendPass> const &gameAndDefPass) { return not(std::get<1> (gameAndDefPass).attackPass == true && std::get<1> (gameAndDefPass).defendPass == true); };
-      for (auto startedGameWithPass : startedGamesWithPass)
+      auto const notFinishedRound = [] (std::tuple<Game, AttackDefendPass> const &gameAndDefPass) { return not(std::get<1> (gameAndDefPass).attackPass && std::get<1> (gameAndDefPass).defendPass); };
+      for (const auto& startedGameWithPass : startedGamesWithPass)
         {
           auto defendResults = defendAction (startedGameWithPass);
           ranges::copy_if (defendResults, ranges::back_inserter (tmpResults), notFinishedRound);
           ranges::copy_if (defendResults, ranges::back_inserter (resultsWithPass), finishedRoundAndNewResult);
         }
       auto myResults = std::vector<std::tuple<Game, AttackDefendPass> >{};
-      for (auto tmpResult : tmpResults)
+      for (const auto& tmpResult : tmpResults)
         {
           auto attackResults = attackAction (tmpResult);
           ranges::copy_if (attackResults, ranges::back_inserter (myResults), notFinishedRound);
@@ -408,7 +408,7 @@ Action::operator() () const
 }
 
 
-Round::Round (std::vector<durak::Card> const &attackingPlayerCards_, std::vector<durak::Card> const &defendingPlayerCards_, std::vector<ResultAndHistory> const &resultsAndHistories) : attackingPlayerCards{ attackingPlayerCards_ }, defendingPlayerCards{ defendingPlayerCards_ }
+Round::Round (std::vector<durak::Card> attackingPlayerCards_, std::vector<durak::Card> const &defendingPlayerCards_, std::vector<ResultAndHistory> const &resultsAndHistories) : attackingPlayerCards{std::move( attackingPlayerCards_ )}, defendingPlayerCards{ defendingPlayerCards_ }
 {
   for (auto [result, histories] : resultsAndHistories)
     {
@@ -472,7 +472,6 @@ moveTree (std::vector<durak::Card> const &attackCards, std::vector<durak::Card> 
 }
 
 using Histories = std::vector<durak::HistoryEvent>;
-using Ids = std::vector<uint8_t>;
 using ResultAndHistory = std::tuple<boost::optional<durak::Player>, Histories>;
 
 void
@@ -516,7 +515,7 @@ insertDrawCardsAction (std::vector<durak::Card> const &attackCards, std::vector<
   for (auto actions : vectorsOfActions)
     {
       auto result = std::vector<Action>{};
-      while (validActionSequence (actions, attackCards) == false)
+      while (not validActionSequence (actions, attackCards))
         {
           for (auto i = size_t{ 0 }; i < actions.size (); i++)
             {
@@ -531,7 +530,7 @@ insertDrawCardsAction (std::vector<durak::Card> const &attackCards, std::vector<
         }
       if (actions.size () % 2 != 0)
         {
-          actions.push_back (Action{});
+          actions.emplace_back();
         }
       results.emplace_back (std::move (actions));
     }
@@ -660,7 +659,7 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
   // std::cout << "combinations.size(): " << combinations.size () << std::endl;
   auto compressedGames = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4>{};
   // auto i = size_t{};
-  for (auto combi : combinations)
+  for (const auto& combi : combinations)
     {
       // if (i % 1000 == 0)
       //   {

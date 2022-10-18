@@ -17,7 +17,7 @@ std::vector<std::vector<uint8_t> > combinationsNoRepetitionAndOrderDoesNotMatter
 subsetAndCombinations combinationsFor (std::vector<uint8_t> const &numbersToCheck, std::vector<std::vector<uint8_t> > const &subResults, std::vector<uint8_t> const &indexes);
 
 // calls "callThis" for every card_combination. If callThis returns true stops.
-void for_each_card_combination (std::tuple<size_t, size_t> const &attackAndDefendCardCount, size_t n, std::function<bool (std::vector<uint8_t>)> callThis);
+void for_each_card_combination (std::tuple<size_t, size_t> const &attackAndDefendCardCount, size_t n, const std::function<bool (std::vector<uint8_t>)>& callThis);
 
 std::set<std::vector<uint8_t> > compressed_permutations (std::tuple<size_t, size_t> const &attackAndDefendCardCount, size_t n);
 

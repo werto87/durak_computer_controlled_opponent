@@ -10,9 +10,9 @@ durak::Card idToCard (uint8_t id);
 
 uint8_t cardToId (durak::Card const &card);
 
-std::vector<uint8_t> cardsToIds (std::vector<durak::Card> cards);
+std::vector<uint8_t> cardsToIds (const std::vector<durak::Card>& cards);
 
-std::vector<durak::Card> idsToCards (std::vector<uint8_t> ids);
+std::vector<durak::Card> idsToCards (const std::vector<uint8_t>& ids);
 
 std::vector<durak::Card> compress (std::vector<durak::Card> cards);
 
