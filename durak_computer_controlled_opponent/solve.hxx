@@ -24,7 +24,7 @@ public:
   };
 
   Action () = default;
-  Action (std::uint8_t cardPlayed_) : cardPlayed (cardPlayed_) {}
+  Action (std::uint8_t value) : _value (value) {}
   auto operator<=> (const Action &) const = default;
 
   Category operator()() const;
@@ -34,7 +34,7 @@ public:
   std::uint8_t value () const;
 
 private:
-  std::uint8_t cardPlayed{ 253 };
+  std::uint8_t _value{ 253 };
 };
 
 std::optional<Action> historyEventToAction (durak::HistoryEvent const &historyEvent);

@@ -120,7 +120,7 @@ operator<< (std::ostream &os, const Action &action)
 //     {
 //       auto const &winningMoves = (playerRole == durak::PlayerRole::attack) ? round.attackIsWinning : round.defendIsWinning;
 //       auto const &playerCards = (playerRole == durak::PlayerRole::attack) ? round.attackingPlayerCards : round.defendingPlayerCards;
-//       if (auto winningCombination = ranges::find_if (winningMoves, [&actionsDone] (auto const &combi) { return ranges::starts_with (combi, actionsDone.value ()); }); winningCombination != winningMoves.end ())
+//       if (auto winningCombination = ranges::find_if (winningMoves, [&actionsDone] (auto const &combi) { return ranges::starts_with (combi, actionsDone._value ()); }); winningCombination != winningMoves.end ())
 //         {
 //           if (actionsDone->size () < winningCombination->size ())
 //             {
@@ -142,7 +142,7 @@ operator<< (std::ostream &os, const Action &action)
 //       else
 //         {
 //           auto const &drawMoves = round.draw;
-//           if (auto combination = ranges::find_if (drawMoves, [&actionsDone] (auto const &combi) { return ranges::starts_with (combi, actionsDone.value ()); }); combination != drawMoves.end ())
+//           if (auto combination = ranges::find_if (drawMoves, [&actionsDone] (auto const &combi) { return ranges::starts_with (combi, actionsDone._value ()); }); combination != drawMoves.end ())
 //             {
 //               if (actionsDone->size () < combination->size ())
 //                 {
@@ -376,28 +376,28 @@ defend (std::tuple<durak::Game, AttackDefendPass> const &gameWithPasses)
 std::optional<durak::Card>
 Action::playedCard () const
 {
-  if (cardPlayed >= 253)
+  if (_value >= 253)
     {
       return std::nullopt;
     }
   else
     {
-      return idToCard (cardPlayed);
+      return idToCard (_value);
     }
 }
 
 std::uint8_t
 Action::value () const
 {
-  return cardPlayed;
+  return _value;
 }
 Action::Category
 Action::operator() () const
 {
-  if (cardPlayed>253){
+  if (_value >253){
       return Category::Undefined;
     }
-  else if(cardPlayed==253){
+  else if(_value ==253){
       return Category::PassOrTakeCard;
     }
   else{

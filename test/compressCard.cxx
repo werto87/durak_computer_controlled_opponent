@@ -13,7 +13,7 @@ TEST_CASE ("compress", "[abc]")
     auto const desire = std::vector<durak::Card>{ { 0, durak::Type::clubs }, { 2, durak::Type::clubs }, { 3, durak::Type::clubs }, { 1, durak::Type::hearts } };
     REQUIRE (result == desire);
   }
-  SECTION ("4 times the same value", "[matchmaking]")
+  SECTION ("4 times the same _value", "[matchmaking]")
   {
     auto const result = compress ({ { 6, durak::Type::clubs }, { 6, durak::Type::hearts }, { 6, durak::Type::diamonds }, { 6, durak::Type::spades } });
     auto const desire = std::vector<durak::Card>{ { 0, durak::Type::clubs }, { 0, durak::Type::hearts }, { 0, durak::Type::diamonds }, { 0, durak::Type::spades } };
