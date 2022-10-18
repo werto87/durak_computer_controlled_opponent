@@ -30,7 +30,7 @@ TEST_CASE ("solve multiple games", "[abc]")
   size_t const attackCardCount = 1;
   size_t const defendCardCount = 1;
   auto combinations = compressed_permutations ({ attackCardCount, defendCardCount }, n);
-  for (auto combi : combinations)
+  for (const auto& combi : combinations)
     {
       for (auto trumpType : { Type::hearts, Type::clubs, Type::diamonds, Type::spades })
         {
@@ -39,7 +39,7 @@ TEST_CASE ("solve multiple games", "[abc]")
         }
     }
   REQUIRE (results.at (0).at (3).attackIsWinning.size () == 1);
-  REQUIRE (results.at (0).at (3).defendIsWinning.size () == 0);
+  REQUIRE (results.at (0).at (3).defendIsWinning.empty());
   REQUIRE (results.at (0).at (3).draw.size () == 1);
 }
 
