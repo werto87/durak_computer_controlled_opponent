@@ -50,8 +50,8 @@ TEST_CASE ("nextActions", "[abc]")
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
   using namespace durak;
 
-  // auto someRound = { { 0 }, { 1 } }, Type::clubs;
-  // auto moveResult = binaryToMoveResult (someRound.combination);
+
+   auto moveResult = binaryToMoveResult (someRound.combination);
   // auto result = nextActions ({ 0 }, moveResult);
   // REQUIRE (result == std::vector<std::tuple<uint8_t, Result> >{ { 1, Result::Draw }, { 253, Result::AttackWon } });
 }
