@@ -12,7 +12,7 @@ using namespace durak_computer_controlled_opponent;
     TEST_CASE ("insertDrawCardsAction", "[abc]")
 {
   std::vector<durak::Card> attackCards{ { 0, durak::Type::hearts }, { 0, durak::Type::clubs }, { 0, durak::Type::diamonds } };
-  std::vector<std::vector<Action> > vectorsOfActions{ { { 0 }, { 1 }, { 2 } } };
+  std::vector<std::vector<Action> > vectorsOfActions{ { Action{ 0 }, Action{ 1 }, Action{ 2 } } };
   REQUIRE (insertDrawCardsAction (attackCards, vectorsOfActions).at (0).size () == 6);
 }
 

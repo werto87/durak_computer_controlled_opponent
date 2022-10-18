@@ -24,14 +24,14 @@ public:
   };
 
   Action () = default;
-  Action (std::uint8_t value) : _value (value) {}
+  explicit Action (std::uint8_t value) : _value (value) {}
   auto operator<=> (const Action &) const = default;
 
-  Category operator()() const;
-  std::optional<durak::Card> playedCard () const;
+  [[nodiscard]] Category operator()() const;
+  [[nodiscard]] std::optional<durak::Card> playedCard () const;
 
 
-  std::uint8_t value () const;
+  [[nodiscard]] std::uint8_t value () const;
 
 private:
   std::uint8_t _value{ 253 };
