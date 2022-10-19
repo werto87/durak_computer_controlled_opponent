@@ -2,7 +2,7 @@
 // Created by walde on 10/18/22.
 //
 #include "catch2/catch.hpp"
-#include "durak_computer_controlled_opponent/util.hxx"
+#include "durak_computer_controlled_opponent/database.hxx"
 
 using namespace durak_computer_controlled_opponent;
 TEST_CASE ("moveResultToBinary", "[util]")

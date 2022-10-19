@@ -71,4 +71,5 @@ TEST_CASE ("nextActionsAndResults", "[abc]")
   auto oneCardVsOneCard= std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> {gameLookup.at ({1,1})};
   auto actionsAndResults = nextActionsAndResults ({ Action{ 0 } }, oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }));
   REQUIRE (actionsAndResults == std::vector<std::tuple<Action, Result> >{ { Action{253}, Result::AttackWon } });
+
 }

@@ -30,7 +30,6 @@ std::tuple<std::vector<durak::Card>, std::vector<durak::Card>, durak::Type> atta
 
 std::vector<durak::Card> stringToCards (std::string const &cardsAsString);
 
-std::vector<uint8_t>
-moveResultToBinary (std::vector<std::tuple<uint8_t, Result> > const &moveResults);
+
 }
 #endif /* A082A940_2718_473D_8151_50956A0E5B42 */

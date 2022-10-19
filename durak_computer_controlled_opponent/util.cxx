@@ -50,17 +50,5 @@ stringToCards (std::string const &cardsAsString)
     }
   return result;
 }
-std::vector<uint8_t>
-moveResultToBinary (const std::vector<std::tuple<uint8_t, Result> > &moveResults)
-{
-  auto results = std::vector<uint8_t>{};
-  results.reserve (moveResults.size () * 2);
-  for (auto moveResult : moveResults)
-  {
-    auto [move, result] = moveResult;
-    results.push_back (move);
-    results.push_back (magic_enum::enum_integer (result));
-  }
-  return results;
-}
+
 }
