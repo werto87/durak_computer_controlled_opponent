@@ -17,7 +17,7 @@
 #include <vector> // for vector
 #include "solve.hxx" // for vector
 
-BOOST_FUSION_DEFINE_STRUCT ((durak_computer_controlled_opponent::database), Round, (std::string, gameState) (std::vector<uint8_t>, combination))
+
 
 namespace durak_computer_controlled_opponent::database
 {
@@ -95,26 +95,24 @@ moveResultToBinary (std::vector<std::tuple<uint8_t, Result> > const &moveResults
 void
 insertGameLookUp (std::filesystem::path const& databasePath,std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> > const &gameLookup)
 {
-//  soci::session sql (soci::sqlite3, database::databaseName);
-//  soci::transaction tr (sql);
-//  for (auto const &gameTypeAndGame : gameLookup)
-//    {
-//      using namespace durak;
-//      for (auto trumpType : { Type::hearts, Type::clubs, Type::diamonds, Type::spades })
-//        {
-//          for (auto const &resultForTrump : std::get<1> (gameTypeAndGame).at (static_cast<size_t> (trumpType)))
-//            {
-//              auto const &[cards, combination] = resultForTrump;
-//              auto round = database::Round{};
-//              round.gameState = database::gameStateAsString (cards, trumpType);
-//              round.combination = database::moveResultToBinary (combination);
-//              confu_soci::insertStruct (sql, round);
-//            }
-//        }
-//    }
-//  tr.commit ();
-std::cout<<"IMPLEMENT insertGameLookUp"<<std::endl;
-std::abort();
+  soci::session sql (soci::sqlite3, databasePath.c_str());
+  soci::transaction tr (sql);
+  for (auto const &gameTypeAndGame : gameLookup)
+    {
+      using namespace durak;
+      for (auto trumpType : { Type::hearts, Type::clubs, Type::diamonds, Type::spades })
+        {
+          for (auto const &resultForTrump : std::get<1> (gameTypeAndGame).at (static_cast<size_t> (trumpType)))
+            {
+              auto const &[cards, combination] = resultForTrump;
+              auto round = database::Round{};
+              round.gameState = database::gameStateAsString (cards, trumpType);
+              round.combination = database::moveResultToBinary (combination);
+              confu_soci::insertStruct (sql, round);
+            }
+        }
+    }
+  tr.commit ();
 }
 
 }

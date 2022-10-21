@@ -6,6 +6,7 @@
 #include <durak/card.hxx>
 #include <filesystem>
 
+BOOST_FUSION_DEFINE_STRUCT ((durak_computer_controlled_opponent::database), Round, (std::string, gameState) (std::vector<uint8_t>, combination))
 
 namespace durak_computer_controlled_opponent::database
 {
