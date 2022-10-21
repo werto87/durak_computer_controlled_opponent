@@ -18,7 +18,7 @@
 
 
 
-namespace durak_computer_controlled_opponent
+namespace durak_computer_controlled_opponent::database
 {
 void
 createEmptyDatabase (std::filesystem::path const& databasePath)
@@ -104,7 +104,7 @@ moveResultToBinary (std::vector<std::tuple<uint8_t, Result> > const &moveResults
 }
 
 void
-insertGameLookUp (std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> > const &gameLookup)
+insertGameLookUp (std::filesystem::path const& databasePath,std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> > const &gameLookup)
 {
 //  soci::session sql (soci::sqlite3, database::databaseName);
 //  soci::transaction tr (sql);

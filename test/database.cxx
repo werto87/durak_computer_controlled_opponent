@@ -4,8 +4,31 @@
 #include "catch2/catch.hpp"
 #include "durak_computer_controlled_opponent/database.hxx"
 
+using namespace durak_computer_controlled_opponent::database;
 using namespace durak_computer_controlled_opponent;
-TEST_CASE ("moveResultToBinary", "[util]")
+TEST_CASE ("createEmptyDatabase", "[util]")
+{
+  createEmptyDatabase ("");
+}
+
+TEST_CASE ("createDatabaseIfNotExist", "[database]")
+{
+ createDatabaseIfNotExist ("");
+}
+
+TEST_CASE ("createTables", "[database]")
+{
+  createTables ("");
+}
+
+TEST_CASE ("gameStateAsString", "[database]")
+{
+  auto cards=std::tuple<std::vector<uint8_t>, std::vector<uint8_t> > {};
+  auto trump=durak::Type{};
+  auto test= gameStateAsString (cards,trump );
+}
+
+TEST_CASE ("insertGameLookUp", "[database]")
 {
   auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
@@ -13,4 +36,11 @@ TEST_CASE ("moveResultToBinary", "[util]")
   auto moveResultBinary=moveResultToBinary( oneCardVsOneCard.at(0).at ({{0},{1}}));
   auto test=binaryToMoveResult (moveResultBinary);
   REQUIRE(test.size()==6);
+}
+
+TEST_CASE ("insertGameLookUp", "[database]")
+{
+  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
+  gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
+  insertGameLookUp ("",gameLookup);
 }
