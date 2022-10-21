@@ -15,71 +15,60 @@
 #include <stdio.h>                     // for fprintf, stderr
 #include <string>
 #include <vector> // for vector
+#include "solve.hxx" // for vector
 
-
+BOOST_FUSION_DEFINE_STRUCT ((durak_computer_controlled_opponent::database), Round, (std::string, gameState) (std::vector<uint8_t>, combination))
 
 namespace durak_computer_controlled_opponent::database
 {
 void
-createEmptyDatabase (std::filesystem::path const& databasePath)
+deleteDatabaseAndCreateNewDatabase (std::filesystem::path const& databasePath)
 {
-//  TODO rethink this user should be able to set a path for the database
-//  std::filesystem::remove (databasePath);
-//  if (not std::filesystem::exists ("database"))
-//    {
-//      std::filesystem::create_directory ("database");
-//    }
-//  using namespace sqlite_api;
-//  sqlite3 *db{};
-//  int rc{};
-//  rc = sqlite3_open (databaseName.c_str (), &db);
-//  if (rc)
-//    {
-//      fprintf (stderr, "Can't open database: %s\n", sqlite3_errmsg (db));
-//      return;
-//    }
-//  sqlite3_close (db);
-  std::cout<<"IMPLEMENT createEmptyDatabase"<<std::endl;
-  std::abort();
+  std::filesystem::remove(databasePath);
+  std::filesystem::create_directories (databasePath.parent_path());
+  using namespace sqlite_api;
+  sqlite3 *db{};
+  int rc{};
+  rc = sqlite3_open (databasePath.c_str(), &db);
+  if (rc)
+    {
+      fprintf (stderr, "Can't open database: %s\n", sqlite3_errmsg (db));
+      return;
+    }
+  sqlite3_close (db);
 }
 
 void
 createDatabaseIfNotExist (std::filesystem::path const& databasePath)
 {
-  //  TODO rethink this user should be able to set a path for the database
-//  using namespace sqlite_api;
-//  if (not std::filesystem::exists ("database"))
-//    {
-//      std::filesystem::create_directory ("database");
-//    }
-//  sqlite3 *db{};
-//  int rc{};
-//  rc = sqlite3_open (databaseName.c_str (), &db);
-//  if (rc)
-//    {
-//      fprintf (stderr, "Can't open database: %s\n", sqlite3_errmsg (db));
-//      return;
-//    }
-//  sqlite3_close (db);
-  std::cout<<"IMPLEMENT createDatabaseIfNotExist"<<std::endl;
-  std::abort();
+  using namespace sqlite_api;
+  if (not std::filesystem::exists (databasePath))
+    {
+      std::filesystem::create_directories (databasePath.parent_path());
+      sqlite3 *db{};
+      int rc{};
+      rc = sqlite3_open (databasePath.c_str (), &db);
+      if (rc)
+        {
+          fprintf (stderr, "Can't open database: %s\n", sqlite3_errmsg (db));
+          return;
+        }
+      sqlite3_close (db);
+    }
 }
 
 void
 createTables (std::filesystem::path const& databasePath)
 {
-  //  TODO rethink this user should be able to set a path for the database
-//  soci::session sql (soci::sqlite3, databaseName);
-//  try
-//    {
-//      confu_soci::createTableForStruct<Round> (sql);
-//    }
-//  catch (soci::soci_error const &error)
-//    {
-//      std::cout << error.get_error_message () << std::endl;
-//    }
-  std::cout<<"IMPLEMENT createTables"<<std::endl;
-  std::abort();
+  soci::session sql (soci::sqlite3, databasePath);
+  try
+    {
+      confu_soci::createTableForStruct<Round> (sql);
+    }
+  catch (soci::soci_error const &error)
+    {
+      std::cout << error.get_error_message () << std::endl;
+    }
 }
 
 std::string

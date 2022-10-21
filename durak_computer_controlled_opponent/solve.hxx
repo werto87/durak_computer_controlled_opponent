@@ -59,6 +59,8 @@ struct Round
   std::vector<std::vector<Action> > draw{};
 };
 
+
+
 bool tableValidForMoveLookUp (std::vector<std::pair<durak::Card, boost::optional<durak::Card> > > const &table);
 
 std::optional<std::vector<Action> > tableToActions (std::vector<std::pair<durak::Card, boost::optional<durak::Card> > > const &table);

@@ -10,7 +10,7 @@
 namespace durak_computer_controlled_opponent::database
 {
 
-void createEmptyDatabase (std::filesystem::path const& databasePath);
+void deleteDatabaseAndCreateNewDatabase (std::filesystem::path const& databasePath);
 
 void createDatabaseIfNotExist (std::filesystem::path const& databasePath);
 

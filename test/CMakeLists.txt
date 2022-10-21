@@ -16,7 +16,7 @@ add_test(NAME ${TEST_TARGET_NAME}
 )
 
 target_compile_definitions(${TEST_TARGET_NAME} PRIVATE
-
+        CURRENT_BINARY_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\"
     # RUN_BENCHMARK
     # RUN_BENCHMARK_SOLVE_DURAK
 )
