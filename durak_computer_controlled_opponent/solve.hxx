@@ -118,6 +118,7 @@ template <typename T>
 void
 solveGameTree (T &t)
 {
+//  TODO fix solveGameTree
   auto leafs = std::vector<decltype (t.df_pre_begin ())>{};
   for (auto begin = t.df_pre_begin (); begin != t.df_pre_end (); ++begin)
     {

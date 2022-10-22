@@ -75,13 +75,6 @@ TEST_CASE ("nextActionsAndResults", "[abc]")
     auto actionsAndResults = nextActionsAndResults ({ }, oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }));
     REQUIRE (actionsAndResults == std::vector<std::tuple<Action, Result> >{ { Action{0}, Result::AttackWon } });
   }
-  SECTION ("1v1 draw")
-  {
-    gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
-    auto twoCardsVsTwoCards= std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> {gameLookup.at ({2,2})};
-    auto actionsAndResults = nextActionsAndResults ({ }, twoCardsVsTwoCards.at (0).at ({ { 1,5 }, { 0,4 } }));
-    REQUIRE (actionsAndResults == std::vector<std::tuple<Action, Result> >{ { Action{1}, Result::DefendWon },{ Action{5}, Result::DefendWon } });
-  }
 }
 
 TEST_CASE ("nextActionForRole")
@@ -97,21 +90,24 @@ TEST_CASE ("nextActionForRole")
 
 TEST_CASE ("solveGameTree")
 {
-  using namespace durak;
-  using Histories = std::vector<durak::HistoryEvent>;
-  using ResultAndHistory = std::tuple<boost::optional<durak::Player>, Histories>;
-  auto cards = idsToCards ({1,5,0,4});
-  auto attackCards = std::vector<Card> (cards.begin (), cards.begin () + static_cast<long> (2));
-  auto defendCards = std::vector<Card> (cards.begin () + static_cast<long> (2), cards.end ());
-  auto gameToAnalyze = Game{ { "a", "b" }, GameOption{ .trump = durak::Type::hearts, .customCardDeck = std::vector<Card>{}, .cardsInHands = std::vector<std::vector<Card> >{ attackCards, defendCards } } };
-  auto tmpResults = simulateRound (gameToAnalyze);
-  auto histories = std::vector<ResultAndHistory>{};
-  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
-  gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
-  gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
-  ranges::transform (tmpResults, ranges::back_inserter (histories), [&gameLookup] (Game const &game) { return std::make_tuple (calcGameResult (game, gameLookup), onlyFirstRound (game.getHistory ())); });
-  auto round = Round{ gameToAnalyze.getAttackingPlayer ()->getCards (), gameToAnalyze.getDefendingPlayer ()->getCards (), histories };
-  auto tree = createTree (round);
+  auto tree=st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> >{};
+  tree.insert(std::tuple<Result, bool>{{},true});
+  tree.root().insert(Action{1}, std::tuple<Result, bool>{{},true});
+  tree.root()[Action{1}].insert(Action{0}, std::tuple<Result, bool>{Result::DefendWon,false});
+  tree.root()[Action{1}].insert(Action{4}, std::tuple<Result, bool>{Result::Undefined,false});
+  tree.root()[Action{1}][Action{4}].insert(Action{5}, std::tuple<Result, bool>{Result::Undefined,true});
+  tree.root()[Action{1}][Action{4}][Action{5}].insert(Action{0}, std::tuple<Result, bool>{Result::Draw,false});
+  tree.root()[Action{1}][Action{4}][Action{5}].insert(Action{253}, std::tuple<Result, bool>{Result::AttackWon,false});
+  tree.root()[Action{1}].insert(Action{253}, std::tuple<Result, bool>{Result::AttackWon,false});
+  tree.root().insert(Action{5}, std::tuple<Result, bool>{{},true});
+  tree.root()[Action{5}].insert(Action{0}, std::tuple<Result, bool>{Result::Undefined,false});
+  tree.root()[Action{5}][Action{0}].insert(Action{1}, std::tuple<Result, bool>{Result::Undefined,true});
+  tree.root()[Action{5}][Action{0}][Action{1}].insert(Action{4}, std::tuple<Result, bool>{Result::Draw,false});
+  tree.root()[Action{5}][Action{0}][Action{1}].insert(Action{253}, std::tuple<Result, bool>{Result::AttackWon,false});
+  tree.root()[Action{5}].insert(Action{4}, std::tuple<Result, bool>{Result::DefendWon,false});
+  tree.root()[Action{5}].insert(Action{253}, std::tuple<Result, bool>{Result::AttackWon,false});
+//  serialize_indented(tree.df_pre_begin(), tree.df_pre_end(), std::cout);
   solveGameTree (tree);
-  serialize_indented(tree.df_pre_begin(), tree.df_pre_end(), std::cout);
+  auto [result,attack]=tree.root()[Action{5}][Action{0}].data();
+  REQUIRE(result==Result::DefendWon);
 }

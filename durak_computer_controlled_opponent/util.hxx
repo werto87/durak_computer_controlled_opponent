@@ -38,6 +38,7 @@ template <typename Iterator, typename Stream>
 void serialize_indented(const Iterator& F, const Iterator& L, Stream& s, unsigned indent=2) {
   for (Iterator j(F);  j != L;  ++j) {
       s << indent_padding(j->ply() * indent);
+      s <<"key value: " <<  int{j->key().value()} << " ";
       s <<"type: " <<  magic_enum::enum_name(j->key()()) << " ";
       if(j->key()()==Action::Category::PlayCard){
           durak::Card  card=j->key().playedCard().value();
