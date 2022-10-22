@@ -766,8 +766,8 @@ solveGameTree (st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > 
       nodes[begin->ply()].push_back (begin);
     }
   }
-  ranges::for_each(nodes.rbegin(),nodes.rend(),[](auto keyValue){
-      for(auto node:keyValue.second){
+  ranges::for_each(nodes.rbegin(),nodes.rend(),[](auto const&keyValue){
+      for(auto const& node:keyValue.second){
         setParentResultType(std::get<1>(node->data()),std::get<0>(node->data()),std::get<0>(node->parent().data()));
       }
   });
