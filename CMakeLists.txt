@@ -22,7 +22,7 @@ include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup(TARGETS)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(TARGET_NAME_LIB durak_computer_controlled_opponent)
-add_library(${TARGET_NAME_LIB} durak_computer_controlled_opponent/database.cxx durak_computer_controlled_opponent/database.hxx)
+add_library(${TARGET_NAME_LIB})
 add_subdirectory(durak_computer_controlled_opponent)
 target_link_libraries(${TARGET_NAME_LIB} PUBLIC
   ${PROJECT_WARNINGS}
