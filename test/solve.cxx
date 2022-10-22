@@ -91,7 +91,7 @@ TEST_CASE ("nextActionForRole")
 TEST_CASE ("solveGameTree")
 {
   auto tree=st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> >{};
-  tree.insert(std::tuple<Result, bool>{{},true});
+  tree.insert(std::tuple<Result, bool>{{},false});
   tree.root().insert(Action{1}, std::tuple<Result, bool>{{},true});
   tree.root()[Action{1}].insert(Action{0}, std::tuple<Result, bool>{Result::DefendWon,false});
   tree.root()[Action{1}].insert(Action{4}, std::tuple<Result, bool>{Result::Undefined,false});
@@ -100,14 +100,12 @@ TEST_CASE ("solveGameTree")
   tree.root()[Action{1}][Action{4}][Action{5}].insert(Action{253}, std::tuple<Result, bool>{Result::AttackWon,false});
   tree.root()[Action{1}].insert(Action{253}, std::tuple<Result, bool>{Result::AttackWon,false});
   tree.root().insert(Action{5}, std::tuple<Result, bool>{{},true});
-  tree.root()[Action{5}].insert(Action{0}, std::tuple<Result, bool>{Result::Undefined,false});
+  tree.root()[Action{5}].insert(Action{0}, std::tuple<Result, bool>{Result::Draw,false});
   tree.root()[Action{5}][Action{0}].insert(Action{1}, std::tuple<Result, bool>{Result::Undefined,true});
   tree.root()[Action{5}][Action{0}][Action{1}].insert(Action{4}, std::tuple<Result, bool>{Result::Draw,false});
   tree.root()[Action{5}][Action{0}][Action{1}].insert(Action{253}, std::tuple<Result, bool>{Result::AttackWon,false});
   tree.root()[Action{5}].insert(Action{4}, std::tuple<Result, bool>{Result::DefendWon,false});
-  tree.root()[Action{5}].insert(Action{253}, std::tuple<Result, bool>{Result::AttackWon,false});
-//  serialize_indented(tree.df_pre_begin(), tree.df_pre_end(), std::cout);
   solveGameTree (tree);
-  auto [result,attack]=tree.root()[Action{5}][Action{0}].data();
+  auto [result,attack]=tree.root()[Action{5}].data();
   REQUIRE(result==Result::DefendWon);
 }

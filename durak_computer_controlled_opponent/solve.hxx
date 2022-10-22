@@ -59,10 +59,6 @@ struct Round
   std::vector<std::vector<Action> > draw{};
 };
 
-
-
-bool tableValidForMoveLookUp (std::vector<std::pair<durak::Card, boost::optional<durak::Card> > > const &table);
-
 std::optional<std::vector<Action> > tableToActions (std::vector<std::pair<durak::Card, boost::optional<durak::Card> > > const &table);
 
 std::ostream &operator<< (std::ostream &os, const Action &action);
@@ -104,8 +100,6 @@ std::vector<std::tuple<Action, Result> > nextActionsAndResults (std::vector<Acti
 
 std::vector<std::tuple<uint8_t, Result> > binaryToMoveResult (std::vector<uint8_t> const &movesAndResultAsBinary);
 
-void setParentResultType (bool isProAttack, Result const &childResult, Result &parentResult);
-
 bool validActionSequence (std::vector<Action> actions, std::vector<durak::Card> const &attackCards);
 
 std::vector<std::vector<Action> > insertDrawCardsAction (std::vector<durak::Card> const &attackCards, std::vector<std::vector<Action> > const &vectorsOfActions);
@@ -114,69 +108,8 @@ void vectorWithMovesToTree (std::vector<durak::Card> const &attackCards, st_tree
 
 st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > createTree (Round const &round);
 
-template <typename T>
 void
-solveGameTree (T &t)
-{
-//  TODO fix solveGameTree
-  auto leafs = std::vector<decltype (t.df_pre_begin ())>{};
-  for (auto begin = t.df_pre_begin (); begin != t.df_pre_end (); ++begin)
-    {
-      if (begin->empty ())
-        {
-          leafs.push_back (begin);
-        }
-    }
-  for (auto &node : leafs)
-    {
-      auto itr = node->parent ().begin ();
-      while (true)
-        {
-          setParentResultType (std::get<1> (itr->data ()), std::get<0> (itr->data ()), std::get<0> (itr->parent ().data ()));
-          if (not itr->parent ().is_root ())
-            {
-              itr = itr->parent ().parent ().begin ();
-            }
-          else
-            {
-              break;
-            }
-        }
-    }
-}
-
-
-template <typename T>
-void
-solveGameTree2 (T &t)
-{
-  auto leafs = std::vector<decltype (t.df_pre_begin ())>{};
-  for (auto begin = t.df_pre_begin (); begin != t.df_pre_end (); ++begin)
-    {
-      if (begin->empty ())
-        {
-          leafs.push_back (begin);
-        }
-    }
-  for (auto &node : leafs)
-    {
-      auto itr = node->parent ();
-      while (true)
-        {
-          setParentResultType (std::get<1> (itr->data ()), std::get<0> (itr->data ()), std::get<0> (itr->parent ().data ()));
-          if (not itr->parent ().is_root ())
-            {
-              itr = itr->parent ().parent ().begin ();
-            }
-          else
-            {
-              serialize_indented(t.df_pre_begin(), t.df_pre_end(), std::cout);
-              break;
-            }
-
-        }
-    }
-}
+solveGameTree (st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > &t);
 
 Result searchForGameResult (std::vector<uint8_t> const &attackCardsIds, std::vector<uint8_t> const &defendCardsIds, std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > > const &gameResults);
 boost::optional<durak::Player> durakInGame (Result result, durak::Game const &game);

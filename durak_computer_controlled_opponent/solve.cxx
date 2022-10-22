@@ -756,4 +756,20 @@ nextActionForRole (const std::vector<std::tuple<Action, durak_computer_controlle
   }
   return std::nullopt;
 }
+void
+solveGameTree (st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > &t)
+{
+  auto nodes = std::map<decltype (t.df_pre_begin ()->ply()) ,std::vector<decltype (t.df_pre_begin ())>>{};
+  for (auto begin = t.df_pre_begin (); begin != t.df_pre_end (); ++begin)
+  {
+    if(not begin->is_root()){
+      nodes[begin->ply()].push_back (begin);
+    }
+  }
+  ranges::for_each(nodes.rbegin(),nodes.rend(),[](auto keyValue){
+      for(auto node:keyValue.second){
+        setParentResultType(std::get<1>(node->data()),std::get<0>(node->data()),std::get<0>(node->parent().data()));
+      }
+  });
+}
 }
