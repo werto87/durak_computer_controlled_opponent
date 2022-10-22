@@ -96,6 +96,9 @@ enum class Result : uint8_t
   Draw,
   AttackWon
 };
+std::optional<durak_computer_controlled_opponent::Action>
+nextActionForRole (const std::vector<std::tuple<Action, durak_computer_controlled_opponent::Result> > &nextActions, const durak::PlayerRole &playerRole);
+
 
 std::vector<std::tuple<Action, Result> > nextActionsAndResults (std::vector<Action> const &actions, std::vector<std::tuple<uint8_t, Result> > const &moveResults);
 
@@ -141,12 +144,46 @@ solveGameTree (T &t)
     }
 }
 
+
+template <typename T>
+void
+solveGameTree2 (T &t)
+{
+  auto leafs = std::vector<decltype (t.df_pre_begin ())>{};
+  for (auto begin = t.df_pre_begin (); begin != t.df_pre_end (); ++begin)
+    {
+      if (begin->empty ())
+        {
+          leafs.push_back (begin);
+        }
+    }
+  for (auto &node : leafs)
+    {
+      auto itr = node->parent ();
+      while (true)
+        {
+          setParentResultType (std::get<1> (itr->data ()), std::get<0> (itr->data ()), std::get<0> (itr->parent ().data ()));
+          if (not itr->parent ().is_root ())
+            {
+              itr = itr->parent ().parent ().begin ();
+            }
+          else
+            {
+              serialize_indented(t.df_pre_begin(), t.df_pre_end(), std::cout);
+              break;
+            }
+
+        }
+    }
+}
+
 Result searchForGameResult (std::vector<uint8_t> const &attackCardsIds, std::vector<uint8_t> const &defendCardsIds, std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > > const &gameResults);
 boost::optional<durak::Player> durakInGame (Result result, durak::Game const &game);
 
 std::tuple<std::vector<durak::Card>, std::vector<durak::Card> > attackAndDefendCompressed (std::vector<durak::Card> const &attackCards, std::vector<durak::Card> const &defendCards);
 
-boost::optional<durak::Player> calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::vector<std::tuple<std::vector<uint8_t>, std::vector<uint8_t>, st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > > >, 4> > const &gameLookup);
+boost::optional<durak::Player>
+calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> > const &gameLookup);
 
 std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> > const &gameLookup);
 }

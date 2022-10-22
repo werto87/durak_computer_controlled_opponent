@@ -43,6 +43,7 @@ TEST_CASE ("database", "[database]")
     soci::session sql (soci::sqlite3, databasePath);
     REQUIRE(confu_soci::findStruct<durak_computer_controlled_opponent::database::Round> (sql, "gameState", "0;1;1").has_value());
   }
+
   std::filesystem::remove_all(databasePath.parent_path());
 }
 

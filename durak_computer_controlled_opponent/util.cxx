@@ -50,5 +50,13 @@ stringToCards (std::string const &cardsAsString)
     }
   return result;
 }
+std::string
+indent_padding (unsigned int n)
+{
+  static char const spaces[] = "                                                                   ";
+  static const unsigned ns = sizeof(spaces)/sizeof(*spaces);
+  if (n >= ns) n = ns-1;
+  return spaces + (ns-1-n);
+}
 
 }

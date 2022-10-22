@@ -13,6 +13,7 @@
 #include <vector>
 #include <range/v3/algorithm.hpp>
 
+
 namespace durak_computer_controlled_opponent
 {
 using Histories = std::vector<durak::HistoryEvent>;
@@ -479,7 +480,7 @@ setParentResultType (bool isProAttack, Result const &childResult, Result &parent
 {
   if (isProAttack)
     {
-      if (magic_enum::enum_integer (childResult) > magic_enum::enum_integer (parentResult))
+      if (parentResult == Result::Undefined ||(magic_enum::enum_integer (childResult) > magic_enum::enum_integer (parentResult)))
         {
           parentResult = childResult;
         }
@@ -651,6 +652,7 @@ calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, 
   return {};
 }
 
+
 std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4>
 solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> > const &gameLookup)
 {
@@ -675,6 +677,7 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
           auto histories = std::vector<ResultAndHistory>{};
           ranges::transform (tmpResults, ranges::back_inserter (histories), [&gameLookup] (Game const &game) { return std::make_tuple (calcGameResult (game, gameLookup), onlyFirstRound (game.getHistory ())); });
           auto round = Round{ gameToAnalyze.getAttackingPlayer ()->getCards (), gameToAnalyze.getDefendingPlayer ()->getCards (), histories };
+//TODO find out why wrong value gets writen into node it should be DefendWon and not Draw for the move:  type: PlayCard card: Card: {1 , clubs} result: Draw someBool: 1
           auto tree = createTree (round);
           solveGameTree (tree);
           compressedGames.at (static_cast<size_t> (trumpType)).insert ({ { cardsToIds (attackCards), cardsToIds (defendCards) }, small_memory_tree::treeToVector (tree, std::tuple<uint8_t, Result>{ 255, Result::Undefined }, std::tuple<uint8_t, Result>{ 254, Result::Undefined }, [] (auto const &node) { return std::tuple<uint8_t, Result>{ node.key ().value (), std::get<0> (node.data ()) }; }) });
@@ -711,5 +714,41 @@ nextActionsAndResults (std::vector<Action> const &actions, std::vector<std::tupl
     return std::tuple<Action, Result>{value, _result };
   });
   return result;
+}
+std::optional<durak_computer_controlled_opponent::Action>
+nextActionForRole (const std::vector<std::tuple<Action, durak_computer_controlled_opponent::Result> > &nextActions, const durak::PlayerRole &playerRole)
+{
+  if (playerRole == durak::PlayerRole::attack || playerRole == durak::PlayerRole::defend)
+  {
+    if (auto winningAction = ranges::find_if (nextActions,
+                                              [&playerRole] (auto const &actionAsBinaryAndResult) {
+                                                auto const &[actionAsBinary, result] = actionAsBinaryAndResult;
+                                                if (playerRole == durak::PlayerRole::attack)
+                                                {
+                                                  return result == durak_computer_controlled_opponent::Result::AttackWon;
+                                                }
+                                                else
+                                                {
+                                                  return result == durak_computer_controlled_opponent::Result::DefendWon;
+                                                }
+                                              });
+        winningAction != nextActions.end ())
+    {
+      return { durak_computer_controlled_opponent::Action{ std::get<0> (*winningAction) } };
+    }
+    else
+    {
+      if (auto drawAction = ranges::find_if (nextActions,
+                                             [] (auto const &actionAsBinaryAndResult) {
+                                               auto const &[actionAsBinary, result] = actionAsBinaryAndResult;
+                                               return result == durak_computer_controlled_opponent::Result::Draw;
+                                             });
+          drawAction != nextActions.end ())
+      {
+        return { durak_computer_controlled_opponent::Action{ std::get<0> (*drawAction) } };
+      }
+    }
+  }
+  return std::nullopt;
 }
 }
