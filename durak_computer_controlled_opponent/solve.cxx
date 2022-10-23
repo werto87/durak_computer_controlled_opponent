@@ -677,13 +677,7 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
           auto histories = std::vector<ResultAndHistory>{};
           ranges::transform (tmpResults, ranges::back_inserter (histories), [&gameLookup] (Game const &game) { return std::make_tuple (calcGameResult (game, gameLookup), onlyFirstRound (game.getHistory ())); });
           auto round = Round{ gameToAnalyze.getAttackingPlayer ()->getCards (), gameToAnalyze.getDefendingPlayer ()->getCards (), histories };
-//TODO find out why wrong value gets writen into node it should be DefendWon and not Draw for the move:  type: PlayCard card: Card: {1 , clubs} result: Draw someBool: 1
           auto tree = createTree (round);
-          //          DELTE THIS
-        if(trumpType==Type::hearts && combi.size()==4 && combi.at (0)==1 && combi.at (1)==5 &&combi.at (2)==0 && combi.at (3)==4){
-          serialize_indented(tree.df_pre_begin(), tree.df_pre_end(), std::cout);
-        }
-        //          DELTE THIS
         solveGameTree (tree);
         compressedGames.at (static_cast<size_t> (trumpType)).insert ({ { cardsToIds (attackCards), cardsToIds (defendCards) }, small_memory_tree::treeToVector (tree, std::tuple<uint8_t, Result>{ 255, Result::Undefined }, std::tuple<uint8_t, Result>{ 254, Result::Undefined }, [] (auto const &node) { return std::tuple<uint8_t, Result>{ node.key ().value (), std::get<0> (node.data ()) }; }) });
         }
