@@ -85,20 +85,21 @@ historyEventsToActions (Histories const &histories)
   return result;
 }
 
+
 bool
-tableValidForMoveLookUp (std::vector<std::pair<durak::Card, boost::optional<durak::Card> > > const &table)
+tableValidForMoveLookUp (const std::vector<std::pair<durak::Card, boost::optional<durak::Card> > > &table)
 {
   auto findNotBeatenCard = [] (std::pair<durak::Card, boost::optional<durak::Card> > const &cardAndCardToBeat) {
     auto const &[card, cardToBeat] = cardAndCardToBeat;
     return not cardToBeat.has_value ();
   };
   if (auto notBeaten = ranges::find_if (table, findNotBeatenCard); notBeaten != table.end ())
+  {
+    if (auto notBeaten2 = ranges::find_if (std::next (notBeaten), table.end (), findNotBeatenCard); notBeaten2 != table.end ())
     {
-      if (auto notBeaten2 = ranges::find_if (std::next (notBeaten), table.end (), findNotBeatenCard); notBeaten2 != table.end ())
-        {
-          return false;
-        }
+      return false;
     }
+  }
   return true;
 }
 
