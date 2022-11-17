@@ -1,6 +1,6 @@
 [requires]
 catch2/2.13.9 
-durak/0.0.8@werto87/stable
+durak/0.0.9@werto87/stable
 st_tree/1.2.1
 boost/1.78.0
 small_memory_tree/0.0.1
