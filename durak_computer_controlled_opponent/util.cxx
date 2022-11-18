@@ -75,7 +75,7 @@ calcCardsAtRoundStart (const durak::Game &game)
   auto defendCards = game.getDefendingPlayer () ? game.getDefendingPlayer ()->getCards () : std::vector<durak::Card>{};
   auto assistCards = game.getAssistingPlayer () ? game.getAssistingPlayer ()->getCards () : std::vector<durak::Card>{};
   auto const &gameHistory = game.getHistory ();
-  auto startOfCurrentRound = boost::algorithm::find_if_backward (gameHistory.begin (), gameHistory.end (), [] (auto const &history) { return std::same_as<decltype (history), durak::HistoryEvent>; });
+  auto startOfCurrentRound = boost::algorithm::find_if_backward (gameHistory.begin (), gameHistory.end (), [] (auto const &history) { return std::holds_alternative<durak::RoundInformation> (history); });
   if (startOfCurrentRound != gameHistory.end ())
     {
       for (auto const &gameEvent : std::vector<durak::HistoryEvent>{ startOfCurrentRound, gameHistory.end () })
@@ -96,17 +96,17 @@ calcCardsAtRoundStart (const durak::Game &game)
 std::tuple<std::vector<std::tuple<uint8_t, durak::Card> >, std::vector<std::tuple<uint8_t, durak::Card> > >
 calcCompressedCardsForAttackAndDefend (durak::Game const &game)
 {
-  using namespace durak_computer_controlled_opponent;
-  auto [attackCards, defendCards, assistCards] = calcCardsAtRoundStart (game);
-  attackCards.insert (attackCards.end (), defendCards.begin (), defendCards.end ());
-  auto cardsAsIds = cardsToIds (compress (attackCards));
-  auto attackingCardsAsIds = std::vector<uint8_t>{ cardsAsIds.begin (), cardsAsIds.begin () + cardsAsIds.size () / 2 };
+  auto const &[attackCards, defendCards, assistCards] = calcCardsAtRoundStart (game);
+  auto cards = attackCards;
+  cards.insert (cards.end (), defendCards.begin (), defendCards.end ());
+  auto cardsAsIds = cardsToIds (compress (cards));
+  auto attackingCardsAsIds = std::vector<uint8_t>{ cardsAsIds.begin (), cardsAsIds.begin () + attackCards.size () };
   auto attackingCardsAsIdsAndAsCards = std::vector<std::tuple<uint8_t, durak::Card> >{};
-  pipes::mux (attackingCardsAsIds, game.getAttackingPlayer ()->getCards ()) >>= pipes::transform ([] (auto const &x, auto const &y) { return std::tuple<uint8_t, durak::Card>{ x, y }; }) >>= pipes::push_back (attackingCardsAsIdsAndAsCards);
+  pipes::mux (attackingCardsAsIds, attackCards) >>= pipes::transform ([] (auto const &x, auto const &y) { return std::tuple<uint8_t, durak::Card>{ x, y }; }) >>= pipes::push_back (attackingCardsAsIdsAndAsCards);
   ranges::sort (attackingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
-  auto defendingCardsAsIds = std::vector<uint8_t>{ cardsAsIds.begin () + cardsAsIds.size () / 2, cardsAsIds.end () };
+  auto defendingCardsAsIds = std::vector<uint8_t>{ cardsAsIds.begin () + attackCards.size (), cardsAsIds.end () };
   auto defendingCardsAsIdsAndAsCards = std::vector<std::tuple<uint8_t, durak::Card> >{};
-  pipes::mux (defendingCardsAsIds, game.getDefendingPlayer ()->getCards ()) >>= pipes::transform ([] (auto const &x, auto const &y) { return std::tuple<uint8_t, durak::Card>{ x, y }; }) >>= pipes::push_back (defendingCardsAsIdsAndAsCards);
+  pipes::mux (defendingCardsAsIds, defendCards) >>= pipes::transform ([] (auto const &x, auto const &y) { return std::tuple<uint8_t, durak::Card>{ x, y }; }) >>= pipes::push_back (defendingCardsAsIdsAndAsCards);
   ranges::sort (defendingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
   return { attackingCardsAsIdsAndAsCards, defendingCardsAsIdsAndAsCards };
 }
