@@ -1,5 +1,6 @@
 #include "util.hxx"
 #include "durak_computer_controlled_opponent/compressCard.hxx"
+#include <boost/algorithm/find_backward.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <charconv>
@@ -54,28 +55,51 @@ std::string
 indent_padding (unsigned int n)
 {
   static char const spaces[] = "                                                                   ";
-  static const unsigned ns = sizeof(spaces)/sizeof(*spaces);
-  if (n >= ns) n = ns-1;
-  return spaces + (ns-1-n);
+  static const unsigned ns = sizeof (spaces) / sizeof (*spaces);
+  if (n >= ns) n = ns - 1;
+  return spaces + (ns - 1 - n);
 }
 
-std::tuple<std::vector<durak::Card>, std::vector<durak::Card> >
+// helper type for the visitor #4
+template <class... Ts> struct overloaded : Ts...
+{
+  using Ts::operator()...;
+};
+// explicit deduction guide (not needed as of C++20)
+template <class... Ts> overloaded (Ts...) -> overloaded<Ts...>;
+
+AttackDefendAssistCards
 calcCardsAtRoundStart (const durak::Game &game)
 {
-  //  TODO use table and game history to restore cards at round start
-
-  throw std::logic_error{"IMPLEMENT THIS"};
-  return {};
+  auto attackCards = game.getAttackingPlayer () ? game.getAttackingPlayer ()->getCards () : std::vector<durak::Card>{};
+  auto defendCards = game.getDefendingPlayer () ? game.getDefendingPlayer ()->getCards () : std::vector<durak::Card>{};
+  auto assistCards = game.getAssistingPlayer () ? game.getAssistingPlayer ()->getCards () : std::vector<durak::Card>{};
+  auto const &gameHistory = game.getHistory ();
+  auto startOfCurrentRound = boost::algorithm::find_if_backward (gameHistory.begin (), gameHistory.end (), [] (auto const &history) { return std::same_as<decltype (history), durak::HistoryEvent>; });
+  if (startOfCurrentRound != gameHistory.end ())
+    {
+      for (auto const &gameEvent : std::vector<durak::HistoryEvent>{ startOfCurrentRound, gameHistory.end () })
+        {
+          // clang-format off
+          std::visit(overloaded {
+                          [](auto const&) {/*ignore other game events*/},
+                          [&](durak::StartAttack const& startAttack)   {attackCards.insert(attackCards.end(), startAttack.cards.begin(), startAttack.cards.end());},
+                          [&](durak::AssistAttack const& assistAttack)  {assistAttack.playerRole==durak::PlayerRole::attack?attackCards.insert(attackCards.end(), assistAttack.cards.begin(), assistAttack.cards.end()):assistCards.insert(assistCards.end(), assistAttack.cards.begin(), assistAttack.cards.end());},
+                          [&](durak::Defend const& defend)        {defendCards.push_back(defend.card);}
+                      }, gameEvent);
+          // clang-format on
+        }
+    }
+  return { .attackCards = attackCards, .defendCards = defendCards, .assistCards = assistCards };
 }
 
 std::tuple<std::vector<std::tuple<uint8_t, durak::Card> >, std::vector<std::tuple<uint8_t, durak::Card> > >
 calcCompressedCardsForAttackAndDefend (durak::Game const &game)
 {
-  throw std::logic_error{"IMPLEMENT THIS"};
   using namespace durak_computer_controlled_opponent;
-  auto [cards, defendingCards] = calcCardsAtRoundStart (game);
-  cards.insert (cards.end (), defendingCards.begin (), defendingCards.end ());
-  auto cardsAsIds = cardsToIds (compress (cards));
+  auto [attackCards, defendCards, assistCards] = calcCardsAtRoundStart (game);
+  attackCards.insert (attackCards.end (), defendCards.begin (), defendCards.end ());
+  auto cardsAsIds = cardsToIds (compress (attackCards));
   auto attackingCardsAsIds = std::vector<uint8_t>{ cardsAsIds.begin (), cardsAsIds.begin () + cardsAsIds.size () / 2 };
   auto attackingCardsAsIdsAndAsCards = std::vector<std::tuple<uint8_t, durak::Card> >{};
   pipes::mux (attackingCardsAsIds, game.getAttackingPlayer ()->getCards ()) >>= pipes::transform ([] (auto const &x, auto const &y) { return std::tuple<uint8_t, durak::Card>{ x, y }; }) >>= pipes::push_back (attackingCardsAsIdsAndAsCards);
