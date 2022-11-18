@@ -36,3 +36,13 @@ TEST_CASE ("calcCompressedCardsForAttackAndDefend", "[abc]")
   REQUIRE (attackCardsOld == attackCards);
   REQUIRE (defendCardsOld == defendCards);
 }
+
+TEST_CASE ("historyEventsToActionsCompressedCards", "[abc]")
+{
+  using namespace durak;
+  using namespace durak_computer_controlled_opponent;
+  auto game = Game{ { "a", "b" }, GameOption{ .numberOfCardsPlayerShouldHave = 2, .customCardDeck = std::vector<Card>{ { 7, durak::Type::clubs }, { 8, durak::Type::clubs }, { 3, durak::Type::hearts }, { 3, durak::Type::clubs } } } };
+  game.playerStartsAttack ({ durak::Card{ 3, durak::Type::clubs } });
+  auto actions = historyEventsToActionsCompressedCards (game.getHistory (), calcCompressedCardsForAttackAndDefend (game));
+  REQUIRE (actions == std::vector<Action>{ Action{ 1 } });
+}

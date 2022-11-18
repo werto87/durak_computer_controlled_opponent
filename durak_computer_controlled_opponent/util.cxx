@@ -111,4 +111,11 @@ calcCompressedCardsForAttackAndDefend (durak::Game const &game)
   return { attackingCardsAsIdsAndAsCards, defendingCardsAsIdsAndAsCards };
 }
 
+std::vector<Action>
+historyEventsToActionsCompressedCards (std::vector<durak::HistoryEvent> const &histories, AttackDefendAssistCardsAndIds const &attackDefendAssistCardsAndIds)
+{
+  throw std::logic_error{ "IMPLEMENT PLS" };
+  return std::vector<Action>{ Action{} };
+}
+
 }
