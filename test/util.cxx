@@ -30,9 +30,9 @@ TEST_CASE ("calcCompressedCardsForAttackAndDefend", "[abc]")
   using namespace durak;
   using namespace durak_computer_controlled_opponent;
   auto game = Game{ { "a", "b" }, GameOption{ .numberOfCardsPlayerShouldHave = 2, .customCardDeck = std::vector<Card>{ { 7, durak::Type::clubs }, { 8, durak::Type::clubs }, { 3, durak::Type::hearts }, { 3, durak::Type::clubs } } } };
-  auto [attackCardsOld, defendCardsOld] = calcCompressedCardsForAttackAndDefend (game);
+  auto [attackCardsOld, defendCardsOld, assistCardsOld] = calcCompressedCardsForAttackAndDefend (game);
   game.playerStartsAttack ({ durak::Card{ 3, durak::Type::clubs } });
-  auto [attackCards, defendCards] = calcCompressedCardsForAttackAndDefend (game);
+  auto [attackCards, defendCards, assistCards] = calcCompressedCardsForAttackAndDefend (game);
   REQUIRE (attackCardsOld == attackCards);
   REQUIRE (defendCardsOld == defendCards);
 }

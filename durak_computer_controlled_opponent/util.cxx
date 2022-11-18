@@ -93,7 +93,7 @@ calcCardsAtRoundStart (const durak::Game &game)
   return { .attackCards = attackCards, .defendCards = defendCards, .assistCards = assistCards };
 }
 
-std::tuple<std::vector<std::tuple<uint8_t, durak::Card> >, std::vector<std::tuple<uint8_t, durak::Card> > >
+AttackDefendAssistCardsAndIds
 calcCompressedCardsForAttackAndDefend (durak::Game const &game)
 {
   auto const &[attackCards, defendCards, assistCards] = calcCardsAtRoundStart (game);

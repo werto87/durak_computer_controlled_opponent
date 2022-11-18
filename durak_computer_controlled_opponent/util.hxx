@@ -61,7 +61,15 @@ struct AttackDefendAssistCards
 };
 AttackDefendAssistCards calcCardsAtRoundStart (durak::Game const &game);
 
-std::tuple<std::vector<std::tuple<uint8_t, durak::Card> >, std::vector<std::tuple<uint8_t, durak::Card> > > calcCompressedCardsForAttackAndDefend (durak::Game const &game);
+struct AttackDefendAssistCardsAndIds
+{
+  std::vector<std::tuple<uint8_t, durak::Card> > attackCardsAndIds{};
+  std::vector<std::tuple<uint8_t, durak::Card> > defendCardsAndIds{};
+  std::vector<std::tuple<uint8_t, durak::Card> > assistCardsAndIds{};
+};
+
+// TODO this should be working for attack defend and assist??
+AttackDefendAssistCardsAndIds calcCompressedCardsForAttackAndDefend (durak::Game const &game);
 
 }
 #endif /* A082A940_2718_473D_8151_50956A0E5B42 */
