@@ -59,4 +59,32 @@ indent_padding (unsigned int n)
   return spaces + (ns-1-n);
 }
 
+std::tuple<std::vector<durak::Card>, std::vector<durak::Card> >
+calcCardsAtRoundStart (const durak::Game &game)
+{
+  //  TODO use table and game history to restore cards at round start
+
+  throw std::logic_error{"IMPLEMENT THIS"};
+  return {};
+}
+
+std::tuple<std::vector<std::tuple<uint8_t, durak::Card> >, std::vector<std::tuple<uint8_t, durak::Card> > >
+calcCompressedCardsForAttackAndDefend (durak::Game const &game)
+{
+  throw std::logic_error{"IMPLEMENT THIS"};
+  using namespace durak_computer_controlled_opponent;
+  auto [cards, defendingCards] = calcCardsAtRoundStart (game);
+  cards.insert (cards.end (), defendingCards.begin (), defendingCards.end ());
+  auto cardsAsIds = cardsToIds (compress (cards));
+  auto attackingCardsAsIds = std::vector<uint8_t>{ cardsAsIds.begin (), cardsAsIds.begin () + cardsAsIds.size () / 2 };
+  auto attackingCardsAsIdsAndAsCards = std::vector<std::tuple<uint8_t, durak::Card> >{};
+  pipes::mux (attackingCardsAsIds, game.getAttackingPlayer ()->getCards ()) >>= pipes::transform ([] (auto const &x, auto const &y) { return std::tuple<uint8_t, durak::Card>{ x, y }; }) >>= pipes::push_back (attackingCardsAsIdsAndAsCards);
+  ranges::sort (attackingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
+  auto defendingCardsAsIds = std::vector<uint8_t>{ cardsAsIds.begin () + cardsAsIds.size () / 2, cardsAsIds.end () };
+  auto defendingCardsAsIdsAndAsCards = std::vector<std::tuple<uint8_t, durak::Card> >{};
+  pipes::mux (defendingCardsAsIds, game.getDefendingPlayer ()->getCards ()) >>= pipes::transform ([] (auto const &x, auto const &y) { return std::tuple<uint8_t, durak::Card>{ x, y }; }) >>= pipes::push_back (defendingCardsAsIdsAndAsCards);
+  ranges::sort (defendingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
+  return { attackingCardsAsIdsAndAsCards, defendingCardsAsIdsAndAsCards };
+}
+
 }

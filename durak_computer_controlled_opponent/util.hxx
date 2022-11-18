@@ -51,5 +51,12 @@ void serialize_indented(const Iterator& F, const Iterator& L, Stream& s, unsigne
     }
 }
 
+std::tuple<std::vector<durak::Card>, std::vector<durak::Card> >
+calcCardsAtRoundStart (durak::Game const &game);
+
+
+std::tuple<std::vector<std::tuple<uint8_t, durak::Card> >, std::vector<std::tuple<uint8_t, durak::Card> > >
+calcCompressedCardsForAttackAndDefend (durak::Game const &game);
+
 }
 #endif /* A082A940_2718_473D_8151_50956A0E5B42 */
