@@ -71,7 +71,7 @@ struct AttackDefendAssistCardsAndIds
 // TODO this should be working for attack defend and assist??
 AttackDefendAssistCardsAndIds calcCompressedCardsForAttackAndDefend (durak::Game const &game);
 
-std::vector<Action> historyEventsToActionsCompressedCards (std::vector<durak::HistoryEvent> const &histories, AttackDefendAssistCardsAndIds const &attackDefendAssistCardsAndIds);
+std::vector<Action> historyEventsToActionsCompressedCards (std::vector<durak::HistoryEvent> const &histories);
 
 }
 #endif /* A082A940_2718_473D_8151_50956A0E5B42 */
