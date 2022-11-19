@@ -94,7 +94,7 @@ calcCardsAtRoundStart (const durak::Game &game)
 }
 
 AttackDefendAssistCardsAndIds
-calcCompressedCardsForAttackAndDefend (durak::Game const &game)
+calcIdAndCompressedCardsForAttackAndDefend (durak::Game const &game)
 {
   auto const &[attackCards, defendCards, assistCards] = calcCardsAtRoundStart (game);
   auto cards = attackCards;
@@ -110,12 +110,70 @@ calcCompressedCardsForAttackAndDefend (durak::Game const &game)
   ranges::sort (defendingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
   return { attackingCardsAsIdsAndAsCards, defendingCardsAsIdsAndAsCards };
 }
+AttackDefendAssistCardsToCompressedCards
+calcCardsAndCompressedCardsForAttackAndDefend (const durak::Game &game)
+{
+  auto const &[attackCards, defendCards, assistCards] = calcCardsAtRoundStart (game);
+  auto cards = attackCards;
+  cards.insert (cards.end (), defendCards.begin (), defendCards.end ());
+  auto compressedCards = compress (cards);
+  auto attackingCardsAsIds = std::vector<durak::Card>{ compressedCards.begin (), compressedCards.begin () + attackCards.size () };
+  auto attackingCardsAsIdsAndAsCards = std::vector<std::tuple<durak::Card, durak::Card> >{};
+  pipes::mux (attackingCardsAsIds, attackCards) >>= pipes::transform ([] (auto const &x, auto const &y) { return std::tuple<durak::Card, durak::Card>{ x, y }; }) >>= pipes::push_back (attackingCardsAsIdsAndAsCards);
+  ranges::sort (attackingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
+  auto defendingCardsAsIds = std::vector<durak::Card>{ compressedCards.begin () + attackCards.size (), compressedCards.end () };
+  auto defendingCardsAsIdsAndAsCards = std::vector<std::tuple<durak::Card, durak::Card> >{};
+  pipes::mux (defendingCardsAsIds, defendCards) >>= pipes::transform ([] (auto const &x, auto const &y) { return std::tuple<durak::Card, durak::Card>{ x, y }; }) >>= pipes::push_back (defendingCardsAsIdsAndAsCards);
+  ranges::sort (defendingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
+  return { attackingCardsAsIdsAndAsCards, defendingCardsAsIdsAndAsCards };
+}
+
+void
+transformFromLookUp (std::vector<durak::Card> &cardsToCompress, std::vector<std::tuple<durak::Card, durak::Card> > const &lookUp)
+{
+  for (auto &card : cardsToCompress)
+    {
+      if (auto cardAndCompressedCardItr = ranges::find_if (lookUp, [&card] (auto const &cardAndCompressedCard) { return card == std::get<1> (cardAndCompressedCard); }); cardAndCompressedCardItr != lookUp.end ())
+        {
+          card = std::get<0> (*cardAndCompressedCardItr);
+        }
+      else
+        {
+          throw std::logic_error{ "card not in lookup " };
+        }
+    }
+}
+
+void
+transformFromLookUp (durak::Card &cardToCompress, std::vector<std::tuple<durak::Card, durak::Card> > const &lookUp)
+{
+  auto cardsToCompress = std::vector<durak::Card>{ cardToCompress };
+  transformFromLookUp (cardsToCompress, lookUp);
+  cardToCompress = cardsToCompress.front ();
+}
 
 std::vector<Action>
-historyEventsToActionsCompressedCards (std::vector<durak::HistoryEvent> const &histories)
+historyEventsToActionsCompressedCards (std::vector<durak::HistoryEvent> histories, AttackDefendAssistCardsToCompressedCards const &attackDefendAssistCardsToCompressedCards)
 {
-  throw std::logic_error{ "IMPLEMENT PLS" };
-  return std::vector<Action>{ Action{} };
+  auto [attackCards, defendCards, assistCards] = attackDefendAssistCardsToCompressedCards;
+  auto lookUp = std::vector<std::tuple<durak::Card, durak::Card> >{};
+  lookUp.reserve (attackCards.size () + defendCards.size () + assistCards.size ());
+  lookUp.insert (lookUp.end (), attackCards.begin (), attackCards.end ());
+  lookUp.insert (lookUp.end (), defendCards.begin (), defendCards.end ());
+  lookUp.insert (lookUp.end (), assistCards.begin (), assistCards.end ());
+  std::transform (histories.begin (), histories.end (), histories.begin (), [&lookUp] (durak::HistoryEvent gameEvent) {
+    // clang-format off
+    std::visit(overloaded {
+                    [](auto const&) {/*ignore other game events*/},
+                    [&lookUp](durak::StartAttack & startAttack)   {transformFromLookUp(startAttack.cards,lookUp);},
+                    [&lookUp](durak::AssistAttack  &assistAttack)  {transformFromLookUp(assistAttack.cards,lookUp);},
+                    [&lookUp](durak::Defend & defend)        {transformFromLookUp(defend.card,lookUp);}
+                }, gameEvent);
+    // clang-format on
+    return gameEvent;
+  });
+  auto actions = historyEventsToActions (histories);
+  return actions;
 }
 
 }

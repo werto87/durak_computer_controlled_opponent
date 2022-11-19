@@ -69,9 +69,18 @@ struct AttackDefendAssistCardsAndIds
 };
 
 // TODO this should be working for attack defend and assist??
-AttackDefendAssistCardsAndIds calcCompressedCardsForAttackAndDefend (durak::Game const &game);
+AttackDefendAssistCardsAndIds calcIdAndCompressedCardsForAttackAndDefend (durak::Game const &game);
 
-std::vector<Action> historyEventsToActionsCompressedCards (std::vector<durak::HistoryEvent> const &histories);
+struct AttackDefendAssistCardsToCompressedCards
+{
+  std::vector<std::tuple<durak::Card, durak::Card> > attackCardsAndCompressedCards{};
+  std::vector<std::tuple<durak::Card, durak::Card> > defendCardsAndCompressedCards{};
+  std::vector<std::tuple<durak::Card, durak::Card> > assistCardsAndCompressedCards{};
+};
+
+AttackDefendAssistCardsToCompressedCards calcCardsAndCompressedCardsForAttackAndDefend (durak::Game const &game);
+
+std::vector<Action> historyEventsToActionsCompressedCards (std::vector<durak::HistoryEvent> histories, AttackDefendAssistCardsToCompressedCards const &attackDefendAssistCardsToCompressedCards);
 
 }
 #endif /* A082A940_2718_473D_8151_50956A0E5B42 */
