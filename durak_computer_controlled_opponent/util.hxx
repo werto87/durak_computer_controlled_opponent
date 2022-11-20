@@ -80,7 +80,7 @@ struct AttackDefendAssistCardsToCompressedCards
 
 AttackDefendAssistCardsToCompressedCards calcCardsAndCompressedCardsForAttackAndDefend (durak::Game const &game);
 
-std::vector<Action> historyEventsToActionsCompressedCards (std::vector<durak::HistoryEvent> histories, AttackDefendAssistCardsToCompressedCards const &attackDefendAssistCardsToCompressedCards);
+std::vector<Action> historyEventsToActionsCompressedCards (std::vector<durak::HistoryEvent> const &histories, AttackDefendAssistCardsToCompressedCards const &attackDefendAssistCardsToCompressedCards);
 
 }
 #endif /* A082A940_2718_473D_8151_50956A0E5B42 */

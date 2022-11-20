@@ -153,7 +153,7 @@ transformFromLookUp (durak::Card &cardToCompress, std::vector<std::tuple<durak::
 }
 
 std::vector<Action>
-historyEventsToActionsCompressedCards (std::vector<durak::HistoryEvent> histories, AttackDefendAssistCardsToCompressedCards const &attackDefendAssistCardsToCompressedCards)
+historyEventsToActionsCompressedCards (std::vector<durak::HistoryEvent> const &histories, AttackDefendAssistCardsToCompressedCards const &attackDefendAssistCardsToCompressedCards)
 {
   auto [attackCards, defendCards, assistCards] = attackDefendAssistCardsToCompressedCards;
   auto lookUp = std::vector<std::tuple<durak::Card, durak::Card> >{};
@@ -161,19 +161,28 @@ historyEventsToActionsCompressedCards (std::vector<durak::HistoryEvent> historie
   lookUp.insert (lookUp.end (), attackCards.begin (), attackCards.end ());
   lookUp.insert (lookUp.end (), defendCards.begin (), defendCards.end ());
   lookUp.insert (lookUp.end (), assistCards.begin (), assistCards.end ());
-  std::transform (histories.begin (), histories.end (), histories.begin (), [&lookUp] (durak::HistoryEvent gameEvent) {
-    // clang-format off
-    std::visit(overloaded {
+  auto lastRoundHistoryBeginItr = boost::algorithm::find_if_backward (histories, [] (durak::HistoryEvent const &historyEvent) { return std::holds_alternative<durak::RoundInformation> (historyEvent); });
+  if (lastRoundHistoryBeginItr != histories.end ())
+    {
+      auto lastRoundHistory = std::vector<durak::HistoryEvent> (lastRoundHistoryBeginItr, histories.end ());
+      std::transform (lastRoundHistory.begin (), lastRoundHistory.end (), lastRoundHistory.begin (), [&lookUp] (durak::HistoryEvent gameEvent) {
+        // clang-format off
+      std::visit(overloaded {
                     [](auto const&) {/*ignore other game events*/},
                     [&lookUp](durak::StartAttack & startAttack)   {transformFromLookUp(startAttack.cards,lookUp);},
                     [&lookUp](durak::AssistAttack  &assistAttack)  {transformFromLookUp(assistAttack.cards,lookUp);},
                     [&lookUp](durak::Defend & defend)        {transformFromLookUp(defend.card,lookUp);}
                 }, gameEvent);
-    // clang-format on
-    return gameEvent;
-  });
-  auto actions = historyEventsToActions (histories);
-  return actions;
+        // clang-format on
+        return gameEvent;
+      });
+      auto actions = historyEventsToActions (lastRoundHistory);
+      return actions;
+    }
+  else
+    {
+      throw std::logic_error{ "could not find round information in history" };
+    }
 }
 
 }

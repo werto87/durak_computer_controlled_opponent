@@ -58,3 +58,28 @@ TEST_CASE ("historyEventsToActionsCompressedCards", "[abc]")
   auto actions = historyEventsToActionsCompressedCards (game.getHistory (), calcCardsAndCompressedCardsForAttackAndDefend (game));
   REQUIRE (actions == std::vector<Action>{ Action{ 1 } });
 }
+
+TEST_CASE ("historyEventsToActionsCompressedCards second round", "[abc]")
+{
+  using namespace durak;
+  using namespace durak_computer_controlled_opponent;
+  auto game = Game{ { "a", "b" }, GameOption{ .numberOfCardsPlayerShouldHave = 2, .customCardDeck = std::vector<Card>{ { 7, durak::Type::clubs }, { 8, durak::Type::clubs }, { 3, durak::Type::hearts }, { 3, durak::Type::clubs } } } };
+  game.playerStartsAttack ({ durak::Card{ 3, durak::Type::clubs } });
+  game.playerDefends ({ 3, durak::Type::clubs }, { 7, durak::Type::clubs });
+  game.nextRound (false);
+  auto actions = historyEventsToActionsCompressedCards (game.getHistory (), calcCardsAndCompressedCardsForAttackAndDefend (game));
+  REQUIRE (actions.empty ());
+}
+
+TEST_CASE ("historyEventsToActionsCompressedCards second round play card", "[abc]")
+{
+  using namespace durak;
+  using namespace durak_computer_controlled_opponent;
+  auto game = Game{ { "a", "b" }, GameOption{ .numberOfCardsPlayerShouldHave = 2, .customCardDeck = std::vector<Card>{ { 7, durak::Type::clubs }, { 8, durak::Type::clubs }, { 3, durak::Type::hearts }, { 3, durak::Type::clubs } } } };
+  game.playerStartsAttack ({ durak::Card{ 3, durak::Type::clubs } });
+  game.playerDefends ({ 3, durak::Type::clubs }, { 7, durak::Type::clubs });
+  game.nextRound (false);
+  REQUIRE (game.playerStartsAttack ({ durak::Card{ 8, durak::Type::clubs } }));
+  auto actions = historyEventsToActionsCompressedCards (game.getHistory (), calcCardsAndCompressedCardsForAttackAndDefend (game));
+  REQUIRE (actions == std::vector<Action>{ Action{ 5 } });
+}
