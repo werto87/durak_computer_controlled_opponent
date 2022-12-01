@@ -111,21 +111,3 @@ TEST_CASE ("solveGameTree")
   auto [result, attack] = tree.root ()[Action{ 5 }].data ();
   REQUIRE (result == Result::DefendWon);
 }
-
-auto const cardsAsIdsAsString = [] (std::vector<durak::Card> const &cards) -> std::string {
-  auto result = std::stringstream{};
-  ranges::copy (cardsToIds (cards), std::ostream_iterator<int> (result, " "));
-  return result.str ();
-};
-TEST_CASE ("print cards")
-{
-  //  auto trumpType = durak::Type::hearts;
-  //  std::cout << "trump: " << magic_enum::enum_name (trumpType) << std::endl;
-  //  std::cout << "attack cards: " << cardsAsIdsAsString ({ { 0, durak::Type::hearts }, { 0, durak::Type::spades }, { 0, durak::Type::diamonds } }) << std::endl;
-  REQUIRE (cardsAsIdsAsString ({ { 0, durak::Type::hearts }, { 0, durak::Type::spades }, { 0, durak::Type::diamonds } }) == "0 3 2 ");
-  //  ranges::copy (cardsToIds ({ { 0, durak::Type::hearts }, { 0, durak::Type::spades }, { 0, durak::Type::diamonds } }), std::ostream_iterator<int> (std::cout, " "));
-  //  std::cout << std::endl;
-  //  std::cout << "defend cards: ";
-  //  ranges::copy (cardsToIds ({ { 1, durak::Type::hearts }, { 1, durak::Type::spades }, { 1, durak::Type::diamonds } }), std::ostream_iterator<int> (std::cout, " "));
-  //  std::cout << std::endl;
-}

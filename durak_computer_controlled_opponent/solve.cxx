@@ -658,15 +658,10 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
 {
   using namespace durak;
   auto combinations = compressed_permutations ({ attackCardCount, defendCardCount }, n);
-  // std::cout << "combinations.size(): " << combinations.size () << std::endl;
   auto compressedGames = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4>{};
-  // auto i = size_t{};
+  auto skippedCombinations = uint64_t{};
   for (const auto &combi : combinations)
     {
-      // if (i % 1000 == 0)
-      //   {
-      //     std::cout << "i: " << i << std::endl;
-      //   }
       for (auto trumpType : { Type::hearts, Type::clubs, Type::diamonds, Type::spades })
         {
           auto cards = idsToCards (combi);
@@ -679,10 +674,28 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
           auto round = Round{ gameToAnalyze.getAttackingPlayer ()->getCards (), gameToAnalyze.getDefendingPlayer ()->getCards (), histories };
           auto tree = createTree (round);
           solveGameTree (tree);
-          compressedGames.at (static_cast<size_t> (trumpType)).insert ({ { cardsToIds (attackCards), cardsToIds (defendCards) }, small_memory_tree::treeToVector (tree, std::tuple<uint8_t, Result>{ 255, Result::Undefined }, std::tuple<uint8_t, Result>{ 254, Result::Undefined }, [] (auto const &node) { return std::tuple<uint8_t, Result>{ node.key ().value (), std::get<0> (node.data ()) }; }) });
+          try
+            {
+              compressedGames.at (static_cast<size_t> (trumpType)).insert ({ { cardsToIds (attackCards), cardsToIds (defendCards) }, small_memory_tree::treeToVector (tree, std::tuple<uint8_t, Result>{ 255, Result::Undefined }, std::tuple<uint8_t, Result>{ 254, Result::Undefined }, [] (auto const &node) { return std::tuple<uint8_t, Result>{ node.key ().value (), std::get<0> (node.data ()) }; }) });
+            }
+          catch (boost::numeric::positive_overflow const &e)
+            {
+              compressedGames.at (static_cast<size_t> (trumpType)).insert ({ { cardsToIds (attackCards), cardsToIds (defendCards) }, {} });
+              std::cout << "exception in solveDurak." << std::endl;
+              std::cout << e.what ();
+              std::cout << "trump: " << magic_enum::enum_name (trumpType) << std::endl;
+              auto const cardsAsIdsAsString = [] (std::vector<durak::Card> const &cards) -> std::string {
+                auto result = std::stringstream{};
+                ranges::copy (cardsToIds (cards), std::ostream_iterator<int> (result, " "));
+                return result.str ();
+              };
+              std::cout << "attack cards: " << cardsAsIdsAsString (attackCards) << std::endl;
+              std::cout << "defend cards: " << cardsAsIdsAsString (defendCards) << std::endl;
+              ++skippedCombinations;
+            }
         }
-      // i++;
     }
+  if (skippedCombinations) std::cout << "skippedCombinations: " << skippedCombinations << std::endl;
   return compressedGames;
 }
 std::vector<std::tuple<uint8_t, Result> >
