@@ -90,30 +90,6 @@ TEST_CASE ("nextActionForRole")
   REQUIRE (nextAction == Action{ 0 });
 }
 
-TEST_CASE ("nextActionForRole more then 2 moves to played")
-{
-  using namespace durak;
-  soci::session sql (soci::sqlite3, "/home/walde/CLionProjects/example_of_a_game_server/database/combination.db");
-  auto game = durak::Game{ { "a", "b" }, GameOption{ .numberOfCardsPlayerShouldHave = 3, .trump = Type::spades, .customCardDeck = std::vector<Card>{ { 7, durak::Type::spades }, { 2, durak::Type::diamonds }, { 5, durak::Type::hearts }, { 5, durak::Type::clubs }, { 9, durak::Type::hearts }, { 4, durak::Type::hearts } } } };
-  game.playerStartsAttack ({ { 4, durak::Type::hearts } });
-  game.playerDefends ({ 4, durak::Type::hearts }, { 5, durak::Type::hearts });
-  game.playerStartsAttack ({ { 5, durak::Type::clubs } });
-  auto const [compressedCardsForAttack, compressedCardsForDefend, compressedCardsForAssist] = calcIdAndCompressedCardsForAttackAndDefend (game);
-  auto attackCardsCompressed = std::vector<uint8_t>{};
-  compressedCardsForAttack >>= pipes::unzip (pipes::push_back (attackCardsCompressed), pipes::dev_null ());
-  auto defendCardsCompressed = std::vector<uint8_t>{};
-  compressedCardsForDefend >>= pipes::unzip (pipes::push_back (defendCardsCompressed), pipes::dev_null ());
-  auto someRound = confu_soci::findStruct<database::Round> (sql, "gameState", database::gameStateAsString ({ attackCardsCompressed, defendCardsCompressed }, game.getTrump ()));
-  REQUIRE (someRound.has_value ());
-  auto actions = durak_computer_controlled_opponent::historyEventsToActionsCompressedCards (game.getHistory (), calcCardsAndCompressedCardsForAttackAndDefend (game));
-  auto result = nextActionsAndResults (actions, binaryToMoveResult (someRound.value ().combination));
-  SECTION ("defend moves")
-  {
-    auto playerRole = durak::PlayerRole::defend;
-    REQUIRE (nextActionForRole (result, playerRole).has_value ());
-  }
-}
-
 TEST_CASE ("solveGameTree")
 {
   auto tree = st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> >{};
@@ -134,4 +110,22 @@ TEST_CASE ("solveGameTree")
   solveGameTree (tree);
   auto [result, attack] = tree.root ()[Action{ 5 }].data ();
   REQUIRE (result == Result::DefendWon);
+}
+
+auto const cardsAsIdsAsString = [] (std::vector<durak::Card> const &cards) -> std::string {
+  auto result = std::stringstream{};
+  ranges::copy (cardsToIds (cards), std::ostream_iterator<int> (result, " "));
+  return result.str ();
+};
+TEST_CASE ("print cards")
+{
+  //  auto trumpType = durak::Type::hearts;
+  //  std::cout << "trump: " << magic_enum::enum_name (trumpType) << std::endl;
+  //  std::cout << "attack cards: " << cardsAsIdsAsString ({ { 0, durak::Type::hearts }, { 0, durak::Type::spades }, { 0, durak::Type::diamonds } }) << std::endl;
+  REQUIRE (cardsAsIdsAsString ({ { 0, durak::Type::hearts }, { 0, durak::Type::spades }, { 0, durak::Type::diamonds } }) == "0 3 2 ");
+  //  ranges::copy (cardsToIds ({ { 0, durak::Type::hearts }, { 0, durak::Type::spades }, { 0, durak::Type::diamonds } }), std::ostream_iterator<int> (std::cout, " "));
+  //  std::cout << std::endl;
+  //  std::cout << "defend cards: ";
+  //  ranges::copy (cardsToIds ({ { 1, durak::Type::hearts }, { 1, durak::Type::spades }, { 1, durak::Type::diamonds } }), std::ostream_iterator<int> (std::cout, " "));
+  //  std::cout << std::endl;
 }
