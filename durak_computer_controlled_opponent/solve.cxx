@@ -759,17 +759,22 @@ nextActionForRole (const std::vector<std::tuple<Action, durak_computer_controlle
         {
           return { durak_computer_controlled_opponent::Action{ std::get<0> (*winningAction) } };
         }
+      else if (auto drawAction = ranges::find_if (nextActions,
+                                                  [] (auto const &actionAsBinaryAndResult) {
+                                                    auto const &[actionAsBinary, result] = actionAsBinaryAndResult;
+                                                    return result == durak_computer_controlled_opponent::Result::Draw;
+                                                  });
+               drawAction != nextActions.end ())
+        {
+          return { durak_computer_controlled_opponent::Action{ std::get<0> (*drawAction) } };
+        }
+      else if (not nextActions.empty ())
+        {
+          return { durak_computer_controlled_opponent::Action{ std::get<0> (nextActions.front ()) } };
+        }
       else
         {
-          if (auto drawAction = ranges::find_if (nextActions,
-                                                 [] (auto const &actionAsBinaryAndResult) {
-                                                   auto const &[actionAsBinary, result] = actionAsBinaryAndResult;
-                                                   return result == durak_computer_controlled_opponent::Result::Draw;
-                                                 });
-              drawAction != nextActions.end ())
-            {
-              return { durak_computer_controlled_opponent::Action{ std::get<0> (*drawAction) } };
-            }
+          return std::nullopt;
         }
     }
   return std::nullopt;
