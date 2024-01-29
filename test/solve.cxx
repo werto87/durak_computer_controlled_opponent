@@ -11,7 +11,7 @@
 #include <durak/card.hxx>
 #include <durak/game.hxx>
 #include <durak/gameOption.hxx>
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 #include <soci/session.h>
 #include <st_tree.h>
 #include <tuple>

@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <durak/card.hxx>
 #include <functional>
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 #include <st_tree.h>
 
 using namespace durak_computer_controlled_opponent;

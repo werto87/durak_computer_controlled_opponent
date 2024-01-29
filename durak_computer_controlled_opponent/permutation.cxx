@@ -1,6 +1,6 @@
 #include "permutation.hxx"
-#include "durak_computer_controlled_opponent/combination.hxx"
-#include "durak_computer_controlled_opponent/compressCard.hxx"
+#include "combination.hxx"
+#include "compressCard.hxx"
 #include <cstddef>
 #include <numeric>
 #include <range/v3/algorithm.hpp>

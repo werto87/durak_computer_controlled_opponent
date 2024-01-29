@@ -1,10 +1,10 @@
 #include "util.hxx"
-#include "durak_computer_controlled_opponent/compressCard.hxx"
+#include "compressCard.hxx"
 #include <boost/algorithm/find_backward.hpp>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <charconv>
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 namespace durak_computer_controlled_opponent
 {
 std::tuple<std::vector<durak::Card>, std::vector<durak::Card>, durak::Type>

@@ -1,15 +1,14 @@
 #include "solve.hxx"
-#include "durak_computer_controlled_opponent/compressCard.hxx"
-#include "durak_computer_controlled_opponent/permutation.hxx"
-#include "small_memory_tree/small_memory_tree.hxx"
+#include "compressCard.hxx"
+#include "permutation.hxx"
 #include <algorithm>
 #include <cstddef>
 #include <cstdint>
 #include <durak/game.hxx>
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 #include <range/v3/algorithm.hpp>
 #include <range/v3/algorithm/find_if.hpp>
-#include <small_memory_tree/dataFromVector.hxx>
+#include <small_memory_tree/smallMemoryTree.hxx>
 #include <utility>
 #include <vector>
 
@@ -676,7 +675,8 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
           solveGameTree (tree);
           try
             {
-              compressedGames.at (static_cast<size_t> (trumpType)).insert ({ { cardsToIds (attackCards), cardsToIds (defendCards) }, small_memory_tree::treeToVector (tree, std::tuple<uint8_t, Result>{ 255, Result::Undefined }, std::tuple<uint8_t, Result>{ 254, Result::Undefined }, [] (auto const &node) { return std::tuple<uint8_t, Result>{ node.key ().value (), std::get<0> (node.data ()) }; }) });
+              auto smt = small_memory_tree::SmallMemoryTree<std::tuple<uint8_t, Result> >{ tree, std::tuple<uint8_t, Result>{ 255, Result::Undefined }, [] (auto const &node) { return std::tuple<uint8_t, Result>{ node.key ().value (), std::get<0> (node.data ()) }; } };
+              compressedGames.at (static_cast<size_t> (trumpType)).insert ({ { cardsToIds (attackCards), cardsToIds (defendCards) }, smt.getTreeAsVector () });
             }
           catch (boost::numeric::positive_overflow const &e)
             {
@@ -684,9 +684,9 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
               std::cout << "exception in solveDurak." << std::endl;
               std::cout << e.what ();
               std::cout << "trump: " << magic_enum::enum_name (trumpType) << std::endl;
-              auto const cardsAsIdsAsString = [] (std::vector<durak::Card> const &cards) -> std::string {
+              auto const cardsAsIdsAsString = [] (std::vector<durak::Card> const &_cards) -> std::string {
                 auto result = std::stringstream{};
-                ranges::copy (cardsToIds (cards), std::ostream_iterator<int> (result, " "));
+                ranges::copy (cardsToIds (_cards), std::ostream_iterator<int> (result, " "));
                 return result.str ();
               };
               std::cout << "attack cards: " << cardsAsIdsAsString (attackCards) << std::endl;
@@ -712,9 +712,9 @@ binaryToMoveResult (std::vector<uint8_t> const &movesAndResultAsBinary)
 template <typename> struct Debug;
 
 std::vector<std::tuple<Action, Result> >
-nextActionsAndResults (std::vector<Action> const &actions, std::vector<std::tuple<uint8_t, Result> > const &moveResults)
+nextActionsAndResults (std::vector<Action> const &actions, small_memory_tree::SmallMemoryTree<std::tuple<uint8_t, Result> > const &moveResults)
 {
-  auto children = small_memory_tree::childrenByPath (moveResults, {}, moveResults.back ());
+  auto children = small_memory_tree::childrenByPath (moveResults, {});
   auto path = std::decay_t<decltype (children)> ();
 
   //  Debug<SomeType> d;
@@ -728,7 +728,7 @@ nextActionsAndResults (std::vector<Action> const &actions, std::vector<std::tupl
           childResultToPlay != children.end ())
         {
           path.push_back (*childResultToPlay);
-          children = small_memory_tree::childrenByPath (moveResults, path, moveResults.back ());
+          children = small_memory_tree::childrenByPath (moveResults, path);
         }
     }
   auto result = std::vector<std::tuple<Action, Result> >{};

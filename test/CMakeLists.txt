@@ -1,22 +1,21 @@
-set(TEST_TARGET_NAME _test)
-add_executable(${TEST_TARGET_NAME}
-    main.cxx
-    permutation.cxx
-    compressCard.cxx
-    solve.cxx
-    gameTree.cxx
-        database.cxx util.cxx)
+add_executable(_test
+        compressCard.cxx
+        database.cxx
+        gameTree.cxx
+        main.cxx
+        permutation.cxx
+        solve.cxx
+        util.cxx
+        )
 
-target_link_libraries(${TEST_TARGET_NAME}
-    ${TARGET_NAME_LIB}
-    CONAN_PKG::catch2
-)
-add_test(NAME ${TEST_TARGET_NAME}
-    COMMAND ${TEST_TARGET_NAME} -r junit
-)
+find_package(Catch2)
 
-target_compile_definitions(${TEST_TARGET_NAME} PRIVATE
-        CURRENT_BINARY_DIR=\"${CMAKE_CURRENT_BINARY_DIR}\"
-    # RUN_BENCHMARK
-    # RUN_BENCHMARK_SOLVE_DURAK
-)
+target_link_libraries(_test
+        durak_computer_controlled_opponent
+        Catch2::Catch2
+        )
+
+target_include_directories(_test PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR})
+
+add_test(NAME _test
+        COMMAND _test -r junit)

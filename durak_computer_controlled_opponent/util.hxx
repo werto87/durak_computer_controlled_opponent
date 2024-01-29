@@ -3,7 +3,7 @@
 
 #include "solve.hxx"
 #include <durak/card.hxx>
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 #include <sstream>
 #include <string>
 #include <tuple>

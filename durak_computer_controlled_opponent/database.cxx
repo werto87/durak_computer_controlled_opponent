@@ -1,13 +1,13 @@
 #include "database.hxx"
-#include "durak_computer_controlled_opponent/compressCard.hxx"
-#include "durak_computer_controlled_opponent/util.hxx"
+#include "compressCard.hxx"
+#include "util.hxx"
 #include <charconv>
 #include <confu_soci/convenienceFunctionForSoci.hxx>
 #include <cstddef>
 #include <durak/card.hxx>
 #include <filesystem> // for create_directory
 #include <iostream>   // for endl, basic_ost...
-#include <magic_enum.hpp>
+#include <magic_enum/magic_enum.hpp>
 #include <soci/error.h>                // for soci_error
 #include <soci/session.h>              // for session
 #include <soci/sqlite3/soci-sqlite3.h> // for sqlite3, sqlite...
