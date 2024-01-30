@@ -6,8 +6,12 @@ TEST_CASE ("calcCardsAtRoundStart", "[abc]")
   using namespace durak;
   using namespace durak_computer_controlled_opponent;
   auto game = Game{ { "a", "b" }, GameOption{ .numberOfCardsPlayerShouldHave = 2, .customCardDeck = std::vector<Card>{ { 7, durak::Type::clubs }, { 8, durak::Type::clubs }, { 3, durak::Type::hearts }, { 3, durak::Type::clubs } } } };
-  auto attackCardsAtStart = game.getAttackingPlayer ()->getCards ();
-  auto defendCardsAtStart = game.getDefendingPlayer ()->getCards ();
+  auto attackingPlayer = game.getAttackingPlayer ();
+  auto defendingPlayer = game.getDefendingPlayer ();
+  REQUIRE (attackingPlayer.has_value ());
+  REQUIRE (defendingPlayer.has_value ());
+  auto attackCardsAtStart = attackingPlayer->getCards ();
+  auto defendCardsAtStart = defendingPlayer->getCards ();
   {
     auto const &[attackCards, defendCards, assistCards] = calcCardsAtRoundStart (game);
     REQUIRE (attackCardsAtStart == attackCards);
