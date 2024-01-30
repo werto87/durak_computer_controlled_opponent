@@ -3,27 +3,19 @@
 ##
 ## Distributed under the Boost Software License, Version 1.0.
 ## (See accompanying file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
-##
 
-add_library(durak_computer_controlled_opponent)
 
-target_sources(durak_computer_controlled_opponent PUBLIC
-        util.cxx
-        solve.cxx
-        permutation.cxx
-        database.cxx
+add_library(durak_computer_controlled_opponent
         compressCard.cxx
-)
-
-install(FILES
-        combination.hxx
-        compressCard.hxx
-        database.hxx
-        permutation.hxx
-        solve.hxx
-        util.hxx
-        DESTINATION include/durak_computer_controlled_opponent
+        database.cxx
+        permutation.cxx
+        solve.cxx
+        util.cxx
         )
+
+
+add_library(myproject::durak_computer_controlled_opponent ALIAS durak_computer_controlled_opponent)
+
 
 find_package(durak)
 find_package(small_memory_tree)
@@ -35,22 +27,33 @@ find_package(magic_enum)
 
 
 target_link_libraries(durak_computer_controlled_opponent PUBLIC
-        ${PROJECT_WARNINGS}
-        ${PROJECT_OPTIONS}
+        durak::durak
+        small_memory_tree::small_memory_tree
+        st_tree::st_tree
+        range-v3::range-v3
+        confu_soci::confu_soci
         boost::boost
         magic_enum::magic_enum
-        range-v3::range-v3
-        durak::durak
-        st_tree::st_tree
-        small_memory_tree::small_memory_tree
-        confu_soci::confu_soci
         )
 
-# state that anybody linking to us needs to include the current source dir
-# to find MathFunctions.h, while we don't.
-target_include_directories(durak_computer_controlled_opponent
-        INTERFACE
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-        $<INSTALL_INTERFACE:include>
+target_include_directories(durak_computer_controlled_opponent INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${PROJECT_BINARY_DIR}/include>)
+
+target_compile_features(durak_computer_controlled_opponent PUBLIC cxx_std_20)
+
+set_target_properties(
+        durak_computer_controlled_opponent
+        PROPERTIES VERSION ${PROJECT_VERSION}
+        CXX_VISIBILITY_PRESET hidden
+        VISIBILITY_INLINES_HIDDEN YES)
+
+install(FILES
+        combination.hxx
+        compressCard.hxx
+        database.hxx
+        permutation.hxx
+        solve.hxx
+        util.hxx
+        DESTINATION include/durak_computer_controlled_opponent
         )
 install(TARGETS durak_computer_controlled_opponent DESTINATION lib)

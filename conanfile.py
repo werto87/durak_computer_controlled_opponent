@@ -12,11 +12,11 @@ class Project(ConanFile):
         self.options["boost"].header_only = True
 
     def requirements(self):
-        self.requires("boost/1.83.0", force=True)
+        self.requires("boost/1.84.0")
         self.requires("catch2/2.13.9")
         self.requires("durak/0.0.13")
         self.requires("st_tree/1.2.1")
-        self.requires("small_memory_tree/3.0.0")
+        self.requires("small_memory_tree/4.0.1")
         self.requires("range-v3/0.12.0")
         self.requires("confu_soci/0.3.15")
-        self.requires("magic_enum/0.9.5", force=True)
+        self.requires("magic_enum/[>=0.9.5 <10]")

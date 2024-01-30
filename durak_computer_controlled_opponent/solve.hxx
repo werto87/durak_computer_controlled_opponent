@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <durak/game.hxx>
+#include <small_memory_tree/smallMemoryTree.hxx>
 #include <st_tree.h>
 #include <vector>
 
@@ -11,12 +12,10 @@ namespace durak_computer_controlled_opponent
 
 std::vector<durak::HistoryEvent> onlyFirstRound (std::vector<durak::HistoryEvent> const &histories);
 
-
-
 class Action
 {
 public:
-   enum struct Category
+  enum struct Category
   {
     Undefined,
     PlayCard,
@@ -27,9 +26,8 @@ public:
   explicit Action (std::uint8_t value) : _value (value) {}
   auto operator<=> (const Action &) const = default;
 
-  [[nodiscard]] Category operator()() const;
+  [[nodiscard]] Category operator() () const;
   [[nodiscard]] std::optional<durak::Card> playedCard () const;
-
 
   [[nodiscard]] std::uint8_t value () const;
 
@@ -92,11 +90,9 @@ enum class Result : uint8_t
   Draw,
   AttackWon
 };
-std::optional<durak_computer_controlled_opponent::Action>
-nextActionForRole (const std::vector<std::tuple<Action, durak_computer_controlled_opponent::Result> > &nextActions, const durak::PlayerRole &playerRole);
+std::optional<Action> nextActionForRole (const std::vector<std::tuple<Action, Result> > &nextActions, const durak::PlayerRole &playerRole);
 
-
-std::vector<std::tuple<Action, Result> > nextActionsAndResults (std::vector<Action> const &actions, std::vector<std::tuple<uint8_t, Result> > const &moveResults);
+std::vector<std::tuple<Action, Result> > nextActionsAndResults (std::vector<Action> const &actions, small_memory_tree::SmallMemoryTree<std::tuple<uint8_t, Result> > const &moveResults);
 
 std::vector<std::tuple<uint8_t, Result> > binaryToMoveResult (std::vector<uint8_t> const &movesAndResultAsBinary);
 
@@ -108,19 +104,16 @@ void vectorWithMovesToTree (std::vector<durak::Card> const &attackCards, st_tree
 
 st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > createTree (Round const &round);
 
-void
-solveGameTree (st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > &t);
+void solveGameTree (st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > &t);
 
 Result searchForGameResult (std::vector<uint8_t> const &attackCardsIds, std::vector<uint8_t> const &defendCardsIds, std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > > const &gameResults);
 boost::optional<durak::Player> durakInGame (Result result, durak::Game const &game);
 
 std::tuple<std::vector<durak::Card>, std::vector<durak::Card> > attackAndDefendCompressed (std::vector<durak::Card> const &attackCards, std::vector<durak::Card> const &defendCards);
 
-boost::optional<durak::Player>
-calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> > const &gameLookup);
+boost::optional<durak::Player> calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> > const &gameLookup);
 
-bool
-tableValidForMoveLookUp (std::vector<std::pair<durak::Card, boost::optional<durak::Card> > > const &table);
+bool tableValidForMoveLookUp (std::vector<std::pair<durak::Card, boost::optional<durak::Card> > > const &table);
 
 std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> > const &gameLookup);
 }

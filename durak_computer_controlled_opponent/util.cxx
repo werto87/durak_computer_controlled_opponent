@@ -11,20 +11,20 @@ std::tuple<std::vector<durak::Card>, std::vector<durak::Card>, durak::Type>
 attackAndDefendCardsAndTrump (std::string const &gameState)
 {
   auto result = std::tuple<std::vector<durak::Card>, std::vector<durak::Card>, durak::Type>{};
-  auto &[attack, defend, trump] = result;
   std::vector<std::string> splitMessage{};
-  boost::algorithm::split (splitMessage, gameState, boost::is_any_of (";"));
+  boost::algorithm::split (splitMessage, gameState, boost::is_any_of (";")); // NOLINT //NOLINT is used to supress a clang tidy false positive warning
   if (splitMessage.size () == 3)
     {
+      auto &[attack, _defend, trump] = result;
       attack = stringToCards (splitMessage.at (0));
-      defend = stringToCards (splitMessage.at (1));
+      _defend = stringToCards (splitMessage.at (1));
       trump = magic_enum::enum_cast<durak::Type> (std::stoi (splitMessage.at (2))).value ();
+      return result;
     }
   else
     {
       throw std::logic_error{ "gameState wrong format should only have 2 times ; gameStateAsString: " + gameState };
     }
-  return result;
 }
 std::vector<durak::Card>
 stringToCards (std::string const &cardsAsString)

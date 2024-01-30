@@ -74,7 +74,7 @@ TEST_CASE ("nextActionsAndResults", "[abc]")
   auto oneCardVsOneCard = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4>{ gameLookup.at ({ 1, 1 }) };
   SECTION ("1v1 attack won")
   {
-    auto actionsAndResults = nextActionsAndResults ({}, oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }));
+    auto actionsAndResults = nextActionsAndResults ({}, small_memory_tree::SmallMemoryTree<std::tuple<uint8_t, Result> >{ oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }) });
     REQUIRE (actionsAndResults == std::vector<std::tuple<Action, Result> >{ { Action{ 0 }, Result::AttackWon } });
   }
 }
@@ -85,7 +85,7 @@ TEST_CASE ("nextActionForRole")
   auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
   auto oneCardVsOneCard = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4>{ gameLookup.at ({ 1, 1 }) };
-  auto actionsAndResults = nextActionsAndResults ({}, oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }));
+  auto actionsAndResults = nextActionsAndResults ({}, small_memory_tree::SmallMemoryTree<std::tuple<uint8_t, Result> >{ oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }) });
   auto nextAction = nextActionForRole (actionsAndResults, durak::PlayerRole::attack);
   REQUIRE (nextAction == Action{ 0 });
 }

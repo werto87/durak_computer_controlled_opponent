@@ -183,14 +183,10 @@ startAttack (std::tuple<durak::Game, AttackDefendPass> const &gameWithPasses)
   auto allowedMoves = game.getAllowedMoves (PlayerRole::attack);
   if (ranges::find (allowedMoves, Move::startAttack) != allowedMoves.end ())
     {
-      auto results = std::vector<Game>{};
       for (auto const &card : game.getAttackingPlayer ()->getCards ())
         {
-          auto &[gameToStart, passes] = result.emplace_back (gameWithPasses);
-          if (gameToStart.playerStartsAttack ({ card }))
-            {
-            }
-          else
+          result.emplace_back (gameWithPasses);
+          if (not std::get<0> (result.back ()).playerStartsAttack ({ card }))
             {
               std::cout << "error starting round" << std::endl;
               abort ();
@@ -338,8 +334,8 @@ defendAction (std::tuple<durak::Game, AttackDefendPass> const &gameWithPasses)
     }
   if (ranges::find (allowedMovesDefend, Move::takeCards) != allowedMovesDefend.end ())
     {
-      auto &[gameToStart, attackDefendPassToSet] = result.emplace_back (gameWithPasses);
-      attackDefendPassToSet.defendPass = true;
+      result.emplace_back (gameWithPasses);
+      std::get<1> (result.back ()).defendPass = true;
     }
   // TODO implement something for defend wants to take cards. attack has the possibility to add cards when defend takes cards
   return result;
@@ -355,14 +351,13 @@ defend (std::tuple<durak::Game, AttackDefendPass> const &gameWithPasses)
   auto allowedMoves = game.getAllowedMoves (PlayerRole::defend);
   if (ranges::find (allowedMoves, Move::defend) != allowedMoves.end ())
     {
-      auto results = std::vector<Game>{};
       for (auto const &card : game.getDefendingPlayer ()->getCards ())
         {
-          auto &[gameToStart, attackDefendPassToSet] = result.emplace_back (gameWithPasses);
-          auto table = gameToStart.getTable ();
+          result.emplace_back (gameWithPasses);
+          auto table = std::get<0> (result.back ()).getTable ();
           if (auto firstCardToBeat = ranges::find_if (table, [] (auto cardToBeatAndCard) { return not cardToBeatAndCard.second.has_value (); }); firstCardToBeat != table.end ())
             {
-              gameToStart.playerDefends (firstCardToBeat->first, card);
+              std::get<0> (result.back ()).playerDefends (firstCardToBeat->first, card);
             }
           else
             {
@@ -413,7 +408,6 @@ Round::Round (std::vector<durak::Card> attackingPlayerCards_, std::vector<durak:
 {
   for (auto [result, histories] : resultsAndHistories)
     {
-      auto historyEventsToActionsTmp = historyEventsToActions (histories);
       if (result.has_value ())
         {
           if (result->id == "a")
@@ -450,7 +444,7 @@ solve (durak::Game const &game)
     {
       auto gamesToAnalyze = std::move (gamesToKeepPlaying);
       gamesToKeepPlaying.clear ();
-      for (auto &gameToAnalyze : gamesToAnalyze)
+      for (auto const &gameToAnalyze : gamesToAnalyze)
         {
           auto results = simulateRound (gameToAnalyze);
           ranges::copy_if (results, ranges::back_inserter (finishedGames), [] (Game const &game_) { return game_.checkIfGameIsOver (); });
@@ -515,7 +509,6 @@ insertDrawCardsAction (std::vector<durak::Card> const &attackCards, std::vector<
   auto results = std::vector<std::vector<Action> >{};
   for (auto actions : vectorsOfActions)
     {
-      auto result = std::vector<Action>{};
       while (not validActionSequence (actions, attackCards))
         {
           for (auto i = size_t{ 0 }; i < actions.size (); i++)
@@ -656,10 +649,10 @@ std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std
 solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> > const &gameLookup)
 {
   using namespace durak;
-  auto combinations = compressed_permutations ({ attackCardCount, defendCardCount }, n);
+  auto _combinations = compressed_permutations ({ attackCardCount, defendCardCount }, n);
   auto compressedGames = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4>{};
   auto skippedCombinations = uint64_t{};
-  for (const auto &combi : combinations)
+  for (const auto &combi : _combinations)
     {
       for (auto trumpType : { Type::hearts, Type::clubs, Type::diamonds, Type::spades })
         {
@@ -709,34 +702,43 @@ binaryToMoveResult (std::vector<uint8_t> const &movesAndResultAsBinary)
     }
   return results;
 }
-template <typename> struct Debug;
 
 std::vector<std::tuple<Action, Result> >
 nextActionsAndResults (std::vector<Action> const &actions, small_memory_tree::SmallMemoryTree<std::tuple<uint8_t, Result> > const &moveResults)
 {
-  auto children = small_memory_tree::childrenByPath (moveResults, {});
-  auto path = std::decay_t<decltype (children)> ();
-
-  //  Debug<SomeType> d;
-  for (auto const &action : actions)
+  if (auto const &rootElementOpt = rootElement (moveResults))
     {
-      if (auto childResultToPlay = ranges::find_if (children,
-                                                    [action] (std::tuple<uint8_t, Result> const &moveResult) {
-                                                      //
-                                                      return action.value () == std::get<0> (moveResult);
-                                                    });
-          childResultToPlay != children.end ())
+      if (auto childrenOpt = small_memory_tree::childrenByPath (moveResults, { rootElementOpt.value () }))
         {
-          path.push_back (*childResultToPlay);
-          children = small_memory_tree::childrenByPath (moveResults, path);
+          auto path = std::decay_t<decltype (childrenOpt.value ())>{ rootElementOpt.value () };
+          for (auto const &action : actions)
+            {
+              if (auto childResultToPlay = ranges::find_if (childrenOpt.value (), [action] (std::tuple<uint8_t, Result> const &moveResult) { return action.value () == std::get<0> (moveResult); }); childResultToPlay != childrenOpt.value ().end ())
+                {
+                  path.push_back (*childResultToPlay);
+                  childrenOpt = small_memory_tree::childrenByPath (moveResults, path);
+                  if (childrenOpt.has_value ())
+                    {
+                      throw std::logic_error{ "could not find action for path." };
+                    }
+                }
+            }
+          auto result = std::vector<std::tuple<Action, Result> >{};
+          ranges::transform (childrenOpt.value (), ranges::back_inserter (result), [] (auto const &valueResult) {
+            auto const &[value, _result] = valueResult;
+            return std::tuple<Action, Result>{ value, _result };
+          });
+          return result;
+        }
+      else
+        {
+          throw std::logic_error{ "could not find action for path." };
         }
     }
-  auto result = std::vector<std::tuple<Action, Result> >{};
-  ranges::transform (children, ranges::back_inserter (result), [] (auto const &valueResult) {
-    auto const &[value, _result] = valueResult;
-    return std::tuple<Action, Result>{ value, _result };
-  });
-  return result;
+  else
+    {
+      throw std::logic_error{ "no root element found in tree which means tree is empty" };
+    }
 }
 std::optional<durak_computer_controlled_opponent::Action>
 nextActionForRole (const std::vector<std::tuple<Action, durak_computer_controlled_opponent::Result> > &nextActions, const durak::PlayerRole &playerRole)
