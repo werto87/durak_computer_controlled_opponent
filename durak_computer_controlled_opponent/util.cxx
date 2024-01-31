@@ -5,6 +5,9 @@
 #include <boost/algorithm/string/split.hpp>
 #include <charconv>
 #include <magic_enum/magic_enum.hpp>
+#include <pipes/transform.hpp>
+#include <pipes/mux.hpp>
+#include <pipes/push_back.hpp>
 namespace durak_computer_controlled_opponent
 {
 std::tuple<std::vector<durak::Card>, std::vector<durak::Card>, durak::Type>

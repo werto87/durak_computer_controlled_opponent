@@ -20,3 +20,4 @@ class Project(ConanFile):
         self.requires("range-v3/0.12.0")
         self.requires("confu_soci/0.3.15")
         self.requires("magic_enum/[>=0.9.5 <10]")
+        self.requires("pipes/1.0.0")
