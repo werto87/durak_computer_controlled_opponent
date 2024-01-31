@@ -5,9 +5,6 @@
 #include <boost/algorithm/string/split.hpp>
 #include <charconv>
 #include <magic_enum/magic_enum.hpp>
-#include <pipes/transform.hpp>
-#include <pipes/mux.hpp>
-#include <pipes/push_back.hpp>
 namespace durak_computer_controlled_opponent
 {
 std::tuple<std::vector<durak::Card>, std::vector<durak::Card>, durak::Type>
@@ -105,11 +102,19 @@ calcIdAndCompressedCardsForAttackAndDefend (durak::Game const &game)
   auto cardsAsIds = cardsToIds (compress (cards));
   auto attackingCardsAsIds = std::vector<uint8_t>{ cardsAsIds.begin (), cardsAsIds.begin () + boost::numeric_cast<int64_t> (attackCards.size ()) };
   auto attackingCardsAsIdsAndAsCards = std::vector<std::tuple<uint8_t, durak::Card> >{};
-  pipes::mux (attackingCardsAsIds, attackCards) >>= pipes::transform ([] (auto const &x, auto const &y) { return std::tuple<uint8_t, durak::Card>{ x, y }; }) >>= pipes::push_back (attackingCardsAsIdsAndAsCards);
+  std::ranges::transform (attackingCardsAsIds,std::back_inserter (attackingCardsAsIdsAndAsCards),[i=size_t{}, &attackCards] (auto const &x)mutable {
+    auto result=std::tuple<uint8_t, durak::Card>{ x, attackCards.at (i) };
+    i++;
+    return result;
+  });
   ranges::sort (attackingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
   auto defendingCardsAsIds = std::vector<uint8_t>{ cardsAsIds.begin () + boost::numeric_cast<int64_t> (attackCards.size ()), cardsAsIds.end () };
   auto defendingCardsAsIdsAndAsCards = std::vector<std::tuple<uint8_t, durak::Card> >{};
-  pipes::mux (defendingCardsAsIds, defendCards) >>= pipes::transform ([] (auto const &x, auto const &y) { return std::tuple<uint8_t, durak::Card>{ x, y }; }) >>= pipes::push_back (defendingCardsAsIdsAndAsCards);
+  std::ranges::transform (defendingCardsAsIds,std::back_inserter (defendingCardsAsIdsAndAsCards),[i=size_t{}, &defendCards] (auto const &x)mutable {
+    auto result=std::tuple<uint8_t, durak::Card>{ x, defendCards.at (i) };
+    i++;
+    return result;
+  });
   ranges::sort (defendingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
   return { attackingCardsAsIdsAndAsCards, defendingCardsAsIdsAndAsCards };
 }
@@ -122,11 +127,19 @@ calcCardsAndCompressedCardsForAttackAndDefend (const durak::Game &game)
   auto compressedCards = compress (cards);
   auto attackingCardsAsIds = std::vector<durak::Card>{ compressedCards.begin (), compressedCards.begin () + boost::numeric_cast<int64_t> (attackCards.size ()) };
   auto attackingCardsAsIdsAndAsCards = std::vector<std::tuple<durak::Card, durak::Card> >{};
-  pipes::mux (attackingCardsAsIds, attackCards) >>= pipes::transform ([] (auto const &x, auto const &y) { return std::tuple<durak::Card, durak::Card>{ x, y }; }) >>= pipes::push_back (attackingCardsAsIdsAndAsCards);
+  std::ranges::transform (attackingCardsAsIds,std::back_inserter (attackingCardsAsIdsAndAsCards),[i=size_t{}, &attackCards] (auto const &x)mutable {
+    auto result=std::tuple<durak::Card, durak::Card>{ x, attackCards.at (i) };
+    i++;
+    return result;
+  });
   ranges::sort (attackingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
   auto defendingCardsAsIds = std::vector<durak::Card>{ compressedCards.begin () + boost::numeric_cast<int64_t> (attackCards.size ()), compressedCards.end () };
   auto defendingCardsAsIdsAndAsCards = std::vector<std::tuple<durak::Card, durak::Card> >{};
-  pipes::mux (defendingCardsAsIds, defendCards) >>= pipes::transform ([] (auto const &x, auto const &y) { return std::tuple<durak::Card, durak::Card>{ x, y }; }) >>= pipes::push_back (defendingCardsAsIdsAndAsCards);
+  std::ranges::transform (defendingCardsAsIds,std::back_inserter (defendingCardsAsIdsAndAsCards),[i=size_t{}, &defendCards] (auto const &x)mutable {
+    auto result=std::tuple<durak::Card, durak::Card>{ x, defendCards.at (i) };
+    i++;
+    return result;
+  });
   ranges::sort (defendingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
   return { attackingCardsAsIdsAndAsCards, defendingCardsAsIdsAndAsCards };
 }

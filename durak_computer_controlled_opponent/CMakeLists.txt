@@ -24,7 +24,6 @@ find_package(range-v3)
 find_package(confu_soci)
 find_package(Boost)
 find_package(magic_enum)
-find_package(pipes)
 
 
 
@@ -36,7 +35,6 @@ target_link_libraries(durak_computer_controlled_opponent PUBLIC
         confu_soci::confu_soci
         boost::boost
         magic_enum::magic_enum
-        pipes::pipes
         )
 
 target_include_directories(durak_computer_controlled_opponent INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
