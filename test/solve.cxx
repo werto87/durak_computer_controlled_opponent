@@ -79,6 +79,19 @@ TEST_CASE ("nextActionsAndResults", "[abc]")
   }
 }
 
+TEST_CASE ("nextActionsAndResults more than one action", "[abc]")
+{
+  using namespace durak;
+  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
+  gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
+  auto oneCardVsOneCard = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4>{ gameLookup.at ({ 1, 1 }) };
+  SECTION ("1v1 attack draw")
+  {
+    auto actionsAndResults = nextActionsAndResults ({Action{ 0 }}, small_memory_tree::SmallMemoryTree<std::tuple<uint8_t, Result> >{ oneCardVsOneCard.at (0).at ({ { 0 }, { 4 } }) });
+    REQUIRE (actionsAndResults == std::vector<std::tuple<Action, Result> >{ { Action{ 4 }, Result::Draw },{ Action{ 253 }, Result::AttackWon } });
+  }
+}
+
 TEST_CASE ("nextActionForRole")
 {
   using namespace durak;

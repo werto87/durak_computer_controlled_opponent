@@ -717,7 +717,7 @@ nextActionsAndResults (std::vector<Action> const &actions, small_memory_tree::Sm
                 {
                   path.push_back (*childResultToPlay);
                   childrenOpt = small_memory_tree::childrenByPath (moveResults, path);
-                  if (childrenOpt.has_value ())
+                  if (not childrenOpt.has_value ())
                     {
                       throw std::logic_error{ "could not find action for path." };
                     }

@@ -3,7 +3,7 @@ if (NOT DEFINED CMAKE_CXX_STANDARD) # Only set the cxx_standard if it is not set
     set(CMAKE_CXX_STANDARD 20)
 endif ()
 project(
-        myproject
+        durak_computer_controlled_opponent
         VERSION 0.0.1
         LANGUAGES CXX C)
 include(cmake/PreventInSourceBuilds.cmake)
