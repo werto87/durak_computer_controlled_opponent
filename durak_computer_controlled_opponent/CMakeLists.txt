@@ -42,12 +42,6 @@ target_include_directories(durak_computer_controlled_opponent INTERFACE $<BUILD_
 
 target_compile_features(durak_computer_controlled_opponent PUBLIC cxx_std_20)
 
-set_target_properties(
-        durak_computer_controlled_opponent
-        PROPERTIES VERSION ${PROJECT_VERSION}
-        CXX_VISIBILITY_PRESET hidden
-        VISIBILITY_INLINES_HIDDEN YES)
-
 install(FILES
         combination.hxx
         compressCard.hxx
