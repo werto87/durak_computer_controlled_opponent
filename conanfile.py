@@ -14,7 +14,7 @@ class Project(ConanFile):
     def requirements(self):
         self.requires("boost/1.84.0",force=True)
         self.requires("catch2/2.13.9")
-        self.requires("durak/1.0.0")
+        self.requires("durak/1.0.1")
         self.requires("st_tree/1.2.1")
         self.requires("small_memory_tree/4.0.1")
         self.requires("range-v3/0.12.0")
