@@ -54,7 +54,6 @@ function(
                 -Wsign-conversion # warn on sign conversions
                 -Wnull-dereference # warn if a null dereference is detected
                 -Wdouble-promotion # warn if float is implicit promoted to double
-                -Wno-stringop-overread #gives false positives when inserting vector<u_int8_t> into set<std::vector<u_int8_t>> gcc 13.2.1 command g++ main.cxx -O3 -std=gnu++20 -Wall code "int main(){auto test = std::set<std::vector<std::uint8_t> >{};test.insert (std::vector<std::uint8_t>{ 1 });}"
                 -Wformat=2 # warn on security issues around functions that format output (ie printf)
                 -Wimplicit-fallthrough # warn on statements that fallthrough without an explicit annotation
                 )
@@ -63,6 +62,7 @@ function(
     if ("${GCC_WARNINGS}" STREQUAL "")
         set(GCC_WARNINGS
                 ${CLANG_WARNINGS}
+                -Wno-stringop-overread #gives false positives when inserting vector<u_int8_t> into set<std::vector<u_int8_t>> gcc 13.2.1 command g++ main.cxx -O3 -std=gnu++20 -Wall code "int main(){auto test = std::set<std::vector<std::uint8_t> >{};test.insert (std::vector<std::uint8_t>{ 1 });}"
                 -Wmisleading-indentation # warn if indentation implies blocks where blocks do not exist
                 -Wduplicated-cond # warn if if / else chain has duplicated conditions
                 -Wduplicated-branches # warn if if / else branches have duplicated code
