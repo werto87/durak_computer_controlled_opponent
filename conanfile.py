@@ -18,5 +18,5 @@ class Project(ConanFile):
         self.requires("st_tree/1.2.1")
         self.requires("small_memory_tree/4.0.1")
         self.requires("range-v3/0.12.0")
-        self.requires("confu_soci/0.3.15")
+        self.requires("confu_soci/0.3.20")
         self.requires("magic_enum/[>=0.9.5 <10]")
