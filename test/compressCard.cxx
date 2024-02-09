@@ -28,11 +28,7 @@ TEST_CASE ("compress card permutations", "[abc]")
   size_t n = 20;
   auto compressedCombinations = std::set<std::vector<uint8_t> >{};
   for_each_card_combination ({ attackCardCount, defendCardCount }, n, [&compressedCombinations] (std::vector<uint8_t> const &combi) {
-#pragma GCC diagnostic push
-//    seems to be a false positive even calling compressedCombinations.insert (std::vector<uint8_t>{}); leads to the warning at this place with -O3
-#pragma GCC diagnostic ignored "-Wstringop-overread"
     compressedCombinations.insert (cardsToIds (compress (idsToCards (combi))));
-#pragma GCC diagnostic pop
     return false;
   });
   REQUIRE (compressedCombinations.size () == 3678);

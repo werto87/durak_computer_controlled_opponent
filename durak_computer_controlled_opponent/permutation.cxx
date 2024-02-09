@@ -62,8 +62,8 @@ std::set<std::vector<uint8_t> >
 compressed_permutations (std::tuple<size_t, size_t> const &attackAndDefendCardCount, size_t n)
 {
   auto compressedCombinations = std::set<std::vector<uint8_t> >{};
-  for_each_card_combination (attackAndDefendCardCount, n, [&compressedCombinations] (std::vector<uint8_t> combi) {
-    compressedCombinations.insert (cardsToIds (compress (idsToCards (std::move (combi)))));
+  for_each_card_combination (attackAndDefendCardCount, n, [&compressedCombinations] (std::vector<uint8_t> const& combi) {
+    compressedCombinations.insert (cardsToIds (compress (idsToCards (combi))));
     return false;
   });
   return compressedCombinations;
