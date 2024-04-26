@@ -107,7 +107,7 @@ calcIdAndCompressedCardsForAttackAndDefend (durak::Game const &game)
     i++;
     return result;
   });
-  ranges::sort (attackingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
+  std::ranges::sort (attackingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
   auto defendingCardsAsIds = std::vector<uint8_t>{ cardsAsIds.begin () + boost::numeric_cast<int64_t> (attackCards.size ()), cardsAsIds.end () };
   auto defendingCardsAsIdsAndAsCards = std::vector<std::tuple<uint8_t, durak::Card> >{};
   std::ranges::transform (defendingCardsAsIds,std::back_inserter (defendingCardsAsIdsAndAsCards),[i=size_t{}, &defendCards] (auto const &x)mutable {
@@ -115,7 +115,7 @@ calcIdAndCompressedCardsForAttackAndDefend (durak::Game const &game)
     i++;
     return result;
   });
-  ranges::sort (defendingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
+  std::ranges::sort (defendingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
   return { attackingCardsAsIdsAndAsCards, defendingCardsAsIdsAndAsCards };
 }
 AttackDefendAssistCardsToCompressedCards
@@ -132,7 +132,7 @@ calcCardsAndCompressedCardsForAttackAndDefend (const durak::Game &game)
     i++;
     return result;
   });
-  ranges::sort (attackingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
+  std::ranges::sort (attackingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
   auto defendingCardsAsIds = std::vector<durak::Card>{ compressedCards.begin () + boost::numeric_cast<int64_t> (attackCards.size ()), compressedCards.end () };
   auto defendingCardsAsIdsAndAsCards = std::vector<std::tuple<durak::Card, durak::Card> >{};
   std::ranges::transform (defendingCardsAsIds,std::back_inserter (defendingCardsAsIdsAndAsCards),[i=size_t{}, &defendCards] (auto const &x)mutable {
@@ -140,7 +140,7 @@ calcCardsAndCompressedCardsForAttackAndDefend (const durak::Game &game)
     i++;
     return result;
   });
-  ranges::sort (defendingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
+  std::ranges::sort (defendingCardsAsIdsAndAsCards, [] (auto const &x, auto const &y) { return std::get<0> (x) < std::get<0> (y); });
   return { attackingCardsAsIdsAndAsCards, defendingCardsAsIdsAndAsCards };
 }
 
@@ -149,7 +149,7 @@ transformFromLookUp (std::vector<durak::Card> &cardsToCompress, std::vector<std:
 {
   for (auto &card : cardsToCompress)
     {
-      if (auto cardAndCompressedCardItr = ranges::find_if (lookUp, [&card] (auto const &cardAndCompressedCard) { return card == std::get<1> (cardAndCompressedCard); }); cardAndCompressedCardItr != lookUp.end ())
+      if (auto cardAndCompressedCardItr = std::ranges::find_if (lookUp, [&card] (auto const &cardAndCompressedCard) { return card == std::get<1> (cardAndCompressedCard); }); cardAndCompressedCardItr != lookUp.end ())
         {
           card = std::get<0> (*cardAndCompressedCardItr);
         }

@@ -3,8 +3,6 @@
 #include "compressCard.hxx"
 #include <cstddef>
 #include <numeric>
-#include <range/v3/algorithm.hpp>
-#include <range/v3/iterator/insert_iterators.hpp>
 
 namespace durak_computer_controlled_opponent
 {
@@ -27,9 +25,9 @@ combinationsFor (std::vector<uint8_t> const &numbersToCheck, std::vector<std::ve
   auto result = subsetAndCombinations{};
   std::get<1> (result).reserve (subResults.size ());
   std::vector<uint8_t> numbers (indexes.size () - numbersToCheck.size ());
-  ranges::set_difference (indexes, numbersToCheck, numbers.begin ());
-  ranges::transform (subResults, ranges::back_inserter (std::get<1> (result)), [&numbers] (auto indexes_) {
-    ranges::transform (indexes_, indexes_.begin (), [&numbers] (auto const &index) { return numbers[index]; });
+  std::ranges::set_difference (indexes, numbersToCheck, numbers.begin ());
+  std::ranges::transform (subResults, std::back_inserter (std::get<1> (result)), [&numbers] (auto indexes_) {
+    std::ranges::transform (indexes_, indexes_.begin (), [&numbers] (auto const &index) { return numbers[index]; });
     return indexes_;
   });
   std::get<0> (result) = numbersToCheck;

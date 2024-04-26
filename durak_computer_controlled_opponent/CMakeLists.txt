@@ -20,7 +20,6 @@ add_library(myproject::durak_computer_controlled_opponent ALIAS durak_computer_c
 find_package(durak)
 find_package(small_memory_tree)
 find_package(st_tree)
-find_package(range-v3)
 find_package(confu_soci)
 find_package(Boost)
 find_package(magic_enum)
@@ -31,7 +30,6 @@ target_link_libraries(durak_computer_controlled_opponent PUBLIC
         durak::durak
         small_memory_tree::small_memory_tree
         st_tree::st_tree
-        range-v3::range-v3
         confu_soci::confu_soci
         boost::boost
         magic_enum::magic_enum

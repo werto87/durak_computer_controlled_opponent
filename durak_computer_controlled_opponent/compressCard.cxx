@@ -20,7 +20,7 @@ std::vector<uint8_t>
 cardsToIds (std::vector<durak::Card> const& cards)
 {
   auto results = std::vector<uint8_t>{};
-  ranges::transform (cards, ranges::back_inserter (results), [] (durak::Card const &cards_) { return cardToId (cards_); });
+  std::ranges::transform (cards, std::back_inserter (results), [] (durak::Card const &cards_) { return cardToId (cards_); });
   return results;
 }
 
@@ -28,7 +28,7 @@ std::vector<durak::Card>
 idsToCards (std::vector<uint8_t> const& ids)
 {
   auto results = std::vector<durak::Card>{};
-  ranges::transform (ids, ranges::back_inserter (results), [] (uint8_t id) { return idToCard (id); });
+  std::ranges::transform (ids, std::back_inserter (results), [] (uint8_t id) { return idToCard (id); });
   return results;
 }
 
@@ -36,8 +36,8 @@ std::vector<durak::Card>
 compress (std::vector<durak::Card> cards)
 {
   auto idsAndCards = std::vector<std::tuple<size_t, durak::Card> >{};
-  ranges::transform (cards, ranges::back_inserter (idsAndCards), [id = size_t{ 0 }] (durak::Card const &card) mutable { return std::tuple<size_t, durak::Card>{ id++, card }; });
-  ranges::sort (idsAndCards, {}, [] (std::tuple<size_t, durak::Card> const &idAndCard) { return std::get<1> (idAndCard); });
+  std::ranges::transform (cards, std::back_inserter (idsAndCards), [id = size_t{ 0 }] (durak::Card const &card) mutable { return std::tuple<size_t, durak::Card>{ id++, card }; });
+  std::ranges::sort (idsAndCards, {}, [] (std::tuple<size_t, durak::Card> const &idAndCard) { return std::get<1> (idAndCard); });
   auto setToNumber = u_int16_t{ 0 };
   auto numberToChange = std::get<1> (idsAndCards.front ()).value;
   for (auto &[id, card] : idsAndCards)
@@ -49,8 +49,8 @@ compress (std::vector<durak::Card> cards)
         }
       card.value = setToNumber;
     }
-  ranges::sort (idsAndCards);
-  ranges::transform (idsAndCards, cards.begin (), [] (std::tuple<size_t, durak::Card> const &idAndCard) { return std::get<1> (idAndCard); });
+  std::ranges::sort (idsAndCards);
+  std::ranges::transform (idsAndCards, cards.begin (), [] (std::tuple<size_t, durak::Card> const &idAndCard) { return std::get<1> (idAndCard); });
   return cards;
 }
 }

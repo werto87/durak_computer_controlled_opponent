@@ -1,6 +1,5 @@
 #include "durak_computer_controlled_opponent/util.hxx"
 #include <catch2/catch.hpp>
-#include <range/v3/algorithm.hpp>
 TEST_CASE ("calcCardsAtRoundStart", "[abc]")
 {
   using namespace durak;
@@ -20,10 +19,10 @@ TEST_CASE ("calcCardsAtRoundStart", "[abc]")
   game.playerStartsAttack ({ durak::Card{ 3, durak::Type::clubs } });
   {
     auto [attackCards, defendCards, assistCards] = calcCardsAtRoundStart (game);
-    ranges::sort (attackCards);
-    ranges::sort (defendCards);
-    ranges::sort (attackCardsAtStart);
-    ranges::sort (defendCardsAtStart);
+    std::ranges::sort (attackCards);
+    std::ranges::sort (defendCards);
+    std::ranges::sort (attackCardsAtStart);
+    std::ranges::sort (defendCardsAtStart);
     REQUIRE (attackCardsAtStart == attackCards);
     REQUIRE (defendCardsAtStart == defendCards);
   }

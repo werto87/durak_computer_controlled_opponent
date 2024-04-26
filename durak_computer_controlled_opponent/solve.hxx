@@ -43,8 +43,8 @@ template <typename T>
 void
 sortUniqueErase (T &t)
 {
-  ranges::sort (t);
-  t.erase (ranges::unique (t), t.end ());
+  std::ranges::sort (t);
+  t.erase (std::unique (t.begin(),t.end()), t.end ());
 }
 
 struct Round
