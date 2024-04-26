@@ -1,0 +1,119 @@
+{
+    "version": 2,
+    "configurePresets": [
+        {
+            "name": "debug-clang",
+            "displayName": "debug clang",
+            "description": "cmake config for clang debug",
+            "generator": "Ninja",
+            "binaryDir": "build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_TOOLCHAIN_FILE": "conan_toolchain.cmake",
+                "BUILD_TESTS": "True",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_CXX_FLAGS": "-stdlib=libc++",
+                "CMAKE_EXE_LINKER_FLAGS": "-stdlib=libc++"
+            }
+        },
+        {
+            "name": "release-clang",
+            "displayName": "release clang",
+            "description": "cmake config for clang release",
+            "generator": "Ninja",
+            "binaryDir": "build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_TOOLCHAIN_FILE": "conan_toolchain.cmake",
+                "BUILD_TESTS": "True",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "CMAKE_CXX_FLAGS": "-stdlib=libc++",
+                "CMAKE_EXE_LINKER_FLAGS": "-stdlib=libc++"
+            }
+        },
+        {
+            "name": "debug-gcc",
+            "displayName": "debug gcc",
+            "description": "cmake config for gcc debug",
+            "generator": "Ninja",
+            "binaryDir": "build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_TOOLCHAIN_FILE": "conan_toolchain.cmake",
+                "BUILD_TESTS": "True",
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++"
+            }
+        },
+        {
+            "name": "release-gcc",
+            "displayName": "release gcc",
+            "description": "cmake config for gcc release",
+            "generator": "Ninja",
+            "binaryDir": "build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_TOOLCHAIN_FILE": "conan_toolchain.cmake",
+                "BUILD_TESTS": "True",
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++"
+            }
+        },
+        {
+            "name": "debug-gcc-fortify-source",
+            "displayName": "debug gcc fortify source",
+            "description": "cmake config for gcc debug with fortify source",
+            "generator": "Ninja",
+            "binaryDir": "build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_TOOLCHAIN_FILE": "conan_toolchain.cmake",
+                "BUILD_TESTS": "True",
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++",
+                "myproject_ENABLE_FORTIFY_SOURCE_AND_SET_OPTIMIZATION_TO_O0": "ON"
+            }
+        },
+        {
+            "name": "memory-sanitizer-gcc",
+            "displayName": "memory sanitizer",
+            "description": "cmake config for gcc debug with memory sanitizer",
+            "generator": "Ninja",
+            "binaryDir": "build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_TOOLCHAIN_FILE": "conan_toolchain.cmake",
+                "BUILD_TESTS": "True",
+                "CMAKE_C_COMPILER": "gcc",
+                "CMAKE_CXX_COMPILER": "g++",
+                "myproject_ENABLE_SANITIZER_MEMORY": "ON"
+            }
+        },
+        {
+            "name": "other-sanitizers-clang",
+            "displayName": "other sanitizers",
+            "description": "cmake config for clang debug with other sanitizers",
+            "generator": "Ninja",
+            "binaryDir": "build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_TOOLCHAIN_FILE": "conan_toolchain.cmake",
+                "BUILD_TESTS": "True",
+                "CMAKE_C_COMPILER": "clang",
+                "CMAKE_CXX_COMPILER": "clang++",
+                "myproject_ENABLE_SANITIZER_ADDRESS": "ON",
+                "myproject_ENABLE_SANITIZER_LEAK": "ON"
+            }
+        }
+    ],
+    "testPresets": [
+        {
+            "name": "sadfsa",
+            "description": "",
+            "displayName": "",
+            "configurePreset": "debug-gcc"
+        }
+    ]
+}
