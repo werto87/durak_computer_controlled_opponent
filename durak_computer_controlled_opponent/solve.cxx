@@ -664,9 +664,10 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
           auto round = Round{ gameToAnalyze.getAttackingPlayer ()->getCards (), gameToAnalyze.getDefendingPlayer ()->getCards (), histories };
           auto tree = createTree (round);
           solveGameTree (tree);
+          // TODO transform the tree into st_tree::tree<uint8_t,Result>
           try
             {
-              auto smt = small_memory_tree::SmallMemoryTree<std::tuple<uint8_t, Result> >{ tree, std::tuple<uint8_t, Result>{ 255, Result::Undefined }, [] (auto const &node) { return std::tuple<uint8_t, Result>{ node.key ().value (), std::get<0> (node.data ()) }; } };
+              auto smt = small_memory_tree::SmallMemoryTree<std::tuple<uint8_t, Result> >{ tree };
               compressedGames.at (static_cast<size_t> (trumpType)).insert ({ { cardsToIds (attackCards), cardsToIds (defendCards) }, smt.getTreeAsVector () });
             }
           catch (boost::numeric::positive_overflow const &e)
