@@ -9,7 +9,7 @@
 
 using namespace durak_computer_controlled_opponent;
 
-    TEST_CASE ("insertDrawCardsAction", "[abc]")
+TEST_CASE ("insertDrawCardsAction", "[abc]")
 {
   std::vector<durak::Card> attackCards{ { 0, durak::Type::hearts }, { 0, durak::Type::clubs }, { 0, durak::Type::diamonds } };
   std::vector<std::vector<Action> > vectorsOfActions{ { Action{ 0 }, Action{ 1 }, Action{ 2 } } };
@@ -18,7 +18,7 @@ using namespace durak_computer_controlled_opponent;
 
 TEST_CASE ("simulate round ", "[abc]")
 {
-  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
+  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > >, 4> >{};
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
   // gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
   // gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
@@ -30,15 +30,14 @@ TEST_CASE ("simulate round ", "[abc]")
   // gameLookup.insert ({ { 3, 5 }, solveDurak (36, 3, 5, gameLookup) });
   // gameLookup.insert ({ { 4, 4 }, solveDurak (36, 4, 4, gameLookup) });
   REQUIRE (gameLookup.at ({ 1, 1 }).at (0).size () == 44);
-  REQUIRE (std::get<1> (gameLookup.at ({ 1, 1 }).at (0).at ({ { 0 }, { 4 } }).at (0)) == Result::Draw);
+  REQUIRE (std::get<1> (gameLookup.at ({ 1, 1 }).at (0).at ({ { 0 }, { 4 } }).data.at (0)) == Result::Draw);
 }
 
-#ifdef RUN_BENCHMARK_SOLVE_DURAK
-TEST_CASE ("solveDurak benchmark", "[abc]")
+TEST_CASE ("solveDurak benchmark", "[!benchmark]")
 {
   BENCHMARK ("solveDurak 2v2")
   {
-    auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
+    auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > >, 4> >{};
     gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
     gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
     gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
@@ -46,4 +45,3 @@ TEST_CASE ("solveDurak benchmark", "[abc]")
     return gameLookup;
   };
 }
-#endif

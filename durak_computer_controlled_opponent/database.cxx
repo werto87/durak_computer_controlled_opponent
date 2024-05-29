@@ -76,21 +76,21 @@ gameStateAsString (std::tuple<std::vector<uint8_t>, std::vector<uint8_t> > const
 }
 
 std::vector<uint8_t>
-moveResultToBinary (std::vector<std::tuple<uint8_t, Result> > const &moveResults)
+moveResultToBinary (std::vector<std::tuple<Action, Result> > const &moveResults)
 {
   auto results = std::vector<uint8_t>{};
   results.reserve (moveResults.size () * 2);
   for (auto moveResult : moveResults)
     {
       auto [move, result] = moveResult;
-      results.push_back (move);
+      results.push_back (move.value ());
       results.push_back (magic_enum::enum_integer (result));
     }
   return results;
 }
 
 void
-insertGameLookUp (std::filesystem::path const &databasePath, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> > const &gameLookup)
+insertGameLookUp (std::filesystem::path const &databasePath, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > >, 4> > const &gameLookup)
 {
   soci::session sql (soci::sqlite3, databasePath.c_str ());
   soci::transaction tr (sql);
@@ -104,7 +104,8 @@ insertGameLookUp (std::filesystem::path const &databasePath, std::map<std::tuple
               auto const &[cards, combination] = resultForTrump;
               auto round = database::Round{};
               round.gameState = database::gameStateAsString (cards, trumpType);
-              round.combination = database::moveResultToBinary (combination);
+              round.combination = database::moveResultToBinary (combination.data);
+              throw "implement hierarchy to binary maybe we can use stlplus for this task also save maxChildren in the table";
               confu_soci::insertStruct (sql, round);
             }
         }

@@ -36,7 +36,8 @@ TEST_CASE ("database", "[database]")
   {
     createDatabaseIfNotExist (databasePath);
     createTables (databasePath);
-    auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
+
+    auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > >, 4> >{};
     gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
     insertGameLookUp (databasePath, gameLookup);
     soci::session sql (soci::sqlite3, databasePath);
@@ -55,10 +56,10 @@ TEST_CASE ("gameStateAsString", "[database]")
 
 TEST_CASE ("binaryToMoveResult", "[database]")
 {
-  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4> >{};
+  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > >, 4> >{};
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
-  auto oneCardVsOneCard = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, std::vector<std::tuple<uint8_t, Result> > >, 4>{ gameLookup.at ({ 1, 1 }) };
-  auto moveResultBinary = moveResultToBinary (oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }));
+  auto oneCardVsOneCard = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > >, 4>{ gameLookup.at ({ 1, 1 }) };
+  auto moveResultBinary = moveResultToBinary (oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }).data);
   auto test = binaryToMoveResult (moveResultBinary);
-  REQUIRE (test.size () == 5);
+  REQUIRE (test.data.size () == 5);
 }

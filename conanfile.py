@@ -15,12 +15,13 @@ class Project(ConanFile):
         self.options["catch2"].with_main = True
         self.options["catch2"].with_benchmark = True
         self.options["boost"].header_only = True
+        self.options["small_memory_tree"].with_st_tree = True
 
     def requirements(self):
-        self.requires("boost/1.84.0",force=True)
+        self.requires("boost/1.85.0",force=True)
         self.requires("catch2/2.13.9")
         self.requires("durak/1.0.5")
         self.requires("st_tree/1.2.1")
-        self.requires("small_memory_tree/5.0.1")
-        self.requires("confu_soci/0.3.20")
+        self.requires("small_memory_tree/5.2.0")
+        self.requires("confu_soci/0.3.21")
         self.requires("magic_enum/[>=0.9.5 <10]")
