@@ -648,8 +648,17 @@ calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, 
 st_tree::tree<std::tuple<Action, Result> >
 convertToNonKeyedTree (st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > const &tree)
 {
-  throw "PLS IMPL"; // TODO transform the tree into st_tree::tree<Action,Result>
   auto result = st_tree::tree<std::tuple<Action, Result> >{};
+  result.insert (std::make_tuple (tree.root ().key (), std::get<0> (tree.root ().data ())));
+  auto itr = result.bf_begin ();
+  for (auto const &node : tree)
+    {
+      for (auto const &child : node)
+        {
+          itr->insert (std::make_tuple (child.key (), std::get<0> (child.data ())));
+        }
+      ++itr;
+    }
   return result;
 }
 

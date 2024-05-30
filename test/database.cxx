@@ -36,14 +36,12 @@ TEST_CASE ("database", "[database]")
   {
     createDatabaseIfNotExist (databasePath);
     createTables (databasePath);
-
     auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > >, 4> >{};
     gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
     insertGameLookUp (databasePath, gameLookup);
     soci::session sql (soci::sqlite3, databasePath);
     REQUIRE (confu_soci::findStruct<durak_computer_controlled_opponent::database::Round> (sql, "gameState", "0;1;1").has_value ());
   }
-
   std::filesystem::remove_all (databasePath.parent_path ());
 }
 

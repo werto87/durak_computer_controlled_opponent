@@ -66,6 +66,38 @@ TEST_CASE ("Action", "[abc]")
     REQUIRE (action () == Action::Category::Undefined);
   }
 }
+namespace durak_computer_controlled_opponent
+{
+st_tree::tree<std::tuple<Action, Result> > convertToNonKeyedTree (st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> > const &tree);
+}
+
+TEST_CASE ("convertToNonKeyedTree", "[abc]")
+{
+  auto treeToConvert = st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Action> >{};
+  treeToConvert.insert ({ Result::AttackWon, true });
+  auto itr = treeToConvert.bf_begin ();
+  itr->insert (Action{ 1 }, { Result::AttackWon, true });
+  itr->insert (Action{ 2 }, { Result::AttackWon, true });
+  ++itr;
+  itr->insert (Action{ 33 }, { Result::AttackWon, true });
+  itr->insert (Action{ 44 }, { Result::AttackWon, true });
+  ++itr;
+  itr->insert (Action{ 55 }, { Result::AttackWon, true });
+  itr->insert (Action{ 66 }, { Result::AttackWon, true });
+  itr->insert (Action{ 77 }, { Result::AttackWon, true });
+  ++itr;
+  ++itr;
+  itr->insert (Action{ 111 }, { Result::AttackWon, true });
+  auto result = convertToNonKeyedTree (treeToConvert);
+  auto resultItr = result.bf_begin ();
+  for (auto const &node : treeToConvert)
+    {
+      REQUIRE (node.size () == resultItr->size ());
+      REQUIRE (std::get<0> (node.data ()) == std::get<1> (resultItr->data ()));
+      REQUIRE (node.key () == std::get<0> (resultItr->data ()));
+      ++resultItr;
+    }
+}
 
 TEST_CASE ("nextActionsAndResults", "[abc]")
 {
