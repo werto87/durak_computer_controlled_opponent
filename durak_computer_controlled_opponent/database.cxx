@@ -149,7 +149,7 @@ insertGameLookUp (std::filesystem::path const &databasePath, std::map<std::tuple
               round.gameState = database::gameStateAsString (cards, trumpType);
               round.maxChildren = combination.maxChildren;
               round.data = smallMemoryTreeDataDataToBinary (combination.data);
-              round.data = smallMemoryTreeDataHierarchyToBinary (combination.hierarchy);
+              round.hierarchy = smallMemoryTreeDataHierarchyToBinary (combination.hierarchy);
               confu_soci::insertStruct (sql, round);
             }
         }

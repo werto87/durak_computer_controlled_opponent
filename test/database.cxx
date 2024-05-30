@@ -15,6 +15,17 @@ using namespace durak_computer_controlled_opponent;
 
 std::filesystem::path const databasePath = std::string{ CURRENT_BINARY_DIR } + "/test_database/combination.db";
 
+namespace durak_computer_controlled_opponent::database
+{
+std::string smallMemoryTreeDataHierarchyToBinary (std::vector<bool> const &hierarchy);
+
+std::vector<bool> binaryToSmallMemoryTreeDataHierarchy (std::string hierarchyBinary);
+
+std::vector<std::tuple<Action, Result> > binaryToSmallMemoryTreeDataData (std::string movesAndResultAsBinary);
+std::string smallMemoryTreeDataDataToBinary (std::vector<std::tuple<Action, Result> > const &moveResults);
+
+}
+
 TEST_CASE ("database", "[database]")
 {
   std::filesystem::remove_all (databasePath.parent_path ());
@@ -46,7 +57,12 @@ TEST_CASE ("database", "[database]")
     gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
     insertGameLookUp (databasePath, gameLookup);
     soci::session sql (soci::sqlite3, databasePath);
-    REQUIRE (confu_soci::findStruct<durak_computer_controlled_opponent::database::Round> (sql, "gameState", "0;1;1").has_value ());
+    auto result = confu_soci::findStruct<durak_computer_controlled_opponent::database::Round> (sql, "gameState", "0;1;1");
+    REQUIRE (result.has_value ());
+    auto game = gameLookup.find ({ 1, 1 })->second.at (1).find ({ { 0 }, { 1 } })->second;
+    REQUIRE (result.value ().data == smallMemoryTreeDataDataToBinary (game.data));
+    REQUIRE (result.value ().hierarchy == smallMemoryTreeDataHierarchyToBinary (game.hierarchy));
+    REQUIRE (result.value ().maxChildren == game.maxChildren);
   }
   std::filesystem::remove_all (databasePath.parent_path ());
 }
@@ -57,16 +73,7 @@ TEST_CASE ("gameStateAsString", "[database]")
   auto trump = durak::Type{};
   REQUIRE (gameStateAsString (cards, trump) == "42;43;0");
 }
-namespace durak_computer_controlled_opponent::database
-{
-std::string smallMemoryTreeDataHierarchyToBinary (std::vector<bool> const &hierarchy);
 
-std::vector<bool> binaryToSmallMemoryTreeDataHierarchy (std::string hierarchyBinary);
-
-std::vector<std::tuple<Action, Result> > binaryToSmallMemoryTreeDataData (std::string movesAndResultAsBinary);
-std::string smallMemoryTreeDataDataToBinary (std::vector<std::tuple<Action, Result> > const &moveResults);
-
-}
 TEST_CASE ("binaryToSmallMemoryTreeDataData", "[database]")
 {
   auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > >, 4> >{};
