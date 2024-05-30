@@ -717,7 +717,6 @@ nextActionsAndResults (std::vector<Action> const &actions, small_memory_tree::Sm
   auto const &rootElement = moveResults.getData ().front ();
   if (auto childrenOpt = small_memory_tree::childrenByPath (moveResults, { rootElement }))
     {
-      // TODO this can be simplified calc the whole path and then put it in childrenByPath
       auto path = std::decay_t<decltype (childrenOpt.value ())>{ rootElement };
       for (auto const &action : actions)
         {
