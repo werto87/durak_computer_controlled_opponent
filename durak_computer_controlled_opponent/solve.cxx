@@ -712,14 +712,13 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
 small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> >
 binaryToMoveResult (std::vector<uint8_t> const &movesAndResultAsBinary)
 {
-  auto results = small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> >{};
-  throw "implement this";
-  // results.reserve (movesAndResultAsBinary.size () / 2);
-  // for (size_t i = 0; i < movesAndResultAsBinary.size (); i = i + 2)
-  //   {
-  //     results.push_back (std::tuple<uint8_t, Result>{ { movesAndResultAsBinary.at (i) }, Result{ movesAndResultAsBinary.at (i + 1) } });
-  //   }
-  return results;
+  auto result = small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> >{};
+
+  for (size_t i = 0; i < movesAndResultAsBinary.size (); i = i + 2)
+    {
+      result.push_back (std::tuple<uint8_t, Result>{ { movesAndResultAsBinary.at (i) }, Result{ movesAndResultAsBinary.at (i + 1) } });
+    }
+  return result;
 }
 
 std::vector<std::tuple<Action, Result> >
@@ -728,6 +727,7 @@ nextActionsAndResults (std::vector<Action> const &actions, small_memory_tree::Sm
   auto const &rootElement = moveResults.getData ().front ();
   if (auto childrenOpt = small_memory_tree::childrenByPath (moveResults, { rootElement }))
     {
+      // TODO this can be simplified calc the whole path and then put it in childrenByPath
       auto path = std::decay_t<decltype (childrenOpt.value ())>{ rootElement };
       for (auto const &action : actions)
         {
