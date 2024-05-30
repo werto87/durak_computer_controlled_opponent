@@ -23,5 +23,6 @@ class Project(ConanFile):
         self.requires("durak/1.0.5")
         self.requires("st_tree/1.2.1")
         self.requires("small_memory_tree/5.2.0")
+        self.requires("stlplus/3.16.0")
         self.requires("confu_soci/0.3.21")
         self.requires("magic_enum/[>=0.9.5 <10]")

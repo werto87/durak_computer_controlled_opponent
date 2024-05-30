@@ -95,8 +95,6 @@ std::optional<Action> nextActionForRole (const std::vector<std::tuple<Action, Re
 
 std::vector<std::tuple<Action, Result> > nextActionsAndResults (std::vector<Action> const &actions, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > const &moveResults);
 
-small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > binaryToMoveResult (std::vector<uint8_t> const &movesAndResultAsBinary);
-
 bool validActionSequence (std::vector<Action> actions, std::vector<durak::Card> const &attackCards);
 
 std::vector<std::vector<Action> > insertDrawCardsAction (std::vector<durak::Card> const &attackCards, std::vector<std::vector<Action> > const &vectorsOfActions);

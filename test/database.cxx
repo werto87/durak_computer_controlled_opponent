@@ -3,6 +3,12 @@
 //
 #include "durak_computer_controlled_opponent/database.hxx"
 #include "catch2/catch.hpp"
+#include "durak_computer_controlled_opponent/solve.hxx"
+#include <cstdint>
+#include <stlplus/persistence/persistent_contexts.hpp>
+#include <stlplus/persistence/persistent_pair.hpp>
+#include <stlplus/persistence/persistent_vector.hpp>
+#include <tuple>
 
 using namespace durak_computer_controlled_opponent::database;
 using namespace durak_computer_controlled_opponent;
@@ -51,13 +57,32 @@ TEST_CASE ("gameStateAsString", "[database]")
   auto trump = durak::Type{};
   REQUIRE (gameStateAsString (cards, trump) == "42;43;0");
 }
+namespace durak_computer_controlled_opponent::database
+{
+std::string smallMemoryTreeDataHierarchyToBinary (std::vector<bool> const &hierarchy);
 
-TEST_CASE ("binaryToMoveResult", "[database]")
+std::vector<bool> binaryToSmallMemoryTreeDataHierarchy (std::string hierarchyBinary);
+
+std::vector<std::tuple<Action, Result> > binaryToSmallMemoryTreeDataData (std::string movesAndResultAsBinary);
+std::string smallMemoryTreeDataDataToBinary (std::vector<std::tuple<Action, Result> > const &moveResults);
+
+}
+TEST_CASE ("binaryToSmallMemoryTreeDataData", "[database]")
 {
   auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > >, 4> >{};
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
   auto oneCardVsOneCard = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > >, 4>{ gameLookup.at ({ 1, 1 }) };
-  auto moveResultBinary = moveResultToBinary (oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }).data);
-  auto test = binaryToMoveResult (moveResultBinary);
-  REQUIRE (test.data.size () == 5);
+  auto moveResultBinary = smallMemoryTreeDataDataToBinary (oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }).data);
+  auto test = binaryToSmallMemoryTreeDataData (moveResultBinary);
+  REQUIRE (test.size () == 3);
+}
+
+TEST_CASE ("binaryToSmallMemoryTreeDataHierarchy", "[database]")
+{
+  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > >, 4> >{};
+  gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
+  auto oneCardVsOneCard = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > >, 4>{ gameLookup.at ({ 1, 1 }) };
+  auto moveResultBinary = smallMemoryTreeDataHierarchyToBinary (oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }).hierarchy);
+  auto test = binaryToSmallMemoryTreeDataHierarchy (moveResultBinary);
+  REQUIRE (test.size () == moveResultBinary.size ());
 }

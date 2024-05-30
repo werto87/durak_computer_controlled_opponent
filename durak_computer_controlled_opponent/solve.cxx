@@ -8,6 +8,7 @@
 #include <magic_enum/magic_enum.hpp>
 #include <small_memory_tree/smallMemoryTree.hxx>
 #include <small_memory_tree/stTree.hxx>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -708,17 +709,6 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
     }
   if (skippedCombinations) std::cout << "skippedCombinations: " << skippedCombinations << std::endl;
   return compressedGames;
-}
-small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> >
-binaryToMoveResult (std::vector<uint8_t> const &movesAndResultAsBinary)
-{
-  auto result = small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> >{};
-
-  for (size_t i = 0; i < movesAndResultAsBinary.size (); i = i + 2)
-    {
-      result.push_back (std::tuple<uint8_t, Result>{ { movesAndResultAsBinary.at (i) }, Result{ movesAndResultAsBinary.at (i + 1) } });
-    }
-  return result;
 }
 
 std::vector<std::tuple<Action, Result> >

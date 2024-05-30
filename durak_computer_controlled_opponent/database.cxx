@@ -14,6 +14,9 @@
 #include <soci/sqlite3/soci-sqlite3.h> // for sqlite3, sqlite...
 #include <sqlite3.h>                   // for sqlite3_close
 #include <stdio.h>                     // for fprintf, stderr
+#include <stlplus/persistence/persistent_contexts.hpp>
+#include <stlplus/persistence/persistent_pair.hpp>
+#include <stlplus/persistence/persistent_vector.hpp>
 #include <string>
 #include <vector> // for vector
 
@@ -75,18 +78,58 @@ gameStateAsString (std::tuple<std::vector<uint8_t>, std::vector<uint8_t> > const
   return vectorToString (std::get<0> (cards)) + ";" + vectorToString (std::get<1> (cards)) + ";" + std::to_string (magic_enum::enum_integer (trump));
 }
 
-std::vector<uint8_t>
-moveResultToBinary (std::vector<std::tuple<Action, Result> > const &moveResults)
+std::string
+smallMemoryTreeDataHierarchyToBinary (std::vector<bool> const &hierarchy)
 {
-  auto results = std::vector<uint8_t>{};
-  results.reserve (moveResults.size () * 2);
-  for (auto moveResult : moveResults)
-    {
-      auto [move, result] = moveResult;
-      results.push_back (move.value ());
-      results.push_back (magic_enum::enum_integer (result));
-    }
-  return results;
+  auto output = std::stringstream (std::ios_base::out | std::ios_base::binary);
+  auto dumpContext = stlplus::dump_context{ output };
+  stlplus::dump_vector_bool (dumpContext, hierarchy);
+  return output.str ();
+}
+
+std::vector<bool>
+binaryToSmallMemoryTreeDataHierarchy (std::string hierarchyBinary)
+{
+  auto restoreStringStream = std::stringstream{ std::move (hierarchyBinary) };
+  auto restoreContext = stlplus::restore_context{ restoreStringStream };
+  auto result = std::vector<bool>{};
+  restore_vector_bool (restoreContext, result);
+  return result;
+}
+
+void
+dumpTreeDataTupleActionResult (stlplus::dump_context &context, const std::tuple<Action, Result> &data)
+{
+  stlplus::dump_unsigned_char (context, std::get<0> (data).value ());
+  stlplus::dump_unsigned_char (context, static_cast<uint8_t> (std::get<1> (data)));
+}
+
+void
+restoreTupleActionResult (stlplus::restore_context &context, std::tuple<Action, Result> &data)
+{
+  auto getValue = uint8_t{};
+  stlplus::restore_unsigned_char (context, getValue);
+  std::get<0> (data) = Action{ getValue };
+  stlplus::restore_unsigned_char (context, getValue);
+  std::get<1> (data) = Result{ getValue };
+}
+
+std::vector<std::tuple<Action, Result> >
+binaryToSmallMemoryTreeDataData (std::string movesAndResultAsBinary)
+{
+  auto restoreStringStream = std::stringstream{ std::move (movesAndResultAsBinary) };
+  auto restoreContext = stlplus::restore_context{ restoreStringStream };
+  auto restoredVec = std::vector<std::tuple<Action, Result> >{};
+  stlplus::restore_vector (restoreContext, restoredVec, restoreTupleActionResult);
+  return restoredVec;
+}
+std::string
+smallMemoryTreeDataDataToBinary (std::vector<std::tuple<Action, Result> > const &moveResults)
+{
+  auto output = std::stringstream (std::ios_base::out | std::ios_base::binary);
+  auto dumpContext = stlplus::dump_context{ output };
+  stlplus::dump_vector (dumpContext, moveResults, dumpTreeDataTupleActionResult);
+  return output.str ();
 }
 
 void
@@ -104,13 +147,20 @@ insertGameLookUp (std::filesystem::path const &databasePath, std::map<std::tuple
               auto const &[cards, combination] = resultForTrump;
               auto round = database::Round{};
               round.gameState = database::gameStateAsString (cards, trumpType);
-              round.combination = database::moveResultToBinary (combination.data);
-              throw "implement hierarchy to binary maybe we can use stlplus for this task also save maxChildren in the table";
+              round.maxChildren = combination.maxChildren;
+              round.data = smallMemoryTreeDataDataToBinary (combination.data);
+              round.data = smallMemoryTreeDataHierarchyToBinary (combination.hierarchy);
               confu_soci::insertStruct (sql, round);
             }
         }
     }
   tr.commit ();
+}
+
+small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> >
+binaryToSmallMemoryTreeData (Round const &round)
+{
+  return { round.maxChildren, binaryToSmallMemoryTreeDataHierarchy (round.hierarchy), binaryToSmallMemoryTreeDataData (round.data) };
 }
 
 }

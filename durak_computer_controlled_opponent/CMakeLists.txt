@@ -20,6 +20,7 @@ add_library(myproject::durak_computer_controlled_opponent ALIAS durak_computer_c
 find_package(durak)
 find_package(small_memory_tree)
 find_package(st_tree)
+find_package(stlplus)
 find_package(confu_soci)
 find_package(Boost)
 find_package(magic_enum)
@@ -27,12 +28,7 @@ find_package(magic_enum)
 
 
 target_link_libraries(durak_computer_controlled_opponent PUBLIC
-        durak::durak
-        small_memory_tree::small_memory_tree
-        st_tree::st_tree
-        confu_soci::confu_soci
-        boost::boost
-        magic_enum::magic_enum
+        durak::durak small_memory_tree::small_memory_tree st_tree::st_tree stlplus::stlplus confu_soci::confu_soci boost::boost magic_enum::magic_enum
         )
 
 target_include_directories(durak_computer_controlled_opponent INTERFACE $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
