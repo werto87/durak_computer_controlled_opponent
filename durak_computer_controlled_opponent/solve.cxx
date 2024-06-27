@@ -558,16 +558,16 @@ createTree (Round const &round)
 }
 
 Result
-searchForGameResult (std::vector<uint8_t> const &attackCardsIds, std::vector<uint8_t> const &defendCardsIds, std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > > const &gameResults)
+searchForGameResult (std::vector<uint8_t> const &attackCardsIds, std::vector<uint8_t> const &defendCardsIds, std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > > const &gameResults)
 {
-  return std::get<1> (gameResults.at ({ attackCardsIds, defendCardsIds }).data.at (0));
-  // TODO what is this code for??
-  // if (auto results = gameResults.find ({ attackCardsIds, defendCardsIds }); results != gameResults.end ())
-  //   {
-  //     // auto const &[attackCardsIdsToCompare, defendCardsIdsToCompare, tree] = *gameResultTwoVersusTwo;
-  //     return std::get<1> (results->at (0));
-  //   }
-  // return Result::Undefined;
+  if (auto result = gameResults.find ({ attackCardsIds, defendCardsIds }); result != gameResults.end ())
+    {
+      return std::get<1> (result->second.getNodes ().front ().value);
+    }
+  else
+    {
+      return Result::Undefined;
+    }
 }
 boost::optional<durak::Player>
 durakInGame (Result result, durak::Game const &game)
@@ -602,7 +602,7 @@ attackAndDefendCompressed (std::vector<durak::Card> const &attackCards, std::vec
 }
 
 boost::optional<durak::Player>
-calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > >, 4> > const &gameLookup)
+calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4> > const &gameLookup)
 {
   // find game in lookup
   if (game.checkIfGameIsOver ())
@@ -663,13 +663,13 @@ convertToNonKeyedTree (st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Ac
   return result;
 }
 
-std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > >, 4>
-solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTreeData<std::tuple<Action, Result> > >, 4> > const &gameLookup)
+std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4>
+solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4> > const &gameLookup)
 {
   using namespace durak;
   auto _combinations = compressed_permutations ({ attackCardCount, defendCardCount }, n);
   using namespace small_memory_tree;
-  auto compressedGames = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, SmallMemoryTreeData<std::tuple<Action, Result> > >, 4>{};
+  auto compressedGames = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, SmallMemoryTree<std::tuple<Action, Result> > >, 4>{};
   auto skippedCombinations = uint64_t{};
   for (const auto &combi : _combinations)
     {
@@ -688,7 +688,7 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
           try
             {
               auto smt = SmallMemoryTree<std::tuple<Action, Result> >{ StTreeAdapter{ convertToNonKeyedTree (tree) } };
-              compressedGames.at (static_cast<size_t> (trumpType)).insert ({ { cardsToIds (attackCards), cardsToIds (defendCards) }, smt.getSmallMemoryData () });
+              compressedGames.at (static_cast<size_t> (trumpType)).insert ({ { cardsToIds (attackCards), cardsToIds (defendCards) }, smt });
             }
           catch (boost::numeric::positive_overflow const &e)
             {
@@ -714,8 +714,8 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
 std::vector<std::tuple<Action, Result> >
 nextActionsAndResults (std::vector<Action> const &actions, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > const &moveResults)
 {
-  auto const &rootElement = moveResults.getData ().front ();
-  if (auto childrenOpt = small_memory_tree::childrenByPath (moveResults, { rootElement }))
+  auto const &rootElement = moveResults.getNodes ().front ().value;
+  if (auto childrenOpt = small_memory_tree::calcChildrenForPath (moveResults, { rootElement }))
     {
       auto path = std::decay_t<decltype (childrenOpt.value ())>{ rootElement };
       for (auto const &action : actions)
@@ -723,7 +723,7 @@ nextActionsAndResults (std::vector<Action> const &actions, small_memory_tree::Sm
           if (auto childResultToPlay = std::ranges::find_if (childrenOpt.value (), [action] (std::tuple<Action, Result> const &moveResult) { return action == std::get<0> (moveResult); }); childResultToPlay != childrenOpt.value ().end ())
             {
               path.push_back (*childResultToPlay);
-              childrenOpt = small_memory_tree::childrenByPath (moveResults, path);
+              childrenOpt = small_memory_tree::calcChildrenForPath (moveResults, path);
               if (not childrenOpt.has_value ())
                 {
                   throw std::logic_error{ "could not find action for path." };
