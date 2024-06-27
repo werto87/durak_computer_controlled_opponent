@@ -18,8 +18,6 @@ std::filesystem::path const databasePath = std::string{ CURRENT_BINARY_DIR } + "
 namespace durak_computer_controlled_opponent::database
 {
 
-small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > binaryToSmallMemoryTree (std::string movesAndResultAsBinary);
-
 std::string smallMemoryTreeToBinary (small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > const &smallMemoryTree);
 
 }
