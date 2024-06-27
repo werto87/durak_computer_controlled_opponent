@@ -79,35 +79,35 @@ gameStateAsString (std::tuple<std::vector<uint8_t>, std::vector<uint8_t> > const
 }
 
 void
-dumpNodeWithActionResult (stlplus::dump_context &context, small_memory_tree::Node<std::tuple<Action, Result> > const &node)
+dumpNodeWithActionResult (stlplus::dump_context &context, small_memory_tree::Node<std::tuple<Action, Result>, uint16_t> const &node)
 {
   stlplus::dump_unsigned_char (context, std::get<0> (node.value).value ());
   stlplus::dump_unsigned_char (context, static_cast<uint8_t> (std::get<1> (node.value)));
-  stlplus::dump_unsigned_long (context, static_cast<unsigned long> (node.childrenOffsetEnd));
+  stlplus::dump_unsigned_short (context, boost::numeric_cast<uint16_t> (node.childrenOffsetEnd));
 }
 
 void
-restoreNode (stlplus::restore_context &context, small_memory_tree::Node<std::tuple<Action, Result> > &node)
+restoreNode (stlplus::restore_context &context, small_memory_tree::Node<std::tuple<Action, Result>, uint16_t> &node)
 {
   auto getValue = uint8_t{};
   stlplus::restore_unsigned_char (context, getValue);
   std::get<0> (node.value) = Action{ getValue };
   stlplus::restore_unsigned_char (context, getValue);
   std::get<1> (node.value) = Result{ getValue };
-  stlplus::restore_unsigned_long (context, node.childrenOffsetEnd);
+  stlplus::restore_unsigned_short (context, node.childrenOffsetEnd);
 }
 
-small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> >
+small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint16_t>
 binaryToSmallMemoryTree (std::string movesAndResultAsBinary)
 {
   auto restoreStringStream = std::stringstream{ std::move (movesAndResultAsBinary) };
   auto restoreContext = stlplus::restore_context{ restoreStringStream };
-  auto restoredVec = std::vector<small_memory_tree::Node<std::tuple<Action, Result> > >{};
+  auto restoredVec = std::vector<small_memory_tree::Node<std::tuple<Action, Result>, uint16_t> >{};
   stlplus::restore_vector (restoreContext, restoredVec, restoreNode);
   return { restoredVec };
 }
 std::string
-smallMemoryTreeToBinary (small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > const &smallMemoryTree)
+smallMemoryTreeToBinary (small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint16_t> const &smallMemoryTree)
 {
   auto output = std::stringstream (std::ios_base::out | std::ios_base::binary);
   auto dumpContext = stlplus::dump_context{ output };
@@ -116,7 +116,7 @@ smallMemoryTreeToBinary (small_memory_tree::SmallMemoryTree<std::tuple<Action, R
 }
 
 void
-insertGameLookUp (std::filesystem::path const &databasePath, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4> > const &gameLookup)
+insertGameLookUp (std::filesystem::path const &databasePath, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint16_t> >, 4> > const &gameLookup)
 {
   soci::session sql (soci::sqlite3, databasePath.c_str ());
   soci::transaction tr (sql);
