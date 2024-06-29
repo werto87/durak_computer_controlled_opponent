@@ -1,24 +1,25 @@
 #include "database.hxx"
 #include "compressCard.hxx"
-#include "solve.hxx" // for vector
+#include "serialisation.hxx"
+#include "solve.hxx"
 #include "util.hxx"
 #include <charconv>
 #include <confu_soci/convenienceFunctionForSoci.hxx>
 #include <cstddef>
 #include <durak/card.hxx>
-#include <filesystem> // for create_directory
-#include <iostream>   // for endl, basic_ost...
+#include <filesystem>
+#include <iostream>
 #include <magic_enum/magic_enum.hpp>
-#include <soci/error.h>                // for soci_error
-#include <soci/session.h>              // for session
-#include <soci/sqlite3/soci-sqlite3.h> // for sqlite3, sqlite...
-#include <sqlite3.h>                   // for sqlite3_close
-#include <stdio.h>                     // for fprintf, stderr
+#include <soci/error.h>
+#include <soci/session.h>
+#include <soci/sqlite3/soci-sqlite3.h>
+#include <sqlite3.h>
+#include <stdio.h>
 #include <stlplus/persistence/persistent_contexts.hpp>
 #include <stlplus/persistence/persistent_pair.hpp>
 #include <stlplus/persistence/persistent_vector.hpp>
 #include <string>
-#include <vector> // for vector
+#include <vector>
 
 namespace durak_computer_controlled_opponent::database
 {
@@ -78,41 +79,22 @@ gameStateAsString (std::tuple<std::vector<uint8_t>, std::vector<uint8_t> > const
   return vectorToString (std::get<0> (cards)) + ";" + vectorToString (std::get<1> (cards)) + ";" + std::to_string (magic_enum::enum_integer (trump));
 }
 
-void
-dumpNodeWithActionResult (stlplus::dump_context &context, small_memory_tree::Node<std::tuple<Action, Result>, uint16_t> const &node)
-{
-  stlplus::dump_unsigned_char (context, std::get<0> (node.value).value ());
-  stlplus::dump_unsigned_char (context, static_cast<uint8_t> (std::get<1> (node.value)));
-  stlplus::dump_unsigned_short (context, boost::numeric_cast<uint16_t> (node.childrenOffsetEnd));
-}
-
-void
-restoreNode (stlplus::restore_context &context, small_memory_tree::Node<std::tuple<Action, Result>, uint16_t> &node)
-{
-  auto getValue = uint8_t{};
-  stlplus::restore_unsigned_char (context, getValue);
-  std::get<0> (node.value) = Action{ getValue };
-  stlplus::restore_unsigned_char (context, getValue);
-  std::get<1> (node.value) = Result{ getValue };
-  stlplus::restore_unsigned_short (context, node.childrenOffsetEnd);
-}
-
 small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint16_t>
 binaryToSmallMemoryTree (std::string movesAndResultAsBinary)
 {
-  auto restoreStringStream = std::stringstream{ std::move (movesAndResultAsBinary) };
-  auto restoreContext = stlplus::restore_context{ restoreStringStream };
-  auto restoredVec = std::vector<small_memory_tree::Node<std::tuple<Action, Result>, uint16_t> >{};
-  stlplus::restore_vector (restoreContext, restoredVec, restoreNode);
-  return { restoredVec };
+  auto ss = std::stringstream{ movesAndResultAsBinary };
+  auto archive = cereal::BinaryInputArchiveWithContainingVectorSize{ ss };
+  auto smallMemoryTree = small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint16_t>{};
+  archive (smallMemoryTree);
+  return smallMemoryTree;
 }
 std::string
 smallMemoryTreeToBinary (small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint16_t> const &smallMemoryTree)
 {
-  auto output = std::stringstream (std::ios_base::out | std::ios_base::binary);
-  auto dumpContext = stlplus::dump_context{ output };
-  stlplus::dump_vector (dumpContext, smallMemoryTree.getNodes (), dumpNodeWithActionResult);
-  return output.str ();
+  auto ss = std::stringstream{};
+  auto archive = cereal::BinaryOutputArchiveWithContainingVectorSize{ ss };
+  archive (smallMemoryTree);
+  return ss.str ();
 }
 
 void

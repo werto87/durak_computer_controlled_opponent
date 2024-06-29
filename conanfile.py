@@ -26,3 +26,4 @@ class Project(ConanFile):
         self.requires("stlplus/3.16.0")
         self.requires("confu_soci/0.3.21")
         self.requires("magic_enum/[>=0.9.5 <10]")
+        self.requires("cereal/1.3.2")

@@ -3,6 +3,7 @@
 //
 #include "durak_computer_controlled_opponent/database.hxx"
 #include "catch2/catch.hpp"
+#include "durak_computer_controlled_opponent/serialisation.hxx"
 #include "durak_computer_controlled_opponent/solve.hxx"
 #include <cstdint>
 #include <stlplus/persistence/persistent_contexts.hpp>
@@ -47,6 +48,7 @@ TEST_CASE ("database", "[database]")
   }
   SECTION ("insertGameLookUp", "[database]")
   {
+
     createDatabaseIfNotExist (databasePath);
     createTables (databasePath);
     auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint16_t> >, 4> >{};
