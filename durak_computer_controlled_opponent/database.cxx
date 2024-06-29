@@ -15,9 +15,6 @@
 #include <soci/sqlite3/soci-sqlite3.h>
 #include <sqlite3.h>
 #include <stdio.h>
-#include <stlplus/persistence/persistent_contexts.hpp>
-#include <stlplus/persistence/persistent_pair.hpp>
-#include <stlplus/persistence/persistent_vector.hpp>
 #include <string>
 #include <vector>
 
