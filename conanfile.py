@@ -22,7 +22,7 @@ class Project(ConanFile):
         self.requires("catch2/2.13.9")
         self.requires("durak/1.0.5")
         self.requires("st_tree/1.2.1")
-        self.requires("small_memory_tree/6.0.0")
+        self.requires("small_memory_tree/7.0.0")
         self.requires("confu_soci/0.3.21")
         self.requires("magic_enum/[>=0.9.5 <10]")
         self.requires("cereal/1.3.2")

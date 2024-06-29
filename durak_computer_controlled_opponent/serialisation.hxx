@@ -183,34 +183,18 @@ CEREAL_LOAD_FUNCTION_NAME (Archive &ar, std::vector<T, A> &vector)
     ar (v);
 }
 
-template <typename ValueType, typename ChildrenOffsetEnd>
+template <typename ValueType, typename ChildrenCountType>
 void
-save (cereal::BinaryOutputArchiveWithContainingVectorSize &archive, small_memory_tree::Node<ValueType, ChildrenOffsetEnd> const &node)
+save (cereal::BinaryOutputArchiveWithContainingVectorSize &archive, small_memory_tree::Node<ValueType, ChildrenCountType> const &node)
 {
-  if (archive.sizeOfVector <= 255)
-    {
-      archive (node.value, boost::numeric_cast<uint8_t> (node.childrenOffsetEnd));
-    }
-  else
-    {
-      archive (node.value, node.childrenOffsetEnd);
-    }
+  archive (node.value, node.childrenCount);
 }
 
-template <typename ValueType, typename ChildrenOffsetEnd>
+template <typename ValueType, typename ChildrenCountType>
 void
-load (cereal::BinaryInputArchiveWithContainingVectorSize &archive, small_memory_tree::Node<ValueType, ChildrenOffsetEnd> &node)
+load (cereal::BinaryInputArchiveWithContainingVectorSize &archive, small_memory_tree::Node<ValueType, ChildrenCountType> &node)
 {
-  if (archive.sizeOfVector <= 255)
-    {
-      auto getUint8_t = uint8_t{};
-      archive (node.value, getUint8_t);
-      node.childrenOffsetEnd = getUint8_t;
-    }
-  else
-    {
-      archive (node.value, node.childrenOffsetEnd);
-    }
+  archive (node.value, node.childrenCount);
 }
 inline void
 save (cereal::BinaryOutputArchiveWithContainingVectorSize &archive, durak_computer_controlled_opponent::Action const &action)
@@ -225,19 +209,19 @@ load (cereal::BinaryInputArchiveWithContainingVectorSize &archive, durak_compute
   action = durak_computer_controlled_opponent::Action{ getValue };
 }
 
-template <typename ValueType, typename ChildrenOffsetEnd>
+template <typename ValueType, typename ChildrenCountType>
 void
-save (cereal::BinaryOutputArchiveWithContainingVectorSize &archive, small_memory_tree::SmallMemoryTree<ValueType, ChildrenOffsetEnd> const &vectorOfNodes)
+save (cereal::BinaryOutputArchiveWithContainingVectorSize &archive, small_memory_tree::SmallMemoryTree<ValueType, ChildrenCountType> const &vectorOfNodes)
 {
   archive (vectorOfNodes.getNodes ());
 }
 
-template <typename ValueType, typename ChildrenOffsetEnd>
+template <typename ValueType, typename ChildrenCountType>
 void
-load (cereal::BinaryInputArchiveWithContainingVectorSize &archive, small_memory_tree::SmallMemoryTree<ValueType, ChildrenOffsetEnd> &smallMemoryTree)
+load (cereal::BinaryInputArchiveWithContainingVectorSize &archive, small_memory_tree::SmallMemoryTree<ValueType, ChildrenCountType> &smallMemoryTree)
 {
-  auto nodes = std::vector<small_memory_tree::Node<ValueType, ChildrenOffsetEnd> >{};
+  auto nodes = std::vector<small_memory_tree::Node<ValueType, ChildrenCountType> >{};
   archive (nodes);
-  smallMemoryTree = small_memory_tree::SmallMemoryTree<ValueType, ChildrenOffsetEnd>{ nodes };
+  smallMemoryTree = small_memory_tree::SmallMemoryTree<ValueType, ChildrenCountType>{ nodes };
 }
 }
