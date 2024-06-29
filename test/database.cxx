@@ -6,9 +6,6 @@
 #include "durak_computer_controlled_opponent/serialisation.hxx"
 #include "durak_computer_controlled_opponent/solve.hxx"
 #include <cstdint>
-#include <stlplus/persistence/persistent_contexts.hpp>
-#include <stlplus/persistence/persistent_pair.hpp>
-#include <stlplus/persistence/persistent_vector.hpp>
 #include <tuple>
 
 using namespace durak_computer_controlled_opponent::database;
