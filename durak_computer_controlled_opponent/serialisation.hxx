@@ -32,6 +32,7 @@
 #include <boost/numeric/conversion/cast.hpp>
 #include <cereal/cereal.hpp>
 #include <cereal/types/tuple.hpp>
+#include <magic_enum/magic_enum.hpp>
 #include <small_memory_tree/smallMemoryTree.hxx>
 #include <sstream>
 namespace cereal
@@ -183,18 +184,39 @@ CEREAL_LOAD_FUNCTION_NAME (Archive &ar, std::vector<T, A> &vector)
     ar (v);
 }
 
+// copied from https://stackoverflow.com/questions/3061721/concatenate-boostdynamic-bitset-or-stdbitset
+template <size_t N1, size_t N2>
+std::bitset<N1 + N2>
+concat (const std::bitset<N1> &b1, const std::bitset<N2> &b2)
+{
+  std::string s1 = b1.to_string ();
+  std::string s2 = b2.to_string ();
+  return std::bitset<N1 + N2> (s1 + s2);
+}
+
 template <typename ValueType, typename ChildrenCountType>
 void
 save (cereal::BinaryOutputArchiveWithContainingVectorSize &archive, small_memory_tree::Node<ValueType, ChildrenCountType> const &node)
 {
-  archive (node.value, node.childrenCount);
+  auto const &[action, result] = node.value;
+  auto firstFourBits = std::bitset<4>{ magic_enum::enum_integer (result) };
+  auto lastFourBits = std::bitset<4>{ node.childrenCount };
+  archive (action, boost::numeric_cast<uint8_t> (concat (firstFourBits, lastFourBits).to_ulong ()));
 }
 
 template <typename ValueType, typename ChildrenCountType>
 void
 load (cereal::BinaryInputArchiveWithContainingVectorSize &archive, small_memory_tree::Node<ValueType, ChildrenCountType> &node)
 {
-  archive (node.value, node.childrenCount);
+  auto action = durak_computer_controlled_opponent::Action{};
+  auto resultWithChildrenCount = uint8_t{};
+  archive (action, resultWithChildrenCount);
+  auto const &tmpBitset = std::bitset<8> (resultWithChildrenCount);
+  auto const &bitsAsString = tmpBitset.to_string ();
+  auto const &result = boost::numeric_cast<uint8_t> (std::bitset<4>{ std::string (bitsAsString.begin (), bitsAsString.begin () + 4) }.to_ulong ());
+  auto const &childrenCount = boost::numeric_cast<uint8_t> (std::bitset<4>{ std::string (bitsAsString.begin () + 4, bitsAsString.end ()) }.to_ulong ());
+  node.value = std::make_tuple (action, magic_enum::enum_cast<durak_computer_controlled_opponent::Result> (result).value ());
+  node.childrenCount = childrenCount;
 }
 inline void
 save (cereal::BinaryOutputArchiveWithContainingVectorSize &archive, durak_computer_controlled_opponent::Action const &action)
