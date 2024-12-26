@@ -16,7 +16,7 @@ std::filesystem::path const databasePath = std::string{ CURRENT_BINARY_DIR } + "
 namespace durak_computer_controlled_opponent::database
 {
 
-std::string smallMemoryTreeToBinary (small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> const &smallMemoryTree);
+std::string smallMemoryTreeToBinary (small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > const &smallMemoryTree);
 
 }
 
@@ -48,7 +48,7 @@ TEST_CASE ("database", "[database]")
 
     createDatabaseIfNotExist (databasePath);
     createTables (databasePath);
-    auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> >, 4> >{};
+    auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4> >{};
     gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
     insertGameLookUp (databasePath, gameLookup);
     soci::session sql (soci::sqlite3, databasePath);
@@ -69,9 +69,9 @@ TEST_CASE ("gameStateAsString", "[database]")
 
 TEST_CASE ("binaryToSmallMemoryTree", "[database]")
 {
-  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> >, 4> >{};
+  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4> >{};
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
-  auto oneCardVsOneCard = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> >, 4>{ gameLookup.at ({ 1, 1 }) };
+  auto oneCardVsOneCard = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4>{ gameLookup.at ({ 1, 1 }) };
   auto const &smallMemoryTree = oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } });
   auto moveResultBinary = smallMemoryTreeToBinary (smallMemoryTree);
   auto test = binaryToSmallMemoryTree (moveResultBinary);

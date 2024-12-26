@@ -76,17 +76,17 @@ gameStateAsString (std::tuple<std::vector<uint8_t>, std::vector<uint8_t> > const
   return vectorToString (std::get<0> (cards)) + ";" + vectorToString (std::get<1> (cards)) + ";" + std::to_string (magic_enum::enum_integer (trump));
 }
 
-small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t>
+small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> >
 binaryToSmallMemoryTree (std::string movesAndResultAsBinary)
 {
   auto ss = std::stringstream{ movesAndResultAsBinary };
   auto archive = cereal::BinaryInputArchiveWithContainingVectorSize{ ss };
-  auto smallMemoryTree = small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t>{};
+  auto smallMemoryTree = small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> >{};
   archive (smallMemoryTree);
   return smallMemoryTree;
 }
 std::string
-smallMemoryTreeToBinary (small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> const &smallMemoryTree)
+smallMemoryTreeToBinary (small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > const &smallMemoryTree)
 {
   auto ss = std::stringstream{};
   auto archive = cereal::BinaryOutputArchiveWithContainingVectorSize{ ss };
@@ -95,7 +95,7 @@ smallMemoryTreeToBinary (small_memory_tree::SmallMemoryTree<std::tuple<Action, R
 }
 
 void
-insertGameLookUp (std::filesystem::path const &databasePath, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> >, 4> > const &gameLookup)
+insertGameLookUp (std::filesystem::path const &databasePath, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4> > const &gameLookup)
 {
   soci::session sql (soci::sqlite3, databasePath.c_str ());
   soci::transaction tr (sql);

@@ -557,7 +557,7 @@ createTree (Round const &round)
 }
 
 Result
-searchForGameResult (std::vector<uint8_t> const &attackCardsIds, std::vector<uint8_t> const &defendCardsIds, std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> > const &gameResults)
+searchForGameResult (std::vector<uint8_t> const &attackCardsIds, std::vector<uint8_t> const &defendCardsIds, std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > > const &gameResults)
 {
   if (auto result = gameResults.find ({ attackCardsIds, defendCardsIds }); result != gameResults.end ())
     {
@@ -601,7 +601,7 @@ attackAndDefendCompressed (std::vector<durak::Card> const &attackCards, std::vec
 }
 
 boost::optional<durak::Player>
-calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> >, 4> > const &gameLookup)
+calcGameResult (durak::Game const &game, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4> > const &gameLookup)
 {
   // find game in lookup
   if (game.checkIfGameIsOver ())
@@ -662,13 +662,13 @@ convertToNonKeyedTree (st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Ac
   return result;
 }
 
-std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> >, 4>
-solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> >, 4> > const &gameLookup)
+std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4>
+solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4> > const &gameLookup)
 {
   using namespace durak;
   auto _combinations = compressed_permutations ({ attackCardCount, defendCardCount }, n);
   using namespace small_memory_tree;
-  auto compressedGames = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, SmallMemoryTree<std::tuple<Action, Result>, uint64_t> >, 4>{};
+  auto compressedGames = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, SmallMemoryTree<std::tuple<Action, Result> > >, 4>{};
   auto skippedCombinations = uint64_t{};
   for (const auto &combi : _combinations)
     {
@@ -686,7 +686,7 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
           solveGameTree (tree);
           try
             {
-              auto smt = SmallMemoryTree<std::tuple<Action, Result>, uint64_t>{ StTreeAdapter{ convertToNonKeyedTree (tree) } };
+              auto smt = SmallMemoryTree<std::tuple<Action, Result> >{ StTreeAdapter{ convertToNonKeyedTree (tree) } };
               compressedGames.at (static_cast<size_t> (trumpType)).insert ({ { cardsToIds (attackCards), cardsToIds (defendCards) }, smt });
             }
           catch (boost::numeric::positive_overflow const &e)
@@ -711,7 +711,7 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
 }
 
 std::vector<std::tuple<Action, Result> >
-nextActionsAndResults (std::vector<Action> const &actions, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> const &moveResults)
+nextActionsAndResults (std::vector<Action> const &actions, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > const &moveResults)
 {
   auto const &rootElement = moveResults.getValues ().front ();
   if (auto childrenOpt = small_memory_tree::calcChildrenForPath (moveResults, { rootElement }))

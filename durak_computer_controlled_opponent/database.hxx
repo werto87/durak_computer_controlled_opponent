@@ -20,9 +20,9 @@ void createTables (std::filesystem::path const &databasePath);
 
 std::string gameStateAsString (std::tuple<std::vector<uint8_t>, std::vector<uint8_t> > const &cards, durak::Type trump);
 
-void insertGameLookUp (std::filesystem::path const &databasePath, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> >, 4> > const &gameLookup);
+void insertGameLookUp (std::filesystem::path const &databasePath, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4> > const &gameLookup);
 
-small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> binaryToSmallMemoryTree (std::string movesAndResultAsBinary);
+small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > binaryToSmallMemoryTree (std::string movesAndResultAsBinary);
 
 }
 
