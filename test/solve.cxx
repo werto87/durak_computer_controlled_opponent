@@ -102,14 +102,14 @@ TEST_CASE ("convertToNonKeyedTree", "[abc]")
 TEST_CASE ("nextActionsAndResults", "[abc]")
 {
   using namespace durak;
-  using LookUpTable = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint8_t> >, 4>;
+  using LookUpTable = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> >, 4>;
   using CardLookUp = std::map<std::tuple<uint8_t, uint8_t>, LookUpTable>;
   auto gameLookup = CardLookUp{};
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
   auto oneCardVsOneCard = LookUpTable{ gameLookup.at ({ 1, 1 }) };
   SECTION ("1v1 attack won")
   {
-    auto smt = small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint8_t>{ oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }) };
+    auto smt = small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t>{ oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }) };
     auto actionsAndResults = nextActionsAndResults ({}, smt);
     REQUIRE (actionsAndResults == std::vector<std::tuple<Action, Result> >{ { Action{ 0 }, Result::AttackWon } });
   }
@@ -118,12 +118,12 @@ TEST_CASE ("nextActionsAndResults", "[abc]")
 TEST_CASE ("nextActionsAndResults more than one action", "[abc]")
 {
   using namespace durak;
-  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint8_t> >, 4> >{};
+  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> >, 4> >{};
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
-  auto oneCardVsOneCard = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint8_t> >, 4>{ gameLookup.at ({ 1, 1 }) };
+  auto oneCardVsOneCard = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> >, 4>{ gameLookup.at ({ 1, 1 }) };
   SECTION ("1v1 attack draw")
   {
-    auto actionsAndResults = nextActionsAndResults ({ Action{ 0 } }, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint8_t>{ oneCardVsOneCard.at (0).at ({ { 0 }, { 4 } }) });
+    auto actionsAndResults = nextActionsAndResults ({ Action{ 0 } }, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t>{ oneCardVsOneCard.at (0).at ({ { 0 }, { 4 } }) });
     REQUIRE (actionsAndResults == std::vector<std::tuple<Action, Result> >{ { Action{ 4 }, Result::Draw }, { Action{ 253 }, Result::AttackWon } });
   }
 }
@@ -131,10 +131,10 @@ TEST_CASE ("nextActionsAndResults more than one action", "[abc]")
 TEST_CASE ("nextActionForRole")
 {
   using namespace durak;
-  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint8_t> >, 4> >{};
+  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> >, 4> >{};
   gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
-  auto oneCardVsOneCard = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint8_t> >, 4>{ gameLookup.at ({ 1, 1 }) };
-  auto actionsAndResults = nextActionsAndResults ({}, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint8_t>{ oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }) });
+  auto oneCardVsOneCard = std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t> >, 4>{ gameLookup.at ({ 1, 1 }) };
+  auto actionsAndResults = nextActionsAndResults ({}, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result>, uint64_t>{ oneCardVsOneCard.at (0).at ({ { 0 }, { 1 } }) });
   auto nextAction = nextActionForRole (actionsAndResults, durak::PlayerRole::attack);
   REQUIRE (nextAction == Action{ 0 });
 }

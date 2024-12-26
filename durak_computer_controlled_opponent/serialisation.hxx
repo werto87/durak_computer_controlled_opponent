@@ -195,30 +195,36 @@ concat (const std::bitset<N1> &b1, const std::bitset<N2> &b2)
   return std::bitset<N1 + N2> (s1 + s2);
 }
 
-template <typename ValueType, typename ChildrenCountType>
-void
-save (cereal::BinaryOutputArchiveWithContainingVectorSize &archive, small_memory_tree::Node<ValueType, ChildrenCountType> const &node)
-{
-  auto const &[action, result] = node.value;
-  auto firstFourBits = std::bitset<4>{ magic_enum::enum_integer (result) };
-  auto lastFourBits = std::bitset<4>{ node.childrenCount };
-  archive (action, boost::numeric_cast<uint8_t> (concat (firstFourBits, lastFourBits).to_ulong ()));
-}
+// struct MyStruct
+// {
+//   uint8_t byteOne{};
+//   uint8_t byteTwo{};
+// };
 
-template <typename ValueType, typename ChildrenCountType>
-void
-load (cereal::BinaryInputArchiveWithContainingVectorSize &archive, small_memory_tree::Node<ValueType, ChildrenCountType> &node)
-{
-  auto action = durak_computer_controlled_opponent::Action{};
-  auto resultWithChildrenCount = uint8_t{};
-  archive (action, resultWithChildrenCount);
-  auto const &tmpBitset = std::bitset<8> (resultWithChildrenCount);
-  auto const &bitsAsString = tmpBitset.to_string ();
-  auto const &result = boost::numeric_cast<uint8_t> (std::bitset<4>{ std::string (bitsAsString.begin (), bitsAsString.begin () + 4) }.to_ulong ());
-  auto const &childrenCount = boost::numeric_cast<uint8_t> (std::bitset<4>{ std::string (bitsAsString.begin () + 4, bitsAsString.end ()) }.to_ulong ());
-  node.value = std::make_tuple (action, magic_enum::enum_cast<durak_computer_controlled_opponent::Result> (result).value ());
-  node.childrenCount = childrenCount;
-}
+// template <typename ValueType, typename ChildrenOffsetEndType>
+// void
+// save (cereal::BinaryOutputArchiveWithContainingVectorSize &archive, MyStruct const &myStruct)
+// {
+//   auto const &[action, result] = std::get<0> (node);
+//   auto firstFourBits = std::bitset<4>{ magic_enum::enum_integer (result) };
+//   auto lastFourBits = std::bitset<4>{ std::get<1> (node) };
+//   archive (action, boost::numeric_cast<uint8_t> (concat (firstFourBits, lastFourBits).to_ulong ()));
+// }
+
+// template <typename ValueType, typename ChildrenOffsetEndType>
+// void
+// load (cereal::BinaryInputArchiveWithContainingVectorSize &archive, MyStruct &myStruct)
+// {
+//   auto action = durak_computer_controlled_opponent::Action{};
+//   auto resultWithChildrenCount = uint8_t{};
+//   archive (action, resultWithChildrenCount);
+//   auto const &tmpBitset = std::bitset<8> (resultWithChildrenCount);
+//   auto const &bitsAsString = tmpBitset.to_string ();
+//   auto const &result = boost::numeric_cast<uint8_t> (std::bitset<4>{ std::string (bitsAsString.begin (), bitsAsString.begin () + 4) }.to_ulong ());
+//   auto const &childrenCount = boost::numeric_cast<uint8_t> (std::bitset<4>{ std::string (bitsAsString.begin () + 4, bitsAsString.end ()) }.to_ulong ());
+//   std::get<0> (node) = std::make_tuple (action, magic_enum::enum_cast<durak_computer_controlled_opponent::Result> (result).value ());
+//   std::get<1> (node) = childrenCount;
+// }
 inline void
 save (cereal::BinaryOutputArchiveWithContainingVectorSize &archive, durak_computer_controlled_opponent::Action const &action)
 {
@@ -232,19 +238,41 @@ load (cereal::BinaryInputArchiveWithContainingVectorSize &archive, durak_compute
   action = durak_computer_controlled_opponent::Action{ getValue };
 }
 
-template <typename ValueType, typename ChildrenCountType>
+template <typename ValueType, typename ChildrenOffsetEndType>
 void
-save (cereal::BinaryOutputArchiveWithContainingVectorSize &archive, small_memory_tree::SmallMemoryTree<ValueType, ChildrenCountType> const &vectorOfNodes)
+save (cereal::BinaryOutputArchiveWithContainingVectorSize &archive, small_memory_tree::SmallMemoryTree<ValueType, ChildrenOffsetEndType> const &smallMemoryTree)
 {
-  archive (vectorOfNodes.getNodes ());
+  auto result = std::vector<std::tuple<durak_computer_controlled_opponent::Action, uint8_t> >{};
+  auto const &values = smallMemoryTree.getValues ();
+  for (uint64_t i{}; i < values.size (); ++i)
+    {
+      auto const &[action, actionResult] = values.at (i);
+      auto const &firstFourBits = std::bitset<4>{ magic_enum::enum_integer (actionResult) };
+      auto const &childrenCount = small_memory_tree::internals::getChildrenCount (smallMemoryTree, i);
+      auto const &lastFourBits = std::bitset<4>{ childrenCount.value () };
+      result.emplace_back (action, boost::numeric_cast<uint8_t> (concat (firstFourBits, lastFourBits).to_ulong ()));
+    }
+  archive (result);
 }
-
-template <typename ValueType, typename ChildrenCountType>
+template <typename ValueType, typename ChildrenOffsetEndType>
 void
-load (cereal::BinaryInputArchiveWithContainingVectorSize &archive, small_memory_tree::SmallMemoryTree<ValueType, ChildrenCountType> &smallMemoryTree)
+load (cereal::BinaryInputArchiveWithContainingVectorSize &archive, small_memory_tree::SmallMemoryTree<ValueType, ChildrenOffsetEndType> &smallMemoryTree)
 {
-  auto nodes = std::vector<small_memory_tree::Node<ValueType, ChildrenCountType> >{};
-  archive (nodes);
-  smallMemoryTree = small_memory_tree::SmallMemoryTree<ValueType, ChildrenCountType>{ nodes };
+  auto actionActionResultWithChildrenCount = std::vector<std::tuple<durak_computer_controlled_opponent::Action, uint8_t> >{};
+  archive (actionActionResultWithChildrenCount);
+  auto values = std::vector<std::tuple<durak_computer_controlled_opponent::Action, durak_computer_controlled_opponent::Result> >{};
+  auto childrenOffsetEnds = std::vector<ChildrenOffsetEndType>{};
+  auto childrenSum = 0;
+  for (uint64_t i{}; i < actionActionResultWithChildrenCount.size (); ++i)
+    {
+      auto const &[action, actionResultWithChildrenCount] = actionActionResultWithChildrenCount.at (i);
+      auto const &tmpBitset = std::bitset<8> (actionResultWithChildrenCount);
+      auto const &bitsAsString = tmpBitset.to_string ();
+      auto const &actionResult = boost::numeric_cast<uint8_t> (std::bitset<4>{ std::string (bitsAsString.begin (), bitsAsString.begin () + 4) }.to_ulong ());
+      values.push_back (std::make_tuple (action, magic_enum::enum_cast<durak_computer_controlled_opponent::Result> (actionResult).value ()));
+      childrenSum += boost::numeric_cast<uint8_t> (std::bitset<4>{ std::string (bitsAsString.begin () + 4, bitsAsString.end ()) }.to_ulong ());
+      childrenOffsetEnds.push_back (childrenSum);
+    }
+  smallMemoryTree = small_memory_tree::SmallMemoryTree<ValueType, ChildrenOffsetEndType>{ std::move (values), std::move (childrenOffsetEnds) };
 }
 }
