@@ -25,7 +25,6 @@ deleteDatabaseAndCreateNewDatabase (std::filesystem::path const &databasePath)
 {
   std::filesystem::remove (databasePath);
   std::filesystem::create_directories (databasePath.parent_path ());
-  using namespace sqlite_api;
   sqlite3 *db{};
   int rc{};
   rc = sqlite3_open (databasePath.c_str (), &db);
@@ -40,7 +39,6 @@ deleteDatabaseAndCreateNewDatabase (std::filesystem::path const &databasePath)
 void
 createDatabaseIfNotExist (std::filesystem::path const &databasePath)
 {
-  using namespace sqlite_api;
   if (not std::filesystem::exists (databasePath))
     {
       std::filesystem::create_directories (databasePath.parent_path ());
