@@ -8,11 +8,13 @@ add_executable(_test
         util.cxx
         )
 find_package(Catch2)
+find_package(fmt)
 target_link_libraries(_test
         myproject_options
         myproject_warnings
         durak_computer_controlled_opponent
         Catch2::Catch2WithMain
+        fmt::fmt
         )
 if (CMAKE_BINARY_DIR)
     target_compile_definitions(_test PRIVATE CURRENT_BINARY_DIR="${CMAKE_BINARY_DIR}")

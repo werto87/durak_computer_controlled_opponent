@@ -7,7 +7,7 @@ namespace durak_computer_controlled_opponent
 durak::Card
 idToCard (uint8_t id)
 {
-  return durak::Card{ boost::numeric_cast<u_int16_t> (id / 4), static_cast<durak::Type> (id % 4) };
+  return durak::Card{ boost::numeric_cast<uint16_t> (id / 4), static_cast<durak::Type> (id % 4) };
 }
 
 uint8_t
@@ -38,7 +38,7 @@ compress (std::vector<durak::Card> cards)
   auto idsAndCards = std::vector<std::tuple<size_t, durak::Card> >{};
   std::ranges::transform (cards, std::back_inserter (idsAndCards), [id = size_t{ 0 }] (durak::Card const &card) mutable { return std::tuple<size_t, durak::Card>{ id++, card }; });
   std::ranges::sort (idsAndCards, {}, [] (std::tuple<size_t, durak::Card> const &idAndCard) { return std::get<1> (idAndCard); });
-  auto setToNumber = u_int16_t{ 0 };
+  auto setToNumber = uint16_t{ 0 };
   auto numberToChange = std::get<1> (idsAndCards.front ()).value;
   for (auto &[id, card] : idsAndCards)
     {

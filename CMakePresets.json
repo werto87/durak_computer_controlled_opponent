@@ -13,7 +13,7 @@
                 "BUILD_TESTS": "True",
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++",
-                "CMAKE_CXX_FLAGS": "-stdlib=libc++",
+                "CMAKE_CXX_FLAGS": "-stdlib=libc++  -fstack-usage",
                 "CMAKE_EXE_LINKER_FLAGS": "-stdlib=libc++"
             }
         },
@@ -29,8 +29,9 @@
                 "BUILD_TESTS": "True",
                 "CMAKE_C_COMPILER": "clang",
                 "CMAKE_CXX_COMPILER": "clang++",
-                "CMAKE_CXX_FLAGS": "-stdlib=libc++",
-                "CMAKE_EXE_LINKER_FLAGS": "-stdlib=libc++"
+                "CMAKE_CXX_FLAGS": "-stdlib=libc++ -fstack-usage",
+                "CMAKE_EXE_LINKER_FLAGS": "-stdlib=libc++",
+                "myproject_ENABLE_HARDENING": "OFF"
             }
         },
         {
@@ -58,7 +59,8 @@
                 "CMAKE_TOOLCHAIN_FILE": "conan_toolchain.cmake",
                 "BUILD_TESTS": "True",
                 "CMAKE_C_COMPILER": "gcc",
-                "CMAKE_CXX_COMPILER": "g++"
+                "CMAKE_CXX_COMPILER": "g++",
+                "myproject_ENABLE_HARDENING": "OFF"
             }
         },
         {
@@ -106,6 +108,30 @@
                 "myproject_ENABLE_SANITIZER_ADDRESS": "ON",
                 "myproject_ENABLE_SANITIZER_LEAK": "ON"
             }
+        },
+    {
+            "name": "vs2022-release",
+            "displayName": "Visual Studio 2022 Release with Conan",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/microsoft-compiler-release",
+            "cacheVariables": {
+                "BUILD_TESTS": "True",
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/microsoft-compiler-release/conan_toolchain.cmake",
+                "CMAKE_CXX_FLAGS": "/D_WIN32_WINNT=0x0A00 /EHsc /bigobj"
+            }
+        },
+        {
+            "name": "vs2022-debug",
+            "displayName": "Visual Studio 2022 Debug with Conan",
+            "generator": "Ninja",
+            "binaryDir": "${sourceDir}/build/microsoft-compiler-debug",
+            "cacheVariables": {
+                "BUILD_TESTS": "True",
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_TOOLCHAIN_FILE": "${sourceDir}/build/microsoft-compiler-debug/conan_toolchain.cmake",
+                "CMAKE_CXX_FLAGS": "/D_WIN32_WINNT=0x0A00 /EHsc /bigobj"
+            }
         }
     ],
     "testPresets": [
@@ -114,6 +140,18 @@
             "description": "",
             "displayName": "",
             "configurePreset": "debug-gcc"
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "run this on windows build-release",
+            "configurePreset": "vs2022-release",
+            "configuration": "Release"
+        },
+        {
+            "name": "run this on windows build-debug",
+            "configurePreset": "vs2022-debug",
+            "configuration": "Debug"
         }
     ]
 }

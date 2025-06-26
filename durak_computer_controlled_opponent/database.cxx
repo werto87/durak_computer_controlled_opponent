@@ -18,16 +18,17 @@
 #include <string>
 #include <vector>
 
+
 namespace durak_computer_controlled_opponent::database
 {
 void
 deleteDatabaseAndCreateNewDatabase (std::filesystem::path const &databasePath)
 {
   std::filesystem::remove (databasePath);
-  std::filesystem::create_directories (databasePath.parent_path ());
+  std::filesystem::create_directories (databasePath.parent_path ().string());
   sqlite3 *db{};
   int rc{};
-  rc = sqlite3_open (databasePath.c_str (), &db);
+  rc = sqlite3_open (databasePath.string().c_str(), &db);
   if (rc)
     {
       fprintf (stderr, "Can't open database: %s\n", sqlite3_errmsg (db));
@@ -44,7 +45,7 @@ createDatabaseIfNotExist (std::filesystem::path const &databasePath)
       std::filesystem::create_directories (databasePath.parent_path ());
       sqlite3 *db{};
       int rc{};
-      rc = sqlite3_open (databasePath.c_str (), &db);
+      rc = sqlite3_open (databasePath.string().c_str (), &db);
       if (rc)
         {
           fprintf (stderr, "Can't open database: %s\n", sqlite3_errmsg (db));
@@ -57,7 +58,7 @@ createDatabaseIfNotExist (std::filesystem::path const &databasePath)
 void
 createTables (std::filesystem::path const &databasePath)
 {
-  soci::session sql (soci::sqlite3, databasePath);
+  soci::session sql (soci::sqlite3, databasePath.string());
   try
     {
       confu_soci::createTableForStruct<Round> (sql);
@@ -95,7 +96,7 @@ smallMemoryTreeToBinary (small_memory_tree::SmallMemoryTree<std::tuple<Action, R
 void
 insertGameLookUp (std::filesystem::path const &databasePath, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4> > const &gameLookup)
 {
-  soci::session sql (soci::sqlite3, databasePath.c_str ());
+  soci::session sql (soci::sqlite3, databasePath.string().c_str ());
   soci::transaction tr (sql);
   for (auto const &gameTypeAndGame : gameLookup)
     {
