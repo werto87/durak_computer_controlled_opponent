@@ -34,3 +34,9 @@ add_custom_command(
     "copy compile_commands.json build to compile_commands.json project root so tools can find it more easily"
 )
 endif()
+
+add_executable(createDatabaseForModernDurak createDatabaseForModernDurak.cxx)
+target_link_libraries(createDatabaseForModernDurak durak_computer_controlled_opponent)
+target_compile_definitions(createDatabaseForModernDurak PRIVATE
+    CURRENT_BINARY_DIR="${CMAKE_BINARY_DIR}"
+        )

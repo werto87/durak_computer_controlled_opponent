@@ -663,7 +663,7 @@ convertToNonKeyedTree (st_tree::tree<std::tuple<Result, bool>, st_tree::keyed<Ac
 }
 
 std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4>
-solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4> > const &gameLookup)
+solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4> > const &gameLookup, std::vector<durak::Type> const &trumps)
 {
   using namespace durak;
   auto _combinations = compressed_permutations ({ attackCardCount, defendCardCount }, n);
@@ -672,7 +672,7 @@ solveDurak (size_t n, size_t attackCardCount, size_t defendCardCount, std::map<s
   auto skippedCombinations = uint64_t{};
   for (const auto &combi : _combinations)
     {
-      for (auto trumpType : { Type::hearts, Type::clubs, Type::diamonds, Type::spades })
+      for (auto trumpType : trumps)
         {
           auto cards = idsToCards (combi);
           auto attackCards = std::vector<Card> (cards.begin (), cards.begin () + static_cast<long> (attackCardCount));

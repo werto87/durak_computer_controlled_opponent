@@ -24,6 +24,7 @@ void insertGameLookUp (std::filesystem::path const &databasePath, std::map<std::
 
 small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > binaryToSmallMemoryTree (std::string movesAndResultAsBinary);
 
+void insertCombination (soci::session &sql, std::tuple<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > > const &cardsAndCombination);
 }
 
 #endif /* D179262B_4D2C_43C0_ACA1_5464B5C2533B */
