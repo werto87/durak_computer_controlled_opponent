@@ -1,8 +1,8 @@
-#include "durak_computer_controlled_opponent/solve.hxx"
-#include "durak_computer_controlled_opponent/compressCard.hxx"
-#include "durak_computer_controlled_opponent/database.hxx"
-#include "durak_computer_controlled_opponent/permutation.hxx"
-#include "durak_computer_controlled_opponent/util.hxx"
+#include "durak_computer_controlled_opponent/simulation/solve.hxx"
+#include "durak_computer_controlled_opponent/simulation/compressCard.hxx"
+#include "durak_computer_controlled_opponent/simulation/database.hxx"
+#include "durak_computer_controlled_opponent/simulation/permutation.hxx"
+#include "durak_computer_controlled_opponent/simulation/util.hxx"
 #include <catch2/catch.hpp>
 #include <confu_json/to_json.hxx>
 #include <confu_soci/convenienceFunctionForSoci.hxx>

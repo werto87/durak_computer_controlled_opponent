@@ -1,10 +1,10 @@
 //
 // Created by walde on 10/18/22.
 //
-#include "durak_computer_controlled_opponent/database.hxx"
+#include "durak_computer_controlled_opponent/simulation/database.hxx"
 #include "catch2/catch.hpp"
-#include "durak_computer_controlled_opponent/serialisation.hxx"
-#include "durak_computer_controlled_opponent/solve.hxx"
+#include "durak_computer_controlled_opponent/simulation/serialisation.hxx"
+#include "durak_computer_controlled_opponent/simulation/solve.hxx"
 #include <cstdint>
 #include <tuple>
 

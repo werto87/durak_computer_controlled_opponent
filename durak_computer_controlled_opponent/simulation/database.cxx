@@ -2,7 +2,7 @@
 #include "compressCard.hxx"
 #include "serialisation.hxx"
 #include "solve.hxx"
-#include "util.hxx"
+#include "durak_computer_controlled_opponent/util.hxx"
 #include <charconv>
 #include <confu_soci/convenienceFunctionForSoci.hxx>
 #include <cstddef>

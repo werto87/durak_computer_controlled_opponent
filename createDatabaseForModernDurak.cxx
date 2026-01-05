@@ -1,4 +1,4 @@
-#include "durak_computer_controlled_opponent/database.hxx"
+#include "durak_computer_controlled_opponent/simulation/database.hxx"
 
 void
 insertVector (auto &sql, auto const &vectorToInsert, auto const &combinationAndGameTrees)

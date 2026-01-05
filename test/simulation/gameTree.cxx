@@ -1,5 +1,5 @@
-#include "durak_computer_controlled_opponent/permutation.hxx"
-#include "durak_computer_controlled_opponent/solve.hxx"
+#include "durak_computer_controlled_opponent/simulation/permutation.hxx"
+#include "durak_computer_controlled_opponent/simulation/solve.hxx"
 #include <catch2/catch.hpp>
 #include <cstdint>
 #include <durak/card.hxx>

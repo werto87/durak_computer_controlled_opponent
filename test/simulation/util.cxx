@@ -1,4 +1,4 @@
-#include "durak_computer_controlled_opponent/util.hxx"
+#include "durak_computer_controlled_opponent/simulation/util.hxx"
 #include <catch2/catch.hpp>
 TEST_CASE ("calcCardsAtRoundStart", "[abc]")
 {
