@@ -58,8 +58,6 @@ struct Round
   std::vector<std::vector<Action> > draw{};
 };
 
-std::optional<std::vector<Action> > tableToActions (std::vector<std::pair<durak::Card, boost::optional<durak::Card> > > const &table);
-
 std::ostream &operator<< (std::ostream &os, const Action &action);
 
 struct AttackDefendPass

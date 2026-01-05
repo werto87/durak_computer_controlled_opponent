@@ -114,66 +114,6 @@ operator<< (std::ostream &os, const Action &action)
   return os;
 }
 
-// std::optional<durak::Card>
-// cardToPlay (Round const &round, std::vector<std::pair<durak::Card, boost::optional<durak::Card> > > const &cardsOnTable, durak::PlayerRole playerRole)
-// {
-//   if (auto actionsDone = tableToActions (cardsOnTable))
-//     {
-//       auto const &winningMoves = (playerRole == durak::PlayerRole::attack) ? round.attackIsWinning : round.defendIsWinning;
-//       auto const &playerCards = (playerRole == durak::PlayerRole::attack) ? round.attackingPlayerCards : round.defendingPlayerCards;
-//       if (auto winningCombination = ranges::find_if (winningMoves, [&actionsDone] (auto const &combi) { return ranges::starts_with (combi, actionsDone._value ()); }); winningCombination != winningMoves.end ())
-//         {
-//           if (actionsDone->size () < winningCombination->size ())
-//             {
-//               auto cardToPlay = winningCombination->at (actionsDone->size ()).playedCard ();
-//               if (ranges::find (playerCards, cardToPlay) != playerCards.end ())
-//                 {
-//                   return cardToPlay;
-//                 }
-//               else
-//                 {
-//                   return std::nullopt;
-//                 }
-//             }
-//           else
-//             {
-//               return std::nullopt;
-//             }
-//         }
-//       else
-//         {
-//           auto const &drawMoves = round.draw;
-//           if (auto combination = ranges::find_if (drawMoves, [&actionsDone] (auto const &combi) { return ranges::starts_with (combi, actionsDone._value ()); }); combination != drawMoves.end ())
-//             {
-//               if (actionsDone->size () < combination->size ())
-//                 {
-//                   auto cardToPlay = combination->at (actionsDone->size ()).playedCard ();
-//                   if (ranges::find (playerCards, cardToPlay) != playerCards.end ())
-//                     {
-//                       return cardToPlay;
-//                     }
-//                   else
-//                     {
-//                       return std::nullopt;
-//                     }
-//                 }
-//               else
-//                 {
-//                   return std::nullopt;
-//                 }
-//             }
-//           else
-//             {
-//               return std::nullopt;
-//             }
-//         }
-//     }
-//   else
-//     {
-//       return std::nullopt;
-//     }
-// }
-
 std::vector<std::tuple<durak::Game, AttackDefendPass> >
 startAttack (std::tuple<durak::Game, AttackDefendPass> const &gameWithPasses)
 {
