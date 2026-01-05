@@ -1,6 +1,8 @@
 #ifndef E408197E_0D11_4D88_B43B_B5D6B657C114
 #define E408197E_0D11_4D88_B43B_B5D6B657C114
 
+#include "durak_computer_controlled_opponent/action.hxx"
+#include "durak_computer_controlled_opponent/result.hxx"
 #include <cstdint>
 #include <durak/game.hxx>
 #include <small_memory_tree/smallMemoryTree.hxx>
@@ -11,30 +13,6 @@ namespace durak_computer_controlled_opponent
 {
 
 std::vector<durak::HistoryEvent> onlyFirstRound (std::vector<durak::HistoryEvent> const &histories);
-
-class Action
-{
-public:
-  enum struct Category
-  {
-    Undefined,
-    PlayCard,
-    PassOrTakeCard
-  };
-
-  Action () = default;
-  explicit Action (std::uint8_t value) : _value (value) {}
-  // clang-format off
-  auto operator<=> (const Action &) const = default;
-  // clang-format on
-  [[nodiscard]] Category operator() () const;
-  [[nodiscard]] std::optional<durak::Card> playedCard () const;
-
-  [[nodiscard]] std::uint8_t value () const;
-
-private:
-  std::uint8_t _value{ 253 };
-};
 
 std::optional<Action> historyEventToAction (durak::HistoryEvent const &historyEvent);
 
@@ -82,13 +60,6 @@ std::vector<durak::Game> solve (durak::Game const &game);
 
 Round moveTree (std::vector<durak::Card> const &attackCards, std::vector<durak::Card> const &defendCards, durak::Type trumpType);
 
-enum class Result : uint8_t
-{
-  Undefined,
-  DefendWon,
-  Draw,
-  AttackWon
-};
 std::optional<Action> nextActionForRole (const std::vector<std::tuple<Action, Result> > &nextActions, const durak::PlayerRole &playerRole);
 
 std::vector<std::tuple<Action, Result> > nextActionsAndResults (std::vector<Action> const &actions, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > const &moveResults);

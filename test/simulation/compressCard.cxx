@@ -33,3 +33,9 @@ TEST_CASE ("compress card permutations", "[abc]")
   });
   REQUIRE (compressedCombinations.size () == 3678);
 }
+
+TEST_CASE ("compress empty cards", "[abc]")
+{
+  auto const result = compress ({});
+  REQUIRE (result.empty ());
+}

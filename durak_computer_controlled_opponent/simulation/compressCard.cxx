@@ -17,7 +17,7 @@ cardToId (durak::Card const &card)
 }
 
 std::vector<uint8_t>
-cardsToIds (std::vector<durak::Card> const& cards)
+cardsToIds (std::vector<durak::Card> const &cards)
 {
   auto results = std::vector<uint8_t>{};
   std::ranges::transform (cards, std::back_inserter (results), [] (durak::Card const &cards_) { return cardToId (cards_); });
@@ -25,7 +25,7 @@ cardsToIds (std::vector<durak::Card> const& cards)
 }
 
 std::vector<durak::Card>
-idsToCards (std::vector<uint8_t> const& ids)
+idsToCards (std::vector<uint8_t> const &ids)
 {
   auto results = std::vector<durak::Card>{};
   std::ranges::transform (ids, std::back_inserter (results), [] (uint8_t id) { return idToCard (id); });
@@ -35,6 +35,7 @@ idsToCards (std::vector<uint8_t> const& ids)
 std::vector<durak::Card>
 compress (std::vector<durak::Card> cards)
 {
+  if (cards.empty ()) return {};
   auto idsAndCards = std::vector<std::tuple<size_t, durak::Card> >{};
   std::ranges::transform (cards, std::back_inserter (idsAndCards), [id = size_t{ 0 }] (durak::Card const &card) mutable { return std::tuple<size_t, durak::Card>{ id++, card }; });
   std::ranges::sort (idsAndCards, {}, [] (std::tuple<size_t, durak::Card> const &idAndCard) { return std::get<1> (idAndCard); });

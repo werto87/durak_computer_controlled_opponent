@@ -309,40 +309,6 @@ defend (std::tuple<durak::Game, AttackDefendPass> const &gameWithPasses)
   return result;
 }
 
-std::optional<durak::Card>
-Action::playedCard () const
-{
-  if (_value >= 253)
-    {
-      return std::nullopt;
-    }
-  else
-    {
-      return idToCard (_value);
-    }
-}
-
-std::uint8_t
-Action::value () const
-{
-  return _value;
-}
-Action::Category
-Action::operator() () const
-{
-  if (_value > 253)
-    {
-      return Category::Undefined;
-    }
-  else if (_value == 253)
-    {
-      return Category::PassOrTakeCard;
-    }
-  else
-    {
-      return Category::PlayCard;
-    }
-}
 
 Round::Round (std::vector<durak::Card> attackingPlayerCards_, std::vector<durak::Card> const &defendingPlayerCards_, std::vector<ResultAndHistory> const &resultsAndHistories) : attackingPlayerCards{ std::move (attackingPlayerCards_) }, defendingPlayerCards{ defendingPlayerCards_ }
 {
