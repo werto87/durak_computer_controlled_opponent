@@ -1,8 +1,10 @@
 #include "permutation.hxx"
 #include "combination.hxx"
 #include "compressCard.hxx"
+#include "durak_computer_controlled_opponent/util.hxx"
 #include <cstddef>
 #include <numeric>
+
 
 namespace durak_computer_controlled_opponent
 {
@@ -35,7 +37,7 @@ combinationsFor (std::vector<uint8_t> const &numbersToCheck, std::vector<std::ve
 }
 
 void
-for_each_card_combination (std::tuple<size_t, size_t> const &attackAndDefendCardCount, size_t n, const std::function<bool (std::vector<uint8_t>)>& callThis)
+for_each_card_combination (std::tuple<size_t, size_t> const &attackAndDefendCardCount, size_t n, const std::function<bool (std::vector<uint8_t>)> &callThis)
 {
   auto indexes = std::vector<uint8_t> (n);
   std::iota (indexes.begin (), indexes.end (), 0);
@@ -60,7 +62,7 @@ std::set<std::vector<uint8_t> >
 compressed_permutations (std::tuple<size_t, size_t> const &attackAndDefendCardCount, size_t n)
 {
   auto compressedCombinations = std::set<std::vector<uint8_t> >{};
-  for_each_card_combination (attackAndDefendCardCount, n, [&compressedCombinations] (std::vector<uint8_t> const& combi) {
+  for_each_card_combination (attackAndDefendCardCount, n, [&compressedCombinations] (std::vector<uint8_t> const &combi) {
     compressedCombinations.insert (cardsToIds (compress (idsToCards (combi))));
     return false;
   });

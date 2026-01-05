@@ -1,5 +1,6 @@
 #include "durak_computer_controlled_opponent/action.hxx"
 #include "durak_computer_controlled_opponent/simulation/compressCard.hxx"
+#include "durak_computer_controlled_opponent/util.hxx"
 namespace durak_computer_controlled_opponent
 {
 std::optional<durak::Card>

@@ -1,7 +1,9 @@
 #include "durak_computer_controlled_opponent/simulation/compressCard.hxx"
 #include "durak_computer_controlled_opponent/simulation/permutation.hxx"
+#include "durak_computer_controlled_opponent/util.hxx"
 #include <catch2/catch.hpp>
 #include <cstddef>
+
 
 using namespace durak_computer_controlled_opponent;
 

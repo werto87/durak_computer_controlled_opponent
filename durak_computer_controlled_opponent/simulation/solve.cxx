@@ -1,5 +1,6 @@
 #include "solve.hxx"
 #include "compressCard.hxx"
+#include "durak_computer_controlled_opponent/util.hxx"
 #include "permutation.hxx"
 #include <algorithm>
 #include <cstddef>
@@ -308,7 +309,6 @@ defend (std::tuple<durak::Game, AttackDefendPass> const &gameWithPasses)
     }
   return result;
 }
-
 
 Round::Round (std::vector<durak::Card> attackingPlayerCards_, std::vector<durak::Card> const &defendingPlayerCards_, std::vector<ResultAndHistory> const &resultsAndHistories) : attackingPlayerCards{ std::move (attackingPlayerCards_) }, defendingPlayerCards{ defendingPlayerCards_ }
 {

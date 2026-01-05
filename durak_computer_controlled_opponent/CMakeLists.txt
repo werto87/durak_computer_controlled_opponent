@@ -8,6 +8,8 @@
 add_library(durak_computer_controlled_opponent
         simulationLookup.cxx
         action.cxx
+        guess.cxx
+        util.cxx
 )
 
 
@@ -42,6 +44,7 @@ install(FILES
         util.hxx
         simulationLookup.hxx
         result.hxx
+        guess.hxx
         DESTINATION include/durak_computer_controlled_opponent
 )
 
