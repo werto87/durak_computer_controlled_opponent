@@ -1,5 +1,6 @@
 #pragma once
 
+#include "durak_computer_controlled_opponent/moveToPlay.hxx"
 #include "durak_computer_controlled_opponent/result.hxx"
 #include <expected>
 #include <filesystem>
@@ -11,20 +12,15 @@ class Game;
 enum struct PlayerRole;
 }
 
-namespace durak_computer_controlled_opponent
+namespace durak_computer_controlled_opponent::simulation_lookup
 {
-class Action;
-
-namespace simulation_lookup
-{
-
-enum struct NextActionForRoleError
+enum struct NextMoveToPlayForRoleError
 {
   databaseDoesNotExist,
   databaseMissingTable,
-  gameNotInLookupTable
+  gameNotInLookupTable,
+  noMoveToPlay
 };
 
-std::expected<Action, NextActionForRoleError> nextActionForRole (std::filesystem::path const &databasePath, durak::Game const &game, durak::PlayerRole playerRole);
-}
+std::expected<MoveToPlay, NextMoveToPlayForRoleError> nextMoveForRole (std::filesystem::path const &databasePath, durak::Game const &game, durak::PlayerRole playerRole);
 }

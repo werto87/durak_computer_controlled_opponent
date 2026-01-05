@@ -1,29 +1,27 @@
 #pragma once
 
+#include "durak_computer_controlled_opponent/moveToPlay.hxx"
 #include "durak_computer_controlled_opponent/result.hxx"
 #include <expected>
 #include <filesystem>
 #include <vector>
+
 
 namespace durak
 {
 class Game;
 enum struct PlayerRole;
 }
-namespace durak_computer_controlled_opponent
-{
-class Action;
 
-namespace guess
+namespace durak_computer_controlled_opponent::guess
 {
-enum struct NextActionForRoleError
+enum struct NextMoveToPlayForRoleError
 {
   databaseDoesNotExist,
   databaseMissingTable,
   gameNotInLookupTable
 };
 
-std::expected<Action, NextActionForRoleError> nextActionForRole (std::filesystem::path const &databasePath, durak::Game const &game, durak::PlayerRole playerRole);
+std::expected<MoveToPlay, NextMoveToPlayForRoleError> nextActionForRole (std::filesystem::path const &databasePath, durak::Game const &game, durak::PlayerRole playerRole);
 
-}
 }

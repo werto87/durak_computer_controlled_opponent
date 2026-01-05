@@ -10,6 +10,7 @@ target_sources(durak_computer_controlled_opponent PUBLIC
         permutation.cxx
         solve.cxx
         util.cxx
+        action.cxx
 )
 
 
@@ -20,5 +21,6 @@ install(FILES
         permutation.hxx
         solve.hxx
         util.hxx
+        action.hxx
         DESTINATION include/simulation/durak_computer_controlled_opponent
         )

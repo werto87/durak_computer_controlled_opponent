@@ -7,7 +7,6 @@
 
 add_library(durak_computer_controlled_opponent
         simulationLookup.cxx
-        action.cxx
         guess.cxx
         util.cxx
 )
@@ -40,11 +39,11 @@ target_compile_features(durak_computer_controlled_opponent PUBLIC cxx_std_20)
 add_subdirectory(simulation)
 
 install(FILES
-        action.hxx
         util.hxx
         simulationLookup.hxx
         result.hxx
         guess.hxx
+        moveToPlay.hxx
         DESTINATION include/durak_computer_controlled_opponent
 )
 

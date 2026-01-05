@@ -1,7 +1,7 @@
 #ifndef E408197E_0D11_4D88_B43B_B5D6B657C114
 #define E408197E_0D11_4D88_B43B_B5D6B657C114
 
-#include "durak_computer_controlled_opponent/action.hxx"
+#include "durak_computer_controlled_opponent/simulation/action.hxx"
 #include "durak_computer_controlled_opponent/result.hxx"
 #include <cstdint>
 #include <durak/game.hxx>

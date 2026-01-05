@@ -1,5 +1,5 @@
 #include "durak_computer_controlled_opponent/simulationLookup.hxx"
-#include "durak_computer_controlled_opponent/action.hxx"
+#include "durak_computer_controlled_opponent/simulation/action.hxx"
 #include "durak_computer_controlled_opponent/simulation/database.hxx"
 #include <catch2/catch.hpp>
 #include <durak/game.hxx>
@@ -10,31 +10,31 @@ using namespace durak_computer_controlled_opponent::simulation_lookup;
 using namespace durak_computer_controlled_opponent::database;
 using namespace durak_computer_controlled_opponent;
 
-TEST_CASE ("nextActionForRole database does not exist", "[abc]")
+TEST_CASE ("nextMoveForRole database does not exist", "[abc]")
 {
   std::filesystem::remove_all (databasePath.parent_path ());
   auto game = durak::Game{};
-  REQUIRE (nextActionForRole (databasePath, game, durak::PlayerRole::attack).error () == NextActionForRoleError::databaseDoesNotExist);
+  REQUIRE (nextMoveForRole (databasePath, game, durak::PlayerRole::attack).error () == NextMoveToPlayForRoleError::databaseDoesNotExist);
 }
 
-TEST_CASE ("nextActionForRole database exists but has no table", "[abc]")
+TEST_CASE ("nextMoveForRole database exists but has no table", "[abc]")
 {
   std::filesystem::remove_all (databasePath.parent_path ());
   createDatabaseIfNotExist (databasePath);
   auto game = durak::Game{};
-  REQUIRE (nextActionForRole (databasePath, game, durak::PlayerRole::attack).error () == NextActionForRoleError::databaseMissingTable);
+  REQUIRE (nextMoveForRole (databasePath, game, durak::PlayerRole::attack).error () == NextMoveToPlayForRoleError::databaseMissingTable);
 }
 
-TEST_CASE ("nextActionForRole database exists has table but no data", "[abc]")
+TEST_CASE ("nextMoveForRole database exists has table but no data", "[abc]")
 {
   std::filesystem::remove_all (databasePath.parent_path ());
   createDatabaseIfNotExist (databasePath);
   createTables (databasePath);
   auto game = durak::Game{};
-  REQUIRE (nextActionForRole (databasePath, game, durak::PlayerRole::attack).error () == NextActionForRoleError::gameNotInLookupTable);
+  REQUIRE (nextMoveForRole (databasePath, game, durak::PlayerRole::attack).error () == NextMoveToPlayForRoleError::gameNotInLookupTable);
 }
 
-TEST_CASE ("nextActionForRole database exists has table game in database", "[abc]")
+TEST_CASE ("nextMoveForRole database exists has table game in database", "[abc]")
 {
   std::filesystem::remove_all (databasePath.parent_path ());
   createDatabaseIfNotExist (databasePath);
@@ -46,5 +46,5 @@ TEST_CASE ("nextActionForRole database exists has table game in database", "[abc
   gameOption.customCardDeck = std::vector<durak::Card>{};
   gameOption.cardsInHands = std::vector<std::vector<durak::Card> >{ { { 1, durak::Type::clubs } }, { { 1, durak::Type::hearts } } };
   auto game = durak::Game{ { "a", "b" }, gameOption };
-  REQUIRE (nextActionForRole (databasePath, game, durak::PlayerRole::attack).has_value ());
+  REQUIRE (nextMoveForRole (databasePath, game, durak::PlayerRole::attack).has_value ());
 }

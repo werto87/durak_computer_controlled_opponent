@@ -19,7 +19,7 @@ TEST_CASE ("insertDrawCardsAction", "[abc]")
 TEST_CASE ("simulate round ", "[abc]")
 {
   auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4> >{};
-  gameLookup.insert ({ { 1, 1 }, solveDurak (36, 1, 1, gameLookup) });
+  gameLookup.insert ({ { uint8_t{ 1 }, uint8_t{ 1 } }, solveDurak (36, 1, 1, gameLookup) });
   // gameLookup.insert ({ { 2, 2 }, solveDurak (36, 2, 2, gameLookup) });
   // gameLookup.insert ({ { 3, 1 }, solveDurak (36, 3, 1, gameLookup) });
   // gameLookup.insert ({ { 2, 4 }, solveDurak (36, 2, 4, gameLookup) });
