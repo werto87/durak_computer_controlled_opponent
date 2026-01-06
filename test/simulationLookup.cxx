@@ -48,3 +48,18 @@ TEST_CASE ("nextMoveToPlayForRole database exists has table game in database", "
   auto game = durak::Game{ { "a", "b" }, gameOption };
   REQUIRE (nextMoveToPlayForRole (databasePath, game, durak::PlayerRole::attack).has_value ());
 }
+
+TEST_CASE ("nextMoveToPlayForRole attack defend next move pass", "[.slow]")
+{
+  std::filesystem::remove_all (databasePath.parent_path ());
+  createDatabaseIfNotExist (databasePath);
+  createTables (databasePath);
+  auto gameLookup = std::map<std::tuple<uint8_t, uint8_t>, std::array<std::map<std::tuple<std::vector<uint8_t>, std::vector<uint8_t> >, small_memory_tree::SmallMemoryTree<std::tuple<Action, Result> > >, 4> >{};
+  gameLookup.insert ({ { uint8_t{ 1 }, uint8_t{ 1 } }, durak_computer_controlled_opponent::solveDurak (36, 1, 1, gameLookup) });
+  gameLookup.insert ({ { uint8_t{ 2 }, uint8_t{ 2 } }, solveDurak (36, 2, 2, gameLookup, { durak::Type::clubs }) });
+  insertGameLookUp (databasePath, gameLookup);
+  auto game = durak::Game{ { "a", "b" }, durak::GameOption{ .numberOfCardsPlayerShouldHave = 2, .customCardDeck = std::vector<durak::Card>{ { 7, durak::Type::clubs }, { 8, durak::Type::clubs }, { 4, durak::Type::hearts }, { 3, durak::Type::clubs } } } };
+  game.playerStartsAttack ({ { 3, durak::Type::clubs } });
+  game.playerDefends ({ 3, durak::Type::clubs }, { 7, durak::Type::clubs });
+  REQUIRE (nextMoveToPlayForRole (databasePath, game, durak::PlayerRole::attack).has_value ());
+}

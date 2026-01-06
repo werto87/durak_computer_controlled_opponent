@@ -55,7 +55,14 @@ nextMoveToPlayForRole (std::filesystem::path const &databasePath, durak::Game co
     }
   else
     {
-      return std::unexpected (NextMoveToPlayForRoleError::noMoveToPlay);
+      if (auto const &moves = game.getAllowedMoves (playerRole); moves.size () == 1 and (std::ranges::contains (moves, durak::Move::pass) or std::ranges::contains (moves, durak::Move::takeCards)))
+        {
+          return MoveToPlay{ Move::PassOrTakeCard };
+        }
+      else
+        {
+          return std::unexpected (NextMoveToPlayForRoleError::noMoveToPlay);
+        }
     }
 }
 
