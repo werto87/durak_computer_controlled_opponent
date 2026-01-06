@@ -22,5 +22,5 @@ install(FILES
         solve.hxx
         util.hxx
         action.hxx
-        DESTINATION include/simulation/durak_computer_controlled_opponent
+        DESTINATION include/durak_computer_controlled_opponent/simulation
         )
