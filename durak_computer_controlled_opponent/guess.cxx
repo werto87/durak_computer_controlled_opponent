@@ -7,9 +7,10 @@
 namespace durak_computer_controlled_opponent::guess
 {
 std::expected<MoveToPlay, NextMoveToPlayForRoleError>
-nextMoveToPlayForRole (std::filesystem::path const &databasePath, durak::Game const &game, durak::PlayerRole playerRole)
+nextMoveToPlayForRole (durak::Game const &game, durak::PlayerRole playerRole)
 {
   auto const &allowedMoves = game.getAllowedMoves (playerRole);
+  if (allowedMoves.empty ()) return std::unexpected (NextMoveToPlayForRoleError::couldNotFindAMoveToPlay);
   switch (playerRole)
     {
     case durak::PlayerRole::attack:
@@ -52,17 +53,39 @@ nextMoveToPlayForRole (std::filesystem::path const &databasePath, durak::Game co
           }
         else if (std::ranges::contains (allowedMoves, durak::Move::pass))
           {
-            auto moveToPlay = MoveToPlay{};
-            moveToPlay.move = Move::PassOrTakeCard;
-            return moveToPlay;
+            return MoveToPlay{ Move::PassOrTakeCard };
           }
+        break;
       }
     case durak::PlayerRole::defend:
       {
+        if (std::ranges::contains (allowedMoves, durak::Move::defend))
+          {
+            if (auto defendingPlayer = game.getDefendingPlayer ())
+              {
+                auto const &cards = defendingPlayer->getCards ();
+                auto const &table = game.getTable ();
+                for (auto const &[cardToBeat, unused] : table | std::views::filter ([] (auto cardAndOptionalCard) { return not std::get<1> (cardAndOptionalCard).has_value (); }))
+                  {
+                    for (auto const &card : cards)
+                      {
+                        if (durak::beats (cardToBeat, card, game.getTrump ()))
+                          {
+                            return MoveToPlay{ Move::PlayCard, card };
+                          }
+                      }
+                    return MoveToPlay{ Move::PassOrTakeCard };
+                  }
+              }
+          }
+        else
+          {
+            return MoveToPlay{ Move::PassOrTakeCard };
+          }
         break;
       }
     }
-  return {};
+  return std::unexpected (NextMoveToPlayForRoleError::couldNotFindAMoveToPlay);
 }
 
 }

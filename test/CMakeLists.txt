@@ -1,6 +1,7 @@
 add_executable(_test
         main.cxx
         simulationLookup.cxx
+        guess.cxx
 )
 find_package(Catch2)
 find_package(fmt)

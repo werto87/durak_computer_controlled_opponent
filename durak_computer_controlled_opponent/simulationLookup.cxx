@@ -7,7 +7,7 @@
 namespace durak_computer_controlled_opponent::simulation_lookup
 {
 std::expected<MoveToPlay, NextMoveToPlayForRoleError>
-nextMoveForRole (std::filesystem::path const &databasePath, durak::Game const &game, durak::PlayerRole playerRole)
+nextMoveToPlayForRole (std::filesystem::path const &databasePath, durak::Game const &game, durak::PlayerRole playerRole)
 {
   auto const [compressedCardsForAttack, compressedCardsForDefend, compressedCardsForAssist] = calcIdAndCompressedCardsForAttackAndDefend (game);
   auto attackCardsCompressed = std::vector<uint8_t>{};

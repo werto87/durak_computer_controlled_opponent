@@ -6,7 +6,6 @@
 #include <filesystem>
 #include <vector>
 
-
 namespace durak
 {
 class Game;
@@ -17,11 +16,9 @@ namespace durak_computer_controlled_opponent::guess
 {
 enum struct NextMoveToPlayForRoleError
 {
-  databaseDoesNotExist,
-  databaseMissingTable,
-  gameNotInLookupTable
+  couldNotFindAMoveToPlay
 };
 
-std::expected<MoveToPlay, NextMoveToPlayForRoleError> nextActionForRole (std::filesystem::path const &databasePath, durak::Game const &game, durak::PlayerRole playerRole);
+std::expected<MoveToPlay, NextMoveToPlayForRoleError> nextMoveToPlayForRole (durak::Game const &game, durak::PlayerRole playerRole);
 
 }

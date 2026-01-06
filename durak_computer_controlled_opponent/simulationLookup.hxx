@@ -22,5 +22,5 @@ enum struct NextMoveToPlayForRoleError
   noMoveToPlay
 };
 
-std::expected<MoveToPlay, NextMoveToPlayForRoleError> nextMoveForRole (std::filesystem::path const &databasePath, durak::Game const &game, durak::PlayerRole playerRole);
+std::expected<MoveToPlay, NextMoveToPlayForRoleError> nextMoveToPlayForRole (std::filesystem::path const &databasePath, durak::Game const &game, durak::PlayerRole playerRole);
 }

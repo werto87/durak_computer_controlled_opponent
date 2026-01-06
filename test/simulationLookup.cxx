@@ -10,31 +10,31 @@ using namespace durak_computer_controlled_opponent::simulation_lookup;
 using namespace durak_computer_controlled_opponent::database;
 using namespace durak_computer_controlled_opponent;
 
-TEST_CASE ("nextMoveForRole database does not exist", "[abc]")
+TEST_CASE ("nextMoveToPlayForRole database does not exist", "[abc]")
 {
   std::filesystem::remove_all (databasePath.parent_path ());
   auto game = durak::Game{};
-  REQUIRE (nextMoveForRole (databasePath, game, durak::PlayerRole::attack).error () == NextMoveToPlayForRoleError::databaseDoesNotExist);
+  REQUIRE (nextMoveToPlayForRole (databasePath, game, durak::PlayerRole::attack).error () == NextMoveToPlayForRoleError::databaseDoesNotExist);
 }
 
-TEST_CASE ("nextMoveForRole database exists but has no table", "[abc]")
+TEST_CASE ("nextMoveToPlayForRole database exists but has no table", "[abc]")
 {
   std::filesystem::remove_all (databasePath.parent_path ());
   createDatabaseIfNotExist (databasePath);
   auto game = durak::Game{};
-  REQUIRE (nextMoveForRole (databasePath, game, durak::PlayerRole::attack).error () == NextMoveToPlayForRoleError::databaseMissingTable);
+  REQUIRE (nextMoveToPlayForRole (databasePath, game, durak::PlayerRole::attack).error () == NextMoveToPlayForRoleError::databaseMissingTable);
 }
 
-TEST_CASE ("nextMoveForRole database exists has table but no data", "[abc]")
+TEST_CASE ("nextMoveToPlayForRole database exists has table but no data", "[abc]")
 {
   std::filesystem::remove_all (databasePath.parent_path ());
   createDatabaseIfNotExist (databasePath);
   createTables (databasePath);
   auto game = durak::Game{};
-  REQUIRE (nextMoveForRole (databasePath, game, durak::PlayerRole::attack).error () == NextMoveToPlayForRoleError::gameNotInLookupTable);
+  REQUIRE (nextMoveToPlayForRole (databasePath, game, durak::PlayerRole::attack).error () == NextMoveToPlayForRoleError::gameNotInLookupTable);
 }
 
-TEST_CASE ("nextMoveForRole database exists has table game in database", "[abc]")
+TEST_CASE ("nextMoveToPlayForRole database exists has table game in database", "[abc]")
 {
   std::filesystem::remove_all (databasePath.parent_path ());
   createDatabaseIfNotExist (databasePath);
@@ -46,5 +46,5 @@ TEST_CASE ("nextMoveForRole database exists has table game in database", "[abc]"
   gameOption.customCardDeck = std::vector<durak::Card>{};
   gameOption.cardsInHands = std::vector<std::vector<durak::Card> >{ { { 1, durak::Type::clubs } }, { { 1, durak::Type::hearts } } };
   auto game = durak::Game{ { "a", "b" }, gameOption };
-  REQUIRE (nextMoveForRole (databasePath, game, durak::PlayerRole::attack).has_value ());
+  REQUIRE (nextMoveToPlayForRole (databasePath, game, durak::PlayerRole::attack).has_value ());
 }
