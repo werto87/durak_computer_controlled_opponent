@@ -9,6 +9,7 @@ namespace durak_computer_controlled_opponent::simulation_lookup
 std::expected<MoveToPlay, NextMoveToPlayForRoleError>
 nextMoveToPlayForRole (std::filesystem::path const &databasePath, durak::Game const &game, durak::PlayerRole playerRole)
 {
+  if (auto const &moves = game.getAllowedMoves (playerRole); moves.size () == 1 and (std::ranges::contains (moves, durak::Move::pass) or std::ranges::contains (moves, durak::Move::takeCards))) return MoveToPlay{ Move::PassOrTakeCard };
   auto const [compressedCardsForAttack, compressedCardsForDefend, compressedCardsForAssist] = calcIdAndCompressedCardsForAttackAndDefend (game);
   auto attackCardsCompressed = std::vector<uint8_t>{};
   std::ranges::transform (compressedCardsForAttack, std::back_inserter (attackCardsCompressed), [] (auto const &idAndCard) { return std::get<0> (idAndCard); });
@@ -73,14 +74,7 @@ nextMoveToPlayForRole (std::filesystem::path const &databasePath, durak::Game co
     }
   else
     {
-      if (auto const &moves = game.getAllowedMoves (playerRole); moves.size () == 1 and (std::ranges::contains (moves, durak::Move::pass) or std::ranges::contains (moves, durak::Move::takeCards)))
-        {
-          return MoveToPlay{ Move::PassOrTakeCard };
-        }
-      else
-        {
-          return std::unexpected (NextMoveToPlayForRoleError::noMoveToPlay);
-        }
+      return std::unexpected (NextMoveToPlayForRoleError::noMoveToPlay);
     }
 }
 
