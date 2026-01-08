@@ -42,7 +42,25 @@ nextMoveToPlayForRole (std::filesystem::path const &databasePath, durak::Game co
         case Action::Category::PlayCard:
           {
             moveToPlay.move = Move::PlayCard;
-            moveToPlay.card = action.playedCard ().value ();
+            switch (playerRole)
+              {
+              case durak::PlayerRole::attack:
+                {
+                  if (auto idCard = std::ranges::find_if (compressedCardsForAttack, [value = action.value ()] (auto const &idAndCard) { return value == std::get<0> (idAndCard); }); idCard != compressedCardsForAttack.end ())
+                    {
+                      moveToPlay.card = std::get<1> (*idCard);
+                    }
+                  break;
+                }
+              case durak::PlayerRole::defend:
+                {
+                  if (auto idCard = std::ranges::find_if (compressedCardsForDefend, [value = action.value ()] (auto const &idAndCard) { return value == std::get<0> (idAndCard); }); idCard != compressedCardsForDefend.end ())
+                    {
+                      moveToPlay.card = std::get<1> (*idCard);
+                    }
+                  break;
+                }
+              }
             break;
           }
         case Action::Category::PassOrTakeCard:
