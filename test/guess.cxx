@@ -141,7 +141,7 @@ TEST_CASE ("nextMoveToPlayForRole play whole game fuzzing", "[.fuzzing]")
   uint64_t gameOverCount = 0;
   while (true)
     {
-      auto game = durak::Game{};
+      auto game = durak::Game{ { "a", "b" } };
       while (not game.checkIfGameIsOver ())
         {
           auto const &attackMoveToPlay = nextMoveToPlayForRole (game, durak::PlayerRole::attack);
