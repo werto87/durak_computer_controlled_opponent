@@ -92,6 +92,7 @@ TEST_CASE ("nextMoveToPlayForRole play whole game", "[abc]")
             case Move::PassOrTakeCard:
               {
                 // nothing to do here attack pass is not a move game understands
+                break
               }
             default:
               break;
@@ -121,6 +122,7 @@ TEST_CASE ("nextMoveToPlayForRole play whole game", "[abc]")
                   {
                     game.nextRound (std::ranges::any_of (game.getTable (), [] (auto const &cardAndOptionalCard) { return not std::get<1> (cardAndOptionalCard).has_value (); }));
                   }
+                  break;
               }
             default:
               break;
