@@ -92,7 +92,7 @@ TEST_CASE ("nextMoveToPlayForRole play whole game", "[abc]")
             case Move::PassOrTakeCard:
               {
                 // nothing to do here attack pass is not a move game understands
-                break
+                break;
               }
             default:
               break;
@@ -122,7 +122,76 @@ TEST_CASE ("nextMoveToPlayForRole play whole game", "[abc]")
                   {
                     game.nextRound (std::ranges::any_of (game.getTable (), [] (auto const &cardAndOptionalCard) { return not std::get<1> (cardAndOptionalCard).has_value (); }));
                   }
-                  break;
+                break;
+              }
+            default:
+              break;
+            }
+        }
+      if (not(attackMoveToPlay or defendMoveToPlay))
+        {
+          REQUIRE (false);
+        }
+    }
+}
+
+TEST_CASE ("nextMoveToPlayForRole play whole game fuzzing", "[.fuzzing]")
+{
+  auto game = fullGame ();
+  while (not game.checkIfGameIsOver ())
+    {
+      auto const &attackMoveToPlay = nextMoveToPlayForRole (game, durak::PlayerRole::attack);
+      if (attackMoveToPlay)
+        {
+          switch (attackMoveToPlay.value ().move)
+            {
+            case Move::PlayCard:
+              {
+                if (game.getAttackStarted ())
+                  {
+                    game.playerAssists (durak::PlayerRole::attack, { attackMoveToPlay.value ().card.value () });
+                    break;
+                  }
+                else
+                  {
+                    game.playerStartsAttack ({ attackMoveToPlay.value ().card.value () });
+                    break;
+                  }
+              }
+            case Move::PassOrTakeCard:
+              {
+                // nothing to do here attack pass is not a move game understands
+                break;
+              }
+            default:
+              break;
+            }
+        }
+      auto const &defendMoveToPlay = nextMoveToPlayForRole (game, durak::PlayerRole::defend);
+      if (defendMoveToPlay)
+        {
+          switch (defendMoveToPlay.value ().move)
+            {
+            case Move::PlayCard:
+              {
+                for (auto const &[card, unused] : game.getTable () | std::views::filter ([] (auto const &cardToBeatAndCardOptional) { return not std::get<1> (cardToBeatAndCardOptional).has_value (); }))
+                  {
+                    if (durak::beats (card, defendMoveToPlay.value ().card.value (), game.getTrump ()))
+                      {
+                        game.playerDefends (card, { defendMoveToPlay.value ().card.value () });
+                        break;
+                      }
+                  }
+                break;
+              }
+            case Move::PassOrTakeCard:
+              {
+                auto allowedMoves = game.getAllowedMoves (durak::PlayerRole::defend);
+                if (allowedMoves.size () == 1 and allowedMoves.front () == durak::Move::takeCards)
+                  {
+                    game.nextRound (std::ranges::any_of (game.getTable (), [] (auto const &cardAndOptionalCard) { return not std::get<1> (cardAndOptionalCard).has_value (); }));
+                  }
+                break;
               }
             default:
               break;
