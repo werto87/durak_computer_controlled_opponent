@@ -18,7 +18,6 @@ class Project(ConanFile):
 
     def requirements(self):
         self.requires("boost/1.86.0",force=True)
-        self.requires("catch2/2.13.9")
         self.requires("durak/2.0.0")
         self.requires("st_tree/1.2.1")
         self.requires("small_memory_tree/7.0.5")
@@ -27,3 +26,8 @@ class Project(ConanFile):
         self.requires("cereal/1.3.2")
         self.requires("sqlite3/3.44.2")
         self.requires("fmt/11.2.0")
+        
+        
+        
+        # just for testing do not put it in the conan recipe
+        self.requires("catch2/2.13.9")
