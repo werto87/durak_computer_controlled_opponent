@@ -51,6 +51,10 @@ nextMoveToPlayForRole (std::filesystem::path const &databasePath, durak::Game co
                     {
                       moveToPlay.card = std::get<1> (*idCard);
                     }
+                  else
+                    {
+                      return std::unexpected (NextMoveToPlayForRoleError::noMoveToPlay);
+                    }
                   break;
                 }
               case durak::PlayerRole::defend:
@@ -58,6 +62,10 @@ nextMoveToPlayForRole (std::filesystem::path const &databasePath, durak::Game co
                   if (auto idCard = std::ranges::find_if (compressedCardsForDefend, [value = action.value ()] (auto const &idAndCard) { return value == std::get<0> (idAndCard); }); idCard != compressedCardsForDefend.end ())
                     {
                       moveToPlay.card = std::get<1> (*idCard);
+                    }
+                  else
+                    {
+                      return std::unexpected (NextMoveToPlayForRoleError::noMoveToPlay);
                     }
                   break;
                 }
