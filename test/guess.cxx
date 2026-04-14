@@ -3,6 +3,7 @@
 #include <confu_json/to_json.hxx>
 #include <durak/game.hxx>
 #include <ranges>
+#include <spdlog/spdlog.h>
 
 using namespace durak_computer_controlled_opponent;
 using namespace durak_computer_controlled_opponent::guess;
@@ -204,11 +205,11 @@ TEST_CASE ("nextMoveToPlayForRole play whole game fuzzing", "[.fuzzing]")
           if (not(attackMoveToPlay or defendMoveToPlay))
             {
               auto const &gameData = game.getGameData ();
-              std::cout << confu_json::to_json (gameData);
+              spdlog::info (boost::json::serialize (confu_json::to_json (gameData)));
               REQUIRE (false);
             }
         }
       gameOverCount++;
-      std::cout << "gameOver: " << gameOverCount << std::endl;
+      spdlog::info ("gameOver: '{}'", gameOverCount);
     }
 }

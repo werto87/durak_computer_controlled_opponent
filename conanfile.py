@@ -1,13 +1,15 @@
 from conan import ConanFile
 from conan.tools.cmake import CMakeToolchain
 
+
 class Project(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
-    generators =  "CMakeDeps"
+    generators = "CMakeDeps"
+    python_requires = "shared/1.0.0"
 
     def generate(self):
         tc = CMakeToolchain(self)
-        tc.user_presets_path = False #workaround because this leads to useless options in cmake-tools configure
+        tc.user_presets_path = False  # workaround because this leads to useless options in cmake-tools configure
         tc.generate()
 
     def configure(self):
@@ -17,17 +19,25 @@ class Project(ConanFile):
         self.options["small_memory_tree"].with_st_tree = True
 
     def requirements(self):
-        self.requires("boost/1.90.0",force=True)
-        self.requires("durak/2.1.1")
-        self.requires("st_tree/1.2.1")
-        self.requires("small_memory_tree/7.0.5")
-        self.requires("confu_soci/[<1]")
-        self.requires("magic_enum/[>=0.9.5 <10]")
-        self.requires("cereal/1.3.2")
-        self.requires("sqlite3/3.44.2")
-        self.requires("fmt/11.2.0")
-        
-        
-        
+        sharedConan = self.python_requires["shared"].module.SharedConan
+        all_deps = {**sharedConan.COMMON, **sharedConan.BACKEND}
+        deps_to_use = [
+            "boost",
+            "durak",
+            "st_tree",
+            "small_memory_tree",
+            "confu_soci",
+            "magic_enum",
+            "cereal",
+            "sqlite3",
+            "spdlog"
+        ]
+
+        for pkg_name in deps_to_use:
+            version, isModernDurak = all_deps[pkg_name]
+            self.requires(
+                f"{pkg_name}/{version}{'@modern-durak' if isModernDurak else ''}"
+            )
+
         # just for testing do not put it in the conan recipe
         self.requires("catch2/2.13.9")

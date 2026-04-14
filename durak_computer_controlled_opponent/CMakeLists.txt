@@ -23,11 +23,12 @@ find_package(confu_soci)
 find_package(Boost)
 find_package(magic_enum)
 find_package(cereal)
+find_package(spdlog)
 
 
 
 target_link_libraries(durak_computer_controlled_opponent PUBLIC
-        durak::durak small_memory_tree::small_memory_tree st_tree::st_tree confu_soci::confu_soci Boost::headers magic_enum::magic_enum cereal::cereal
+        spdlog::spdlog durak::durak small_memory_tree::small_memory_tree st_tree::st_tree confu_soci::confu_soci Boost::headers magic_enum::magic_enum cereal::cereal
 )
 
 target_include_directories(durak_computer_controlled_opponent

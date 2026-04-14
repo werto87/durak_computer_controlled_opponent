@@ -1,14 +1,14 @@
 #include "database.hxx"
 #include "compressCard.hxx"
+#include "durak_computer_controlled_opponent/util.hxx"
 #include "serialisation.hxx"
 #include "solve.hxx"
-#include "durak_computer_controlled_opponent/util.hxx"
 #include <charconv>
 #include <confu_soci/convenienceFunctionForSoci.hxx>
 #include <cstddef>
 #include <durak/card.hxx>
 #include <filesystem>
-#include <iostream>
+#include <spdlog/spdlog.h>
 #include <magic_enum/magic_enum.hpp>
 #include <soci/error.h>
 #include <soci/session.h>
@@ -64,7 +64,7 @@ createTables (std::filesystem::path const &databasePath)
     }
   catch (soci::soci_error const &error)
     {
-      std::cout << error.get_error_message () << std::endl;
+      spdlog::info (error.get_error_message ());
     }
 }
 

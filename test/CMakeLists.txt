@@ -4,13 +4,11 @@ add_executable(_test
         guess.cxx
 )
 find_package(Catch2)
-find_package(fmt)
 target_link_libraries(_test
         myproject_options
         myproject_warnings
         durak_computer_controlled_opponent
         Catch2::Catch2WithMain
-        fmt::fmt
 )
 add_subdirectory(simulation)
 if(CMAKE_BINARY_DIR)

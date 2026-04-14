@@ -2,7 +2,6 @@
 #include <catch2/catch.hpp>
 #include <cstddef>
 #include <cstdint>
-#include <fmt/format.h>
 #include <tuple>
 #include <vector>
 
@@ -14,10 +13,12 @@ TEST_CASE ("permut validation validation ", "[abc]")
   size_t const defendCardCount = 2;
   size_t n = 20;
   auto combinations = std::vector<std::vector<uint8_t> >{};
-  for_each_card_combination ({ attackCardCount, defendCardCount }, n, [&combinations] (std::vector<uint8_t> combi) {
-    combinations.push_back (std::move (combi));
-    return false;
-  });
+  for_each_card_combination ({ attackCardCount, defendCardCount }, n,
+                             [&combinations] (std::vector<uint8_t> combi)
+                               {
+                                 combinations.push_back (std::move (combi));
+                                 return false;
+                               });
   REQUIRE (combinations.size () == 29070);
 }
 
@@ -78,7 +79,7 @@ TEST_CASE ("combinationsFor benchmark ", "[abc]")
   std::vector<int> v (n);
   std::iota (v.begin (), v.end (), 0);
   std::uint64_t count = for_each_reversible_circular_permutation (v.begin (), v.begin () + r, v.end (), f (v.size ()));
-  std::cout << count << std::endl;
+  spdlog::info (count);
   CHECK (for_each_reversible_circular_permutation (v.begin (), v.begin () + r, v.end (), f (v.size ())) == count_each_reversible_circular_permutation (r, n));
   CHECK (for_each_permutation (v.begin (), v.begin () + r, v.end (), f (v.size ())) == count_each_permutation (r, n));
 
@@ -102,19 +103,21 @@ TEST_CASE ("combinationsFor benchmark ", "[abc]")
     std::iota (v.begin (), v.end (), 0);
     auto results = std::vector<std::vector<uint8_t> >{};
     results.reserve (boost::numeric_cast<size_t> (combinationsNoRepetitionAndOrderDoesNotMatter (n, r)));
-    for_each_reversible_circular_permutation (v.begin (), v.begin () + r, v.end (), [&results, n, r] (auto first, auto last) {
-      if (std::is_sorted (first, last))
-        {
-          results.push_back (std::vector<uint8_t>{ first, last });
-          return results.size () == combinationsNoRepetitionAndOrderDoesNotMatter (n, r);
-        }
-      else
-        {
-          return false;
-        }
-    });
-    std::cout << combinationsNoRepetitionOrderDoesNotMatter (n, r) << std::endl;
-    std::cout << results.size () << std::endl;
+    for_each_reversible_circular_permutation (v.begin (), v.begin () + r, v.end (),
+                                              [&results, n, r] (auto first, auto last)
+                                                {
+                                                  if (std::is_sorted (first, last))
+                                                    {
+                                                      results.push_back (std::vector<uint8_t>{ first, last });
+                                                      return results.size () == combinationsNoRepetitionAndOrderDoesNotMatter (n, r);
+                                                    }
+                                                  else
+                                                    {
+                                                      return false;
+                                                    }
+                                                });
+    spdlog::info (combinationsNoRepetitionOrderDoesNotMatter (n, r));
+    spdlog::info (results.size ());
   };
 }
 #endif
